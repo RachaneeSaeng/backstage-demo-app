@@ -49,29 +49,29 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.75rem',
   },
   criticalChip: {
-    backgroundColor: '#d32f2f',
+    backgroundColor: '#d21414ff',
     color: 'white',
   },
-  warningChip: {
-    backgroundColor: '#ff9800',
+  highChip: {
+    backgroundColor: '#f89705ff',
     color: 'white',
   },
-  successChip: {
-    backgroundColor: '#4caf50',
+  mediumChip: {
+    backgroundColor: '#eed00fff',
     color: 'white',
   },
-  pendingChip: {
-    backgroundColor: '#2196f3',
+  lowChip: {
+    backgroundColor: '#04971dff',
     color: 'white',
   },
-  naChip: {
+  noneChip: {
     backgroundColor: theme.palette.grey[300],
     color: theme.palette.text.secondary,
   },
 }));
 
 interface SecurityStatus {
-  status: 'critical' | 'warning' | 'success' | 'pending' | 'na';
+  status: 'critical-risk' | 'high-risk' | 'medium-risk' | 'low-risk' | 'none';
   text: string;
   link?: string;
 }
@@ -97,50 +97,50 @@ const mockData: Repository[] = [
   {
     name: 'Repository - 1',
     description: '(example Backend repo)',
-    secretScanning: { status: 'pending', text: 'Latest scan report', link: '#' },
-    dependabotGitHub: { status: 'critical', text: 'Required but have not implemented' },
-    dependabotOther: { status: 'pending', text: 'Latest scan report' },
-    veracode: { status: 'critical', text: 'Required but have not implemented' },
-    codeql: { status: 'pending', text: 'Latest scan report' },
-    npmAudit: { status: 'na', text: 'n/a' },
-    trivy: { status: 'na', text: 'n/a' },
-    dependabotPR: { status: 'pending', text: 'Latest scan report' },
-    veracodePR: { status: 'pending', text: 'Latest scan report' },
-    codeqlPR: { status: 'pending', text: 'Latest scan report' },
-    npmAuditPR: { status: 'na', text: 'n/a' },
-    trivyPR: { status: 'na', text: 'n/a' },
+    secretScanning: { status: 'medium-risk', text: 'Latest scan report', link: '#' },
+    dependabotGitHub: { status: 'critical-risk', text: 'Required but have not implemented' },
+    dependabotOther: { status: 'medium-risk', text: 'Latest scan report' },
+    veracode: { status: 'critical-risk', text: 'Required but have not implemented' },
+    codeql: { status: 'medium-risk', text: 'Latest scan report' },
+    npmAudit: { status: 'none', text: 'n/a' },
+    trivy: { status: 'none', text: 'n/a' },
+    dependabotPR: { status: 'low-risk', text: 'Latest scan report' },
+    veracodePR: { status: 'medium-risk', text: 'Latest scan report' },
+    codeqlPR: { status: 'medium-risk', text: 'Latest scan report' },
+    npmAuditPR: { status: 'none', text: 'n/a' },
+    trivyPR: { status: 'none', text: 'n/a' },
   },
   {
     name: 'Repository - 2',
     description: '(example Frontend repo)',
-    secretScanning: { status: 'warning', text: 'Latest scan report' },
-    dependabotGitHub: { status: 'pending', text: 'Latest scan report' },
-    dependabotOther: { status: 'warning', text: 'Latest scan report' },
-    veracode: { status: 'warning', text: 'Latest scan report' },
-    codeql: { status: 'na', text: 'n/a' },
-    npmAudit: { status: 'warning', text: 'Latest scan report' },
-    trivy: { status: 'na', text: 'n/a' },
-    dependabotPR: { status: 'pending', text: 'Latest scan report' },
-    veracodePR: { status: 'pending', text: 'Latest scan report' },
-    codeqlPR: { status: 'pending', text: 'Latest scan report' },
-    npmAuditPR: { status: 'warning', text: 'Latest scan report' },
-    trivyPR: { status: 'na', text: 'n/a' },
+    secretScanning: { status: 'high-risk', text: 'Latest scan report' },
+    dependabotGitHub: { status: 'medium-risk', text: 'Latest scan report' },
+    dependabotOther: { status: 'high-risk', text: 'Latest scan report' },
+    veracode: { status: 'high-risk', text: 'Latest scan report' },
+    codeql: { status: 'none', text: 'n/a' },
+    npmAudit: { status: 'high-risk', text: 'Latest scan report' },
+    trivy: { status: 'none', text: 'n/a' },
+    dependabotPR: { status: 'medium-risk', text: 'Latest scan report' },
+    veracodePR: { status: 'low-risk', text: 'Latest scan report' },
+    codeqlPR: { status: 'medium-risk', text: 'Latest scan report' },
+    npmAuditPR: { status: 'high-risk', text: 'Latest scan report' },
+    trivyPR: { status: 'none', text: 'n/a' },
   },
   {
     name: 'Repository - 3',
     description: '(example Infrastructure repo)',
-    secretScanning: { status: 'warning', text: 'Latest scan report' },
-    dependabotGitHub: { status: 'pending', text: 'Latest scan report' },
-    dependabotOther: { status: 'na', text: 'n/a' },
-    veracode: { status: 'na', text: 'n/a' },
-    codeql: { status: 'na', text: 'n/a' },
-    npmAudit: { status: 'na', text: 'n/a' },
-    trivy: { status: 'warning', text: 'Latest scan report' },
-    dependabotPR: { status: 'na', text: 'n/a' },
-    veracodePR: { status: 'na', text: 'n/a' },
-    codeqlPR: { status: 'na', text: 'n/a' },
-    npmAuditPR: { status: 'na', text: 'n/a' },
-    trivyPR: { status: 'critical', text: 'Required but have not implemented' },
+    secretScanning: { status: 'high-risk', text: 'Latest scan report' },
+    dependabotGitHub: { status: 'medium-risk', text: 'Latest scan report' },
+    dependabotOther: { status: 'none', text: 'n/a' },
+    veracode: { status: 'none', text: 'n/a' },
+    codeql: { status: 'none', text: 'n/a' },
+    npmAudit: { status: 'none', text: 'n/a' },
+    trivy: { status: 'high-risk', text: 'Latest scan report' },
+    dependabotPR: { status: 'none', text: 'n/a' },
+    veracodePR: { status: 'none', text: 'n/a' },
+    codeqlPR: { status: 'none', text: 'n/a' },
+    npmAuditPR: { status: 'none', text: 'n/a' },
+    trivyPR: { status: 'critical-risk', text: 'Required but have not implemented' },
   },
 ];
 
@@ -149,18 +149,16 @@ const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => {
 
   const getChipClass = () => {
     switch (status.status) {
-      case 'critical':
+      case 'critical-risk':
         return classes.criticalChip;
-      case 'warning':
-        return classes.warningChip;
-      case 'success':
-        return classes.successChip;
-      case 'pending':
-        return classes.pendingChip;
-      case 'na':
-        return classes.naChip;
+      case 'high-risk':
+        return classes.highChip;
+      case 'medium-risk':
+        return classes.mediumChip;     
+      case 'low-risk':
+        return classes.lowChip;
       default:
-        return classes.naChip;
+        return classes.noneChip;
     }
   };
 
