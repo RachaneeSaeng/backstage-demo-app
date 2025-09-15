@@ -12,6 +12,7 @@ import {
   makeStyles,
   Typography,
 } from '@material-ui/core';
+import toolCategoriesConfig from './config/toolCategories.json';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -182,6 +183,15 @@ const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => {
 
 export const SecurityTable: React.FC = () => {
   const classes = useStyles();
+  const { toolCategories } = toolCategoriesConfig;
+
+  const createCategoryHeaderStyle = (backgroundColor: string) => ({
+    backgroundColor,
+    color: '#ffffff',
+    fontWeight: 'bold',
+    whiteSpace: 'nowrap',
+    padding: '8px',
+  });
 
   return (
     <TableContainer component={Paper} className={classes.root}>
@@ -191,50 +201,29 @@ export const SecurityTable: React.FC = () => {
             <TableCell className={classes.headerCell} rowSpan={2}>
               Repository
             </TableCell>
-            <TableCell className={classes.headerCell} align="center" colSpan={5}>
-              GitHub Security
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center" colSpan={7}>
-              Pull Request
-            </TableCell>
+            {toolCategories.map((category) => (
+              <TableCell
+                key={category.name}
+                align="center"
+                colSpan={category.tools.length}
+                style={createCategoryHeaderStyle(category.backgroundColor)}
+              >
+                {category.name}
+              </TableCell>
+            ))}
           </TableRow>
           <TableRow>
-            <TableCell className={classes.headerCell} align="center">
-              Secret Scanning
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              Dependabot
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              Dependabot
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              Veracode
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              CodeQL
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              npm audit
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              Trivy
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              Dependabot
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              Veracode
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              CodeQL
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              npm audit
-            </TableCell>
-            <TableCell className={classes.headerCell} align="center">
-              Trivy
-            </TableCell>
+            {toolCategories.map((category) =>
+              category.tools.map((tool) => (
+                <TableCell
+                  key={`${category.name}-${tool}`}
+                  className={classes.headerCell}
+                  align="center"
+                >
+                  {tool}
+                </TableCell>
+              ))
+            )}
           </TableRow>
         </TableHead>
         <TableBody>
