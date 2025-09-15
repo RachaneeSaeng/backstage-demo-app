@@ -8,23 +8,23 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.75rem',
   },
   criticalChip: {
-    backgroundColor: '#E22134',
+    backgroundColor: theme.palette.type === 'dark' ? '#FF4757' : '#E22134',
     color: 'white',
   },
   highChip: {
-    backgroundColor: '#FF9800',
+    backgroundColor: theme.palette.type === 'dark' ? '#FFA726' : '#FF9800',
     color: 'white',
   },
   mediumChip: {
-    backgroundColor: '#FFED51',
-    color: '#000000',
+    backgroundColor: theme.palette.type === 'dark' ? '#FFF176' : '#FFED51',
+    color: 'black',
   },
   lowChip: {
-    backgroundColor: '#1DB954',
+    backgroundColor: theme.palette.type === 'dark' ? '#66BB6A' : '#1DB954',
     color: 'white',
   },
   noneChip: {
-    backgroundColor: theme.palette.grey[300],
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300],
     color: theme.palette.text.secondary,
   },
 }));
@@ -48,8 +48,8 @@ export const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => 
   };
 
   const chipContent = (
-      <Link href={status.link} color="inherit" underline="none">
-        Pending Tickets
+      <Link href={status.link} color="inherit" underline="hover">
+        View latest scan result
       </Link>
       );
 
@@ -60,7 +60,7 @@ export const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => 
         className={`${classes.chip} ${getChipClass()}`}
         size="small"
       /> <br />
-      <Link href={status.link} color="inherit" style={{ fontSize: '0.7rem' }}>
+      <Link href={status.link} color="inherit" style={{ fontSize: '0.7rem' }} underline='always'>
           Pending Tickets
       </Link>
     </>

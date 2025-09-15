@@ -12,7 +12,7 @@
     },
     {
       "name": "CI",
-      "backgroundColor": "#1DB954",
+      "backgroundColor": "#FF88B2",
       "tools": ["Dependabot", "pnpm audit", "Veracode", "CodeQL", "SonarQube", "Trivy"]
     }
   ]

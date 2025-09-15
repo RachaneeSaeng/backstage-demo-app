@@ -9,6 +9,7 @@ import {
   Paper,
   makeStyles,
   Typography,
+  useTheme,
 } from '@material-ui/core';
 import toolCategoriesConfig from './config/toolCategories.json';
 import { getToolStatus, repositories, createCategoryHeaderStyle } from './utils';
@@ -27,13 +28,14 @@ const useStyles = makeStyles((theme) => ({
   },
   headerCell: {
     backgroundColor: theme.palette.primary.dark,
-    color: theme.palette.common.white,
+    color: theme.palette.primary.contrastText,
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
     padding: theme.spacing(1),
   },
   repositoryCell: {
-    backgroundColor: theme.palette.infoBackground,
+    backgroundColor: theme.palette.type === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
+    color: theme.palette.text.primary,
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
     padding: theme.spacing(2),
@@ -41,12 +43,14 @@ const useStyles = makeStyles((theme) => ({
   tableCell: {
     whiteSpace: 'nowrap',
     padding: theme.spacing(2),
+    color: theme.palette.text.primary,
   },
 }));
 
 export const SecurityTable: React.FC = () => {
   const classes = useStyles();
   const { toolCategories } = toolCategoriesConfig;
+  const theme = useTheme();
 
 
   return (
@@ -62,7 +66,7 @@ export const SecurityTable: React.FC = () => {
                 key={category.name}
                 align="center"
                 colSpan={category.tools.length}
-                style={createCategoryHeaderStyle(category.backgroundColor)}
+                style={createCategoryHeaderStyle(category.backgroundColor, theme.palette.type === 'dark')}
               >
                 {category.name}
               </TableCell>
