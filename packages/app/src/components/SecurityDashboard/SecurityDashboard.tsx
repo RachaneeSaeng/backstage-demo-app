@@ -1,15 +1,13 @@
 
-    import { Content, Header, Page, ContentHeader } from '@backstage/core-components';
-    import { Typography } from '@material-ui/core';
+    import { Content, Header, Page } from '@backstage/core-components';
+    import { SecurityTable } from './SecurityTable';
 
     export const SecurityDashboard = () => (
-      <Page themeId="home">
-        <Header title="My Custom Page">
-          <ContentHeader title="Welcome to my custom content!" />
+      <Page themeId="SecurityDashboard">
+        <Header title="Security Dashboard" subtitle="Monitor security tools and issues">
         </Header>
         <Content>
-          <Typography variant="h5">This is a custom page in Backstage.</Typography>
-          <Typography variant="body1">You can add any content and components here.</Typography>
+          <SecurityTable />
         </Content>
       </Page>
     );
