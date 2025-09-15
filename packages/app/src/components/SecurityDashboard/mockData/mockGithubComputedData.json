@@ -1,0 +1,152 @@
+{
+  "repositories": [
+    {
+      "name": "repository-1",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "status": "not-implemented"
+            },
+            {
+              "name": "Dependabot",
+              "status": "implemented"
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Dependabot",
+              "status": "implemented"
+            },
+            {
+              "name": "Veracode",
+              "status": "implemented"
+            },
+            {
+              "name": "CodeQL",
+              "status": "implemented"
+            },
+            {
+              "name": "SonarQube",
+              "status": "not-implemented"
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Veracode",
+              "status": "implemented"
+            },
+            {
+              "name": "CodeQL",
+              "status": "implemented"
+            },
+            {
+              "name": "SonarQube",
+              "status": "not-implemented"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repository-2",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "status": "implemented"
+            },
+            {
+              "name": "Dependabot",
+              "status": "implemented"
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Dependabot",
+              "status": "implemented"
+            },
+            {
+              "name": "Veracode",
+              "status": "not-implemented"
+            },
+            {
+              "name": "CodeQL",
+              "status": "implemented"
+            },
+            {
+              "name": "SonarQube",
+              "status": "not-implemented"
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Veracode",
+              "status": "not-implemented"
+            },
+            {
+              "name": "CodeQL",
+              "status": "implemented"
+            },
+            {
+              "name": "SonarQube",
+              "status": "implemented"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repository-3",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "status": "implemented"
+            },
+            {
+              "name": "Dependabot",
+              "status": "implemented"
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Trivy",
+              "status": "implemented"
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Trivy",
+              "status": "implemented"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

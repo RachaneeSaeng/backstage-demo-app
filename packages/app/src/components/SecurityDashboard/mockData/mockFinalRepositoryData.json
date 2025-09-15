@@ -1,0 +1,172 @@
+{
+  "repositories": [
+    {
+      "name": "repository-1",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "status": "critical-risk"
+            },
+            {
+              "name": "Dependabot",
+              "status": "low-risk"
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Dependabot",
+              "status": "low-risk"
+            },
+            {
+              "name": "Veracode",
+              "status": "medium-risk"
+            },
+            {
+              "name": "CodeQL",
+              "status": "low-risk"
+            },
+            {
+              "name": "SonarQube",
+              "status": "none"
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Veracode",
+              "status": "medium-risk"
+            },
+            {
+              "name": "CodeQL",
+              "status": "low-risk"
+            },
+            {
+              "name": "SonarQube",
+              "status": "none"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repository-2",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "status": "high-risk"
+            },
+            {
+              "name": "Dependabot",
+              "status": "high-risk"
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Dependabot",
+              "status": "high-risk"
+            },
+            {
+              "name": "Veracode",
+              "status": "critical-risk"
+            },
+            {
+              "name": "CodeQL",
+              "status": "medium-risk"
+            },
+            {
+              "name": "SonarQube",
+              "status": "none"
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Veracode",
+              "status": "critical-risk"
+            },
+            {
+              "name": "CodeQL",
+              "status": "medium-risk"
+            },
+            {
+              "name": "SonarQube",
+              "status": "medium-risk"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repository-3",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "status": "low-risk"
+            },
+            {
+              "name": "Dependabot",
+              "status": "low-risk"
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Dependabot",
+              "status": "low-risk"
+            },
+            {
+              "name": "Veracode",
+              "status": "high-risk"
+            },
+            {
+              "name": "CodeQL",
+              "status": "none"
+            },
+            {
+              "name": "SonarQube",
+              "status": "none"
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Veracode",
+              "status": "high-risk"
+            },
+            {
+              "name": "CodeQL",
+              "status": "none"
+            },
+            {
+              "name": "SonarQube",
+              "status": "none"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

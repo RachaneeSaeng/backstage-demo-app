@@ -1,0 +1,19 @@
+{
+    "toolCategories": [
+    {
+      "name": "Github Security",
+      "backgroundColor": "#8B4513",
+      "tools": ["Secret Scanning", "Dependabot"]
+    },
+    {
+      "name": "Pull Request",
+      "backgroundColor": "#228B22",
+      "tools": ["Dependabot", "pnpm audit", "Veracode", "CodeQL", "SonarQube", "Trivy"]
+    },
+    {
+      "name": "CI",
+      "backgroundColor": "#8B008B",
+      "tools": ["Dependabot", "pnpm audit", "Veracode", "CodeQL", "SonarQube", "Trivy"]
+    }
+  ]
+}

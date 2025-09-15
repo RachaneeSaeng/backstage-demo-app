@@ -1,0 +1,31 @@
+{
+  "repositories": [
+    {
+      "name": "repository-1",
+      "githubUrl": "https://github.com/your-org/repository-1",
+      "jiraBoard": "https://your-org.atlassian.net/jira/software/projects/REPO1",
+      "githubOwner": "your-org",
+      "githubRepo": "repository-1",
+      "jiraProject": "REPO1",
+      "repoType": "Backend"
+    },
+    {
+      "name": "repository-2",
+      "githubUrl": "https://github.com/your-org/repository-2",
+      "jiraBoard": "https://your-org.atlassian.net/jira/software/projects/REPO2",
+      "githubOwner": "your-org",
+      "githubRepo": "repository-2",
+      "jiraProject": "REPO2",
+      "repoType": "Frontend"
+    },
+    {
+      "name": "repository-3",
+      "githubUrl": "https://github.com/your-org/repository-3",
+      "jiraBoard": "https://your-org.atlassian.net/jira/software/projects/REPO3",
+      "githubOwner": "your-org",
+      "githubRepo": "repository-3",
+      "jiraProject": "REPO3",
+      "repoType": "Infrastructure"
+    }
+  ]
+}

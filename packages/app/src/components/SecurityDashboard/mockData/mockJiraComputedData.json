@@ -1,0 +1,174 @@
+{
+  "repositories": [
+    {
+      "name": "repository-1",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "overdue-tickets": 3,
+              "almost-due-tickets": 2
+            },
+            {
+              "name": "Dependabot",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Dependabot",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            },
+            {
+              "name": "Veracode",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 3
+            },
+            {
+              "name": "CodeQL",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            },
+            {
+              "name": "SonarQube",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Veracode",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 3
+            },
+            {
+              "name": "CodeQL",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            },
+            {
+              "name": "SonarQube",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repository-2",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "overdue-tickets": 2,
+              "almost-due-tickets": 1
+            },
+            {
+              "name": "Dependabot",
+              "overdue-tickets": 1,
+              "almost-due-tickets": 2
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Dependabot",
+              "overdue-tickets": 1,
+              "almost-due-tickets": 2
+            },
+            {
+              "name": "Veracode",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            },
+            {
+              "name": "CodeQL",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 1
+            },
+            {
+              "name": "SonarQube",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Veracode",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            },
+            {
+              "name": "CodeQL",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 1
+            },
+            {
+              "name": "SonarQube",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "repository-3",
+      "steps": [
+        {
+          "toolCategory": "Github Security",
+          "tools": [
+            {
+              "name": "Secret Scanning",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            },
+            {
+              "name": "Dependabot",
+              "overdue-tickets": 0,
+              "almost-due-tickets": 0
+            }
+          ]
+        },
+        {
+          "toolCategory": "Pull Request",
+          "tools": [
+            {
+              "name": "Trivy",
+              "overdue-tickets": 1,
+              "almost-due-tickets": 2
+            }
+          ]
+        },
+        {
+          "toolCategory": "CI",
+          "tools": [
+            {
+              "name": "Trivy",
+              "overdue-tickets": 1,
+              "almost-due-tickets": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
