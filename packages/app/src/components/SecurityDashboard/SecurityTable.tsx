@@ -17,19 +17,31 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
     marginTop: theme.spacing(2),
+    maxHeight: '70vh',
+    overflow: 'auto',
   },
   table: {
-    minWidth: 650,
+    minWidth: 'auto',
+    tableLayout: 'auto',
   },
   headerCell: {
     backgroundColor: theme.palette.grey[800],
     color: theme.palette.common.white,
     fontWeight: 'bold',
+    whiteSpace: 'nowrap',
+    padding: theme.spacing(1),
   },
   repositoryCell: {
     backgroundColor: theme.palette.grey[700],
     color: theme.palette.common.white,
     fontWeight: 'bold',
+    minWidth: '200px',
+    whiteSpace: 'nowrap',
+    padding: theme.spacing(1),
+  },
+  tableCell: {
+    whiteSpace: 'nowrap',
+    padding: theme.spacing(1),
   },
   chip: {
     minWidth: 120,
@@ -238,40 +250,40 @@ export const SecurityTable: React.FC = () => {
                   </Typography>
                 </div>
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.secretScanning} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.dependabotGitHub} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.dependabotOther} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.veracode} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.codeql} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.npmAudit} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.trivy} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.dependabotPR} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.veracodePR} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.codeqlPR} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.npmAuditPR} />
               </TableCell>
-              <TableCell align="center">
+              <TableCell align="center" className={classes.tableCell}>
                 <StatusChip status={repo.trivyPR} />
               </TableCell>
             </TableRow>
