@@ -13,6 +13,7 @@ import {
   Typography,
 } from '@material-ui/core';
 import toolCategoriesConfig from './config/toolCategories.json';
+import mockFinalRepositoryData from './mockData/mockFinalRepositoryData.json';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -78,71 +79,50 @@ interface SecurityStatus {
 
 interface Repository {
   name: string;
-  description: string;
-  secretScanning: SecurityStatus;
-  dependabotGitHub: SecurityStatus;
-  dependabotOther: SecurityStatus;
-  veracode: SecurityStatus;
-  codeql: SecurityStatus;
-  npmAudit: SecurityStatus;
-  trivy: SecurityStatus;
-  dependabotPR: SecurityStatus;
-  veracodePR: SecurityStatus;
-  codeqlPR: SecurityStatus;
-  npmAuditPR: SecurityStatus;
-  trivyPR: SecurityStatus;
+  steps: Array<{
+    toolCategory: string;
+    tools: Array<{
+      name: string;
+      status: 'critical-risk' | 'high-risk' | 'medium-risk' | 'low-risk' | 'none';
+    }>;
+  }>;
 }
 
-const mockData: Repository[] = [
-  {
-    name: 'Repository - 1',
-    description: '(example Backend repo)',
-    secretScanning: { status: 'medium-risk', text: 'Latest scan report', link: '#' },
-    dependabotGitHub: { status: 'critical-risk', text: 'Required but have not implemented' },
-    dependabotOther: { status: 'medium-risk', text: 'Latest scan report' },
-    veracode: { status: 'critical-risk', text: 'Required but have not implemented' },
-    codeql: { status: 'medium-risk', text: 'Latest scan report' },
-    npmAudit: { status: 'none', text: 'n/a' },
-    trivy: { status: 'none', text: 'n/a' },
-    dependabotPR: { status: 'low-risk', text: 'Latest scan report' },
-    veracodePR: { status: 'medium-risk', text: 'Latest scan report' },
-    codeqlPR: { status: 'medium-risk', text: 'Latest scan report' },
-    npmAuditPR: { status: 'none', text: 'n/a' },
-    trivyPR: { status: 'none', text: 'n/a' },
-  },
-  {
-    name: 'Repository - 2',
-    description: '(example Frontend repo)',
-    secretScanning: { status: 'high-risk', text: 'Latest scan report' },
-    dependabotGitHub: { status: 'medium-risk', text: 'Latest scan report' },
-    dependabotOther: { status: 'high-risk', text: 'Latest scan report' },
-    veracode: { status: 'high-risk', text: 'Latest scan report' },
-    codeql: { status: 'none', text: 'n/a' },
-    npmAudit: { status: 'high-risk', text: 'Latest scan report' },
-    trivy: { status: 'none', text: 'n/a' },
-    dependabotPR: { status: 'medium-risk', text: 'Latest scan report' },
-    veracodePR: { status: 'low-risk', text: 'Latest scan report' },
-    codeqlPR: { status: 'medium-risk', text: 'Latest scan report' },
-    npmAuditPR: { status: 'high-risk', text: 'Latest scan report' },
-    trivyPR: { status: 'none', text: 'n/a' },
-  },
-  {
-    name: 'Repository - 3',
-    description: '(example Infrastructure repo)',
-    secretScanning: { status: 'high-risk', text: 'Latest scan report' },
-    dependabotGitHub: { status: 'medium-risk', text: 'Latest scan report' },
-    dependabotOther: { status: 'none', text: 'n/a' },
-    veracode: { status: 'none', text: 'n/a' },
-    codeql: { status: 'none', text: 'n/a' },
-    npmAudit: { status: 'none', text: 'n/a' },
-    trivy: { status: 'high-risk', text: 'Latest scan report' },
-    dependabotPR: { status: 'none', text: 'n/a' },
-    veracodePR: { status: 'none', text: 'n/a' },
-    codeqlPR: { status: 'none', text: 'n/a' },
-    npmAuditPR: { status: 'none', text: 'n/a' },
-    trivyPR: { status: 'critical-risk', text: 'Required but have not implemented' },
-  },
-];
+const getToolStatus = (repository: Repository, toolCategory: string, toolName: string): SecurityStatus => {
+  const step = repository.steps.find(step => step.toolCategory === toolCategory);
+  const tool = step?.tools.find(tool => tool.name === toolName);
+
+  if (!tool || tool.status === 'none') {
+    return { status: 'none', text: 'n/a' };
+  }
+
+  return {
+    status: tool.status,
+    text: 'Latest scan report',
+    link: '#'
+  };
+};
+
+const allowedStatuses = [
+  "critical-risk",
+  "high-risk",
+  "medium-risk",
+  "low-risk",
+  "none",
+] as const;
+
+const repositories: Repository[] = mockFinalRepositoryData.repositories.map((repo: any) => ({
+  name: repo.name,
+  steps: repo.steps.map((step: any) => ({
+    toolCategory: step.toolCategory,
+    tools: step.tools.map((tool: any) => ({
+      name: tool.name,
+      status: allowedStatuses.includes(tool.status)
+        ? tool.status
+        : "none",
+    })),
+  })),
+}));
 
 const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => {
   const classes = useStyles();
@@ -229,54 +209,26 @@ export const SecurityTable: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {mockData.map((repo) => (
+          {repositories.map((repo) => (
             <TableRow key={repo.name}>
               <TableCell className={classes.repositoryCell}>
                 <div>
                   <Typography variant="body2" style={{ fontWeight: 'bold' }}>
                     {repo.name}
                   </Typography>
-                  <Typography variant="caption" style={{ color: '#ccc' }}>
-                    {repo.description}
-                  </Typography>
                 </div>
               </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.secretScanning} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.dependabotGitHub} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.dependabotOther} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.veracode} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.codeql} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.npmAudit} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.trivy} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.dependabotPR} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.veracodePR} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.codeqlPR} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.npmAuditPR} />
-              </TableCell>
-              <TableCell align="center" className={classes.tableCell}>
-                <StatusChip status={repo.trivyPR} />
-              </TableCell>
+              {toolCategories.map((category) =>
+                category.tools.map((tool) => (
+                  <TableCell
+                    key={`${repo.name}-${category.name}-${tool}`}
+                    align="center"
+                    className={classes.tableCell}
+                  >
+                    <StatusChip status={getToolStatus(repo, category.name, tool)} />
+                  </TableCell>
+                ))
+              )}
             </TableRow>
           ))}
         </TableBody>
