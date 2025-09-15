@@ -27,15 +27,14 @@ const useStyles = makeStyles((theme) => ({
     tableLayout: 'auto',
   },
   headerCell: {
-    backgroundColor: theme.palette.grey[800],
+    backgroundColor: theme.palette.primary.dark,
     color: theme.palette.common.white,
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
     padding: theme.spacing(1),
   },
   repositoryCell: {
-    backgroundColor: theme.palette.grey[700],
-    color: theme.palette.common.white,
+    backgroundColor: theme.palette.infoBackground,
     fontWeight: 'bold',
     minWidth: '200px',
     whiteSpace: 'nowrap',
@@ -50,19 +49,19 @@ const useStyles = makeStyles((theme) => ({
     fontSize: '0.75rem',
   },
   criticalChip: {
-    backgroundColor: '#d21414ff',
+    backgroundColor: '#E22134',
     color: 'white',
   },
   highChip: {
-    backgroundColor: '#f89705ff',
+    backgroundColor: '#FF9800',
     color: 'white',
   },
   mediumChip: {
-    backgroundColor: '#eed00fff',
-    color: 'white',
+    backgroundColor: '#FFED51',
+    color: '#000000',
   },
   lowChip: {
-    backgroundColor: '#04971dff',
+    backgroundColor: '#1DB954',
     color: 'white',
   },
   noneChip: {
