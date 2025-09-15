@@ -164,20 +164,24 @@ const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => {
     }
   };
 
-  const chipContent = status.link ? (
-    <Link href={status.link} color="inherit" underline="none">
-      {status.text}
-    </Link>
-  ) : (
-    status.text
-  );
+  const chipContent = (
+      <Link href={status.link} color="inherit" underline="none">
+        Pending Tickets
+      </Link>
+      );
 
   return (
-    <Chip
-      label={chipContent}
-      className={`${classes.chip} ${getChipClass()}`}
-      size="small"
-    />
+    <>
+      <Chip
+        label={chipContent}
+        className={`${classes.chip} ${getChipClass()}`}
+        size="small"
+      /> <br />
+      <Link href={status.link} color="inherit" style={{ fontSize: '0.7rem' }}>
+          Pending Tickets
+      </Link>
+    </>
+    
   );
 };
 
