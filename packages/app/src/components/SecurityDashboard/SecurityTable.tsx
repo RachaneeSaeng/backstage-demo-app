@@ -7,13 +7,12 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Chip,
-  Link,
   makeStyles,
   Typography,
 } from '@material-ui/core';
 import toolCategoriesConfig from './config/toolCategories.json';
-import mockFinalRepositoryData from './mockData/mockFinalRepositoryData.json';
+import { getToolStatus, repositories, createCategoryHeaderStyle } from './utils';
+import { StatusChip } from './StatusChip';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -36,143 +35,19 @@ const useStyles = makeStyles((theme) => ({
   repositoryCell: {
     backgroundColor: theme.palette.infoBackground,
     fontWeight: 'bold',
-    minWidth: '200px',
     whiteSpace: 'nowrap',
-    padding: theme.spacing(1),
+    padding: theme.spacing(2),
   },
   tableCell: {
     whiteSpace: 'nowrap',
-    padding: theme.spacing(1),
-  },
-  chip: {
-    minWidth: 120,
-    fontSize: '0.75rem',
-  },
-  criticalChip: {
-    backgroundColor: '#E22134',
-    color: 'white',
-  },
-  highChip: {
-    backgroundColor: '#FF9800',
-    color: 'white',
-  },
-  mediumChip: {
-    backgroundColor: '#FFED51',
-    color: '#000000',
-  },
-  lowChip: {
-    backgroundColor: '#1DB954',
-    color: 'white',
-  },
-  noneChip: {
-    backgroundColor: theme.palette.grey[300],
-    color: theme.palette.text.secondary,
+    padding: theme.spacing(2),
   },
 }));
-
-interface SecurityStatus {
-  status: 'critical-risk' | 'high-risk' | 'medium-risk' | 'low-risk' | 'none';
-  text: string;
-  link?: string;
-}
-
-interface Repository {
-  name: string;
-  steps: Array<{
-    toolCategory: string;
-    tools: Array<{
-      name: string;
-      status: 'critical-risk' | 'high-risk' | 'medium-risk' | 'low-risk' | 'none';
-    }>;
-  }>;
-}
-
-const getToolStatus = (repository: Repository, toolCategory: string, toolName: string): SecurityStatus => {
-  const step = repository.steps.find(step => step.toolCategory === toolCategory);
-  const tool = step?.tools.find(tool => tool.name === toolName);
-
-  if (!tool || tool.status === 'none') {
-    return { status: 'none', text: 'n/a' };
-  }
-
-  return {
-    status: tool.status,
-    text: 'Latest scan report',
-    link: '#'
-  };
-};
-
-const allowedStatuses = [
-  "critical-risk",
-  "high-risk",
-  "medium-risk",
-  "low-risk",
-  "none",
-] as const;
-
-const repositories: Repository[] = mockFinalRepositoryData.repositories.map((repo: any) => ({
-  name: repo.name,
-  steps: repo.steps.map((step: any) => ({
-    toolCategory: step.toolCategory,
-    tools: step.tools.map((tool: any) => ({
-      name: tool.name,
-      status: allowedStatuses.includes(tool.status)
-        ? tool.status
-        : "none",
-    })),
-  })),
-}));
-
-const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => {
-  const classes = useStyles();
-
-  const getChipClass = () => {
-    switch (status.status) {
-      case 'critical-risk':
-        return classes.criticalChip;
-      case 'high-risk':
-        return classes.highChip;
-      case 'medium-risk':
-        return classes.mediumChip;     
-      case 'low-risk':
-        return classes.lowChip;
-      default:
-        return classes.noneChip;
-    }
-  };
-
-  const chipContent = (
-      <Link href={status.link} color="inherit" underline="none">
-        Pending Tickets
-      </Link>
-      );
-
-  return (
-    <>
-      <Chip
-        label={chipContent}
-        className={`${classes.chip} ${getChipClass()}`}
-        size="small"
-      /> <br />
-      <Link href={status.link} color="inherit" style={{ fontSize: '0.7rem' }}>
-          Pending Tickets
-      </Link>
-    </>
-    
-  );
-};
 
 export const SecurityTable: React.FC = () => {
   const classes = useStyles();
   const { toolCategories } = toolCategoriesConfig;
 
-  const createCategoryHeaderStyle = (backgroundColor: string) => ({
-    backgroundColor,
-    color: '#ffffff',
-    fontWeight: 'bold',
-    whiteSpace: 'nowrap',
-    padding: '8px',
-  });
 
   return (
     <TableContainer component={Paper} className={classes.root}>
