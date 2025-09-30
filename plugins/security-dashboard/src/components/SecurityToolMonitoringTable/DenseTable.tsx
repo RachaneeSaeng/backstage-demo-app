@@ -14,14 +14,16 @@ import toolCategoriesConfig from '../../config/toolCategories.json';
 import { getToolStatus, repositories, createCategoryHeaderStyle } from './utils';
 import { StatusChip } from './StatusChip';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   root: {
-    width: '100%',
     marginTop: theme.spacing(2),
     maxHeight: '70vh',
+    flexGrow: 0,
+    maxWidth: '100%',
+    flexBasis: '100%',
   },
   table: {
-    minWidth: 'auto',
+    overflowX: 'auto',
     tableLayout: 'auto',
   },
   headerCell: {
@@ -54,65 +56,66 @@ export const DenseTable = () => {
   const { toolCategories } = toolCategoriesConfig;
   const theme = useTheme();
 
-
   return (
-    <TableContainer component={Paper} className={classes.root}>
-      <Table className={classes.table} aria-label="security dashboard table">
-        <TableHead>
-          <TableRow>
-            <TableCell className={classes.headerCell} rowSpan={2}>
-              Repository
-            </TableCell>
-            {toolCategories.map((category) => (
-              <TableCell
-                key={category.name}
-                align="center"
-                colSpan={category.tools.length}
-                style={createCategoryHeaderStyle(category.backgroundColor, theme.palette.type === 'dark')}
-              >
-                {category.name}
+    <div className={classes.root}>
+      <TableContainer component={Paper}>
+        <Table className={classes.table} aria-label="security dashboard table">
+          <TableHead>
+            <TableRow>
+              <TableCell className={classes.headerCell} rowSpan={2}>
+                Repository
               </TableCell>
-            ))}
-          </TableRow>
-          <TableRow>
-            {toolCategories.map((category) =>
-              category.tools.map((tool) => (
+              {toolCategories.map((category) => (
                 <TableCell
-                  key={`${category.name}-${tool}`}
-                  className={classes.headerCell}
+                  key={category.name}
                   align="center"
+                  colSpan={category.tools.length}
+                  style={createCategoryHeaderStyle(category.backgroundColor, theme.palette.type === 'dark')}
                 >
-                  {tool}
+                  {category.name}
                 </TableCell>
-              ))
-            )}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {repositories.map((repo) => (
-            <TableRow key={repo.name}>
-              <TableCell className={classes.repositoryCell}>
-                <div>
-                  <Typography variant="body2" style={{ fontWeight: 'bold' }}>
-                    {repo.name}
-                  </Typography>
-                </div>
-              </TableCell>
+              ))}
+            </TableRow>
+            <TableRow>
               {toolCategories.map((category) =>
                 category.tools.map((tool) => (
                   <TableCell
-                    key={`${repo.name}-${category.name}-${tool}`}
+                    key={`${category.name}-${tool}`}
+                    className={classes.headerCell}
                     align="center"
-                    className={classes.tableCell}
                   >
-                    <StatusChip status={getToolStatus(repo, category.name, tool)} />
+                    {tool}
                   </TableCell>
                 ))
               )}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {repositories.map((repo) => (
+              <TableRow key={repo.name}>
+                <TableCell className={classes.repositoryCell}>
+                  <div>
+                    <Typography variant="body2" style={{ fontWeight: 'bold' }}>
+                      {repo.name}
+                    </Typography>
+                  </div>
+                </TableCell>
+                {toolCategories.map((category) =>
+                  category.tools.map((tool) => (
+                    <TableCell
+                      key={`${repo.name}-${category.name}-${tool}`}
+                      align="center"
+                      className={classes.tableCell}
+                    >
+                      <StatusChip status={getToolStatus(repo, category.name, tool)} />
+                    </TableCell>
+                  ))
+                )}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </div>
   );
 };
