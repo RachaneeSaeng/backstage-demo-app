@@ -4,8 +4,7 @@
 
     export const SecurityDashboard = () => (
       <Page themeId="SecurityDashboard">
-        <Header title="Security Dashboard" subtitle="Monitor security tools and issues">
-        </Header>
+        <Header title="Security Dashboard" subtitle="Monitor security tools and issues" />
         <Content>
           <SecurityTable />
         </Content>

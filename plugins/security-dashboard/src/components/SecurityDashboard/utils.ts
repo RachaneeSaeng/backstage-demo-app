@@ -2,8 +2,8 @@ import { SecurityStatus, Repository, allowedStatuses } from './types';
 import mockFinalRepositoryData from './mockData/mockFinalRepositoryData.json';
 
 export const getToolStatus = (repository: Repository, toolCategory: string, toolName: string): SecurityStatus => {
-  const step = repository.steps.find(step => step.toolCategory === toolCategory);
-  const tool = step?.tools.find(tool => tool.name === toolName);
+  const step = repository.steps.find(s => s.toolCategory === toolCategory);
+  const tool = step?.tools.find(t => t.name === toolName);
 
   if (!tool || tool.status === 'none') {
     return { status: 'none', text: 'n/a' };
@@ -29,14 +29,6 @@ export const repositories: Repository[] = mockFinalRepositoryData.repositories.m
   })),
 }));
 
-export const createCategoryHeaderStyle = (backgroundColor: string, isDark: boolean = false) => ({
-  backgroundColor: isDark && backgroundColor ? adjustColorForDarkTheme(backgroundColor) : backgroundColor,
-  color: '#ffffff',
-  fontWeight: 'bold',
-  whiteSpace: 'nowrap',
-  padding: '8px',
-});
-
 const adjustColorForDarkTheme = (color: string): string => {
   const colorMap: { [key: string]: string } = {
     '#3498db': '#5dade2', // Blue
@@ -50,3 +42,11 @@ const adjustColorForDarkTheme = (color: string): string => {
 
   return colorMap[color.toLowerCase()] || color;
 };
+
+export const createCategoryHeaderStyle = (backgroundColor: string, isDark: boolean = false) => ({
+  backgroundColor: isDark && backgroundColor ? adjustColorForDarkTheme(backgroundColor) : backgroundColor,
+  color: '#ffffff',
+  fontWeight: 'bold',
+  whiteSpace: 'nowrap',
+  padding: '8px',
+});

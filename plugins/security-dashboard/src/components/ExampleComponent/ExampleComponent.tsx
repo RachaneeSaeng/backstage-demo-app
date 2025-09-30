@@ -12,19 +12,23 @@ import { ExampleFetchComponent } from '../ExampleFetchComponent';
 
 export const ExampleComponent = () => (
   <Page themeId="tool">
-    <Header title="Welcome to security-dashboard!" subtitle="Optional subtitle">
-      <HeaderLabel label="Owner" value="Team X" />
-      <HeaderLabel label="Lifecycle" value="Alpha" />
+    <Header title="Security Dashboard" subtitle="To monitor security scanning across our repositories">
+      {/* <HeaderLabel label="Owner" value="Team X" />
+      <HeaderLabel label="Lifecycle" value="Alpha" /> */}
     </Header>
     <Content>
-      <ContentHeader title="Plugin title">
-        <SupportButton>A description of your plugin goes here.</SupportButton>
+      <ContentHeader title="Security Monitoring Dashboard">
+        <SupportButton>To monitor security tool adoption and detected issues across our repositories</SupportButton>
       </ContentHeader>
       <Grid container spacing={3} direction="column">
         <Grid item>
-          <InfoCard title="Information card">
+          <InfoCard>
             <Typography variant="body1">
-              All content should be wrapped in a card like this.
+              To display status of security tools and issues detected across our repositories.
+              The tools we are currently integrating are aligned with the {' '}
+              <a href="https://www.google.com" target="_blank">
+                 Security Tools Sensible Defaults.
+              </a>
             </Typography>
           </InfoCard>
         </Grid>
