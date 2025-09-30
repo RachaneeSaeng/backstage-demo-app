@@ -11,7 +11,7 @@ import {
   useTheme,
 } from '@material-ui/core';
 import toolCategoriesConfig from '../../config/toolCategories.json';
-import { getToolStatus, repositories, createCategoryHeaderStyle } from './utils';
+import { getToolStatus, repositories } from './utils';
 import { StatusChip } from './StatusChip';
 
 const useStyles = makeStyles(theme => ({
@@ -25,6 +25,12 @@ const useStyles = makeStyles(theme => ({
   table: {
     overflow: 'auto',
     tableLayout: 'auto',
+  },
+  categoryCell: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    whiteSpace: 'nowrap',
+    padding: '8px',
   },
   headerCell: {
     fontWeight: 'bold',
@@ -48,7 +54,6 @@ const useStyles = makeStyles(theme => ({
 export const DenseTable = () => {
   const classes = useStyles();
   const { toolCategories } = toolCategoriesConfig;
-  const theme = useTheme();
 
   return (
     <div className={classes.root}>
@@ -61,10 +66,11 @@ export const DenseTable = () => {
               </TableCell>
               {toolCategories.map((category) => (
                 <TableCell
-                  key={category.name}
-                  align="center"
+                  key={category.name}                  
                   colSpan={category.tools.length}
-                  style={createCategoryHeaderStyle(category.backgroundColor, theme.palette.type === 'dark')}
+                  className={classes.categoryCell}
+                  style={{ backgroundColor: category.backgroundColor }}
+                  align="center"
                 >
                   {category.name}
                 </TableCell>
