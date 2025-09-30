@@ -17,33 +17,27 @@ import { StatusChip } from './StatusChip';
 const useStyles = makeStyles(theme => ({
   root: {
     marginTop: theme.spacing(2),
-    maxHeight: '70vh',
+    maxHeight: '100%',
     flexGrow: 0,
     maxWidth: '100%',
     flexBasis: '100%',
   },
   table: {
-    overflowX: 'auto',
+    overflow: 'auto',
     tableLayout: 'auto',
   },
   headerCell: {
-    backgroundColor: theme.palette.primary.dark,
-    color: theme.palette.primary.contrastText,
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
     padding: theme.spacing(1),
   },
   repositoryCell: {
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
-    color: theme.palette.text.primary,
-    fontWeight: 'bold',
     whiteSpace: 'nowrap',
     padding: theme.spacing(2),
   },
   tableCell: {
     whiteSpace: 'nowrap',
     padding: theme.spacing(2),
-    color: theme.palette.text.primary,
   },
 }));
 
@@ -95,7 +89,7 @@ export const DenseTable = () => {
               <TableRow key={repo.name}>
                 <TableCell className={classes.repositoryCell}>
                   <div>
-                    <Typography variant="body2" style={{ fontWeight: 'bold' }}>
+                    <Typography variant="body2">
                       {repo.name}
                     </Typography>
                   </div>
@@ -104,8 +98,8 @@ export const DenseTable = () => {
                   category.tools.map((tool) => (
                     <TableCell
                       key={`${repo.name}-${category.name}-${tool}`}
-                      align="center"
                       className={classes.tableCell}
+                      align="center"
                     >
                       <StatusChip status={getToolStatus(repo, category.name, tool)} />
                     </TableCell>
