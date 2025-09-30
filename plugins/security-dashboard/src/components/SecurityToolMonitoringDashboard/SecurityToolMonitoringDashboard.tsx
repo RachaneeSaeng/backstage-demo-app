@@ -17,11 +17,11 @@ export const SecurityToolMonitoringDashboard = () => (
       <HeaderLabel label="Lifecycle" value="Alpha" /> */}
     </Header>
     <Content>
-      <ContentHeader title="Security Monitoring Dashboard">
+      {/* <ContentHeader title="Security Monitoring Dashboard">
         <SupportButton>To monitor security tool adoption and detected issues across our repositories</SupportButton>
-      </ContentHeader>
+      </ContentHeader> */}
       <Grid container spacing={3} direction="column">
-        <Grid item>
+        {/* <Grid item>
           <InfoCard>
             <Typography variant="body1">
               To display status of security tools and issues detected across our repositories.
@@ -31,7 +31,7 @@ export const SecurityToolMonitoringDashboard = () => (
               </a>
             </Typography>
           </InfoCard>
-        </Grid>
+        </Grid> */}
         <Grid item>
           <SecurityToolMonitoringTable />
         </Grid>
