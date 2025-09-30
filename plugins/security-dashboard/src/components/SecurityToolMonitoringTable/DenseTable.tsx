@@ -32,6 +32,7 @@ const useStyles = makeStyles(theme => ({
     padding: '8px',
   },
   headerCell: {
+    color: theme.palette.primary.main,
     fontWeight: 'bold',
     whiteSpace: 'nowrap',
     padding: theme.spacing(1),
