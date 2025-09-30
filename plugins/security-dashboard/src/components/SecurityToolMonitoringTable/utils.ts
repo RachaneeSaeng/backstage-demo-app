@@ -28,25 +28,3 @@ export const repositories: Repository[] = mockFinalRepositoryData.repositories.m
     })),
   })),
 }));
-
-const adjustColorForDarkTheme = (color: string): string => {
-  const colorMap: { [key: string]: string } = {
-    '#3498db': '#5dade2', // Blue
-    '#e74c3c': '#ec7063', // Red
-    '#f39c12': '#f7dc6f', // Orange
-    '#2ecc71': '#58d68d', // Green
-    '#9b59b6': '#af7ac5', // Purple
-    '#1abc9c': '#52c3a1', // Teal
-    '#34495e': '#566573', // Dark gray
-  };
-
-  return colorMap[color.toLowerCase()] || color;
-};
-
-export const createCategoryHeaderStyle = (backgroundColor: string, isDark: boolean = false) => ({
-  backgroundColor: isDark && backgroundColor ? adjustColorForDarkTheme(backgroundColor) : backgroundColor,
-  color: '#ffffff',
-  fontWeight: 'bold',
-  whiteSpace: 'nowrap',
-  padding: '8px',
-});

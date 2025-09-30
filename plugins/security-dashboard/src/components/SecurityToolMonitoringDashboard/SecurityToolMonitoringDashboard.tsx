@@ -32,7 +32,7 @@ export const SecurityToolMonitoringDashboard = () => (
             </Typography>
           </InfoCard>
         </Grid> */}
-        <Grid item>
+        <Grid item container>
           <SecurityToolMonitoringTable />
         </Grid>
       </Grid>
