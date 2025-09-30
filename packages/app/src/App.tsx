@@ -24,8 +24,6 @@ import { apis } from './apis';
 import { entityPage } from './components/catalog/EntityPage';
 import { searchPage } from './components/search/SearchPage';
 import { Root } from './components/Root';
-import { SecurityDashboard } from './components/SecurityDashboard/SecurityDashboard';
-
 import {
   AlertDisplay,
   OAuthRequestDialog,
@@ -99,7 +97,6 @@ const routes = (
     <Route path="/settings" element={<UserSettingsPage />} />
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
     <Route path="/notifications" element={<NotificationsPage />} />
-    <Route path="/security-dashboard" element={<SecurityDashboard />} />
     <Route path="/security-dashboard" element={<SecurityDashboardPage />} />
   </FlatRoutes>
 );
