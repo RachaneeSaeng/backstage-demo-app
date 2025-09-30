@@ -38,6 +38,7 @@ import { RequirePermission } from '@backstage/plugin-permission-react';
 import { catalogEntityCreatePermission } from '@backstage/plugin-catalog-common/alpha';
 import { NotificationsPage } from '@backstage/plugin-notifications';
 import { SignalsDisplay } from '@backstage/plugin-signals';
+import { SecurityDashboardPage } from '@internal/plugin-security-dashboard';
 
 const app = createApp({
   apis,
@@ -99,6 +100,7 @@ const routes = (
     <Route path="/catalog-graph" element={<CatalogGraphPage />} />
     <Route path="/notifications" element={<NotificationsPage />} />
     <Route path="/security-dashboard" element={<SecurityDashboard />} />
+    <Route path="/security-dashboard" element={<SecurityDashboardPage />} />
   </FlatRoutes>
 );
 
