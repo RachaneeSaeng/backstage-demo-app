@@ -8,9 +8,9 @@ import {
   HeaderLabel,
   SupportButton,
 } from '@backstage/core-components';
-import { ExampleFetchComponent } from '../ExampleFetchComponent';
+import { SecurityToolMonitoringTable } from '../SecurityToolMonitoringTable';
 
-export const ExampleComponent = () => (
+export const SecurityToolMonitoringDashboard = () => (
   <Page themeId="tool">
     <Header title="Security Dashboard" subtitle="To monitor security scanning across our repositories">
       {/* <HeaderLabel label="Owner" value="Team X" />
@@ -33,7 +33,7 @@ export const ExampleComponent = () => (
           </InfoCard>
         </Grid>
         <Grid item>
-          <ExampleFetchComponent />
+          <SecurityToolMonitoringTable />
         </Grid>
       </Grid>
     </Content>

@@ -16,7 +16,7 @@ export const SecurityDashboardPage = securityDashboardPlugin.provide(
   createRoutableExtension({
     name: 'SecurityDashboardPage',
     component: () =>
-      import('./components/ExampleComponent').then(m => m.ExampleComponent),
+      import('./components/SecurityToolMonitoringDashboard').then(m => m.SecurityToolMonitoringDashboard),
     mountPoint: rootRouteRef,
   }),
 );

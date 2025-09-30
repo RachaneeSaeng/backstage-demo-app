@@ -231,7 +231,7 @@ export const exampleUsers = {
   ],
 };
 
-export const ExampleFetchComponent = () => {
+export const SecurityToolMonitoringTable = () => {
 
   const { value, loading, error } = useAsync(async (): Promise<User[]> => {
     // Would use fetch in a real world example

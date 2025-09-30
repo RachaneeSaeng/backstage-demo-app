@@ -1,10 +1,10 @@
 import { renderInTestApp } from '@backstage/test-utils';
-import { ExampleFetchComponent } from './ExampleFetchComponent';
+import { SecurityToolMonitoringTable } from './SecurityToolMonitoringTable';
 
-describe('ExampleFetchComponent', () => {
+describe('SecurityToolMonitoringTable', () => {
   it('renders the user table', async () => {
     const { getAllByText, getByAltText, getByText, findByRole } =
-      await renderInTestApp(<ExampleFetchComponent />);
+      await renderInTestApp(<SecurityToolMonitoringTable />);
 
     // Wait for the table to render
     const table = await findByRole('table');

@@ -1,4 +1,4 @@
-import { ExampleComponent } from './ExampleComponent';
+import { SecurityToolMonitoringDashboard } from './SecurityToolMonitoringDashboard';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { screen } from '@testing-library/react';
@@ -20,7 +20,7 @@ describe('ExampleComponent', () => {
   });
 
   it('should render', async () => {
-    await renderInTestApp(<ExampleComponent />);
+    await renderInTestApp(<SecurityToolMonitoringDashboard />);
     expect(
       screen.getByText('Welcome to security-dashboard!'),
     ).toBeInTheDocument();
