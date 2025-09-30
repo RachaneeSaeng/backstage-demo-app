@@ -1,5 +1,5 @@
 import { SecurityStatus, Repository, allowedStatuses } from './types';
-import mockFinalRepositoryData from './mockData/mockFinalRepositoryData.json';
+import mockFinalRepositoryData from '../../mockData/mockFinalRepositoryData.json';
 
 export const getToolStatus = (repository: Repository, toolCategory: string, toolName: string): SecurityStatus => {
   const step = repository.steps.find(s => s.toolCategory === toolCategory);

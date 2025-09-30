@@ -1,11 +1,24 @@
-export type User = {
-  gender: string; // "male"
-  name: {
-    title: string; // "Mr",
-    first: string; // "Duane",
-    last: string; // "Reed"
-  };
-  email: string; // "duane.reed@example.com"
-  picture: string; // "https://api.dicebear.com/6.x/open-peeps/svg?seed=Duane"
-  nat: string; // "AU"
-};
+export interface SecurityStatus {
+  status: 'critical-risk' | 'high-risk' | 'medium-risk' | 'low-risk' | 'none';
+  text: string;
+  link?: string;
+}
+
+export interface Repository {
+  name: string;
+  steps: Array<{
+    toolCategory: string;
+    tools: Array<{
+      name: string;
+      status: 'critical-risk' | 'high-risk' | 'medium-risk' | 'low-risk' | 'none';
+    }>;
+  }>;
+}
+
+export const allowedStatuses = [
+  "critical-risk",
+  "high-risk",
+  "medium-risk",
+  "low-risk",
+  "none",
+] as const;

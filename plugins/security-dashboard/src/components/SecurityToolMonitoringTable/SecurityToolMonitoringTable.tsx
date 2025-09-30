@@ -3,7 +3,6 @@ import {
   ResponseErrorPanel,
 } from '@backstage/core-components';
 import useAsync from 'react-use/lib/useAsync';
-import { User } from './types';
 import { DenseTable } from './DenseTable';
 
 export const exampleUsers = {
@@ -233,7 +232,7 @@ export const exampleUsers = {
 
 export const SecurityToolMonitoringTable = () => {
 
-  const { value, loading, error } = useAsync(async (): Promise<User[]> => {
+  const { value, loading, error } = useAsync(async (): Promise<any[]> => {
     // Would use fetch in a real world example
     return exampleUsers.results;
   }, []);
@@ -244,5 +243,5 @@ export const SecurityToolMonitoringTable = () => {
     return <ResponseErrorPanel error={error} />;
   }
 
-  return <DenseTable users={value || []} />;
+  return <DenseTable />;
 };
