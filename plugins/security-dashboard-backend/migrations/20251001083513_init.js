@@ -1,29 +1,14 @@
-/*
-Table: repositories_security_tools
-Description: Tracks the security tools associated with each repository
-Columns:
-- repository_name (string, primary key)
-- programming_languages (string)
-- tool_category (string)
-- tool_name (string)
-- is_required (boolean)
-- implemented (boolean)
-- info_url (string)
-- updated_at (timestamp, default to current timestamp, update on modification)
-*/
-
-// @ts-check
-
 /**
- * @param {import('knex').Knex} knex
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
  */
-exports.up = async function up(knex) {
+exports.up = function(knex) {
   return knex.schema.createTable('repositories_security_tools', table => {
     table.comment(
       'Tracks the security tools associated with each repository',
     );
     table
-      .string('repository_name')
+      .string('repository_name', 100)
       .primary()
       .notNullable()
       .comment('Repository name');
@@ -31,11 +16,13 @@ exports.up = async function up(knex) {
       .string('programming_languages')
       .nullable()
       .comment('Programming languages used in the repository');
-    table.string('tool_category')
-      .nullable()
+    table
+      .string('tool_category', 32)
+      .notNullable()
       .comment('Category of the security tool');
-    table.string('tool_name')
-      .nullable()
+    table
+      .string('tool_name', 32)
+      .notNullable()
       .comment('Name of the security tool');
     table
       .boolean('is_required')
@@ -45,7 +32,8 @@ exports.up = async function up(knex) {
       .boolean('implemented')
       .defaultTo(false)
       .comment('Whether the tool has been implemented');
-    table.string('info_url')
+    table
+      .string('info_url')
       .nullable()
       .comment('URL with more information about the tool implementation, e.g. GithubActions Workflow or Settigs page');
     table
@@ -57,8 +45,9 @@ exports.up = async function up(knex) {
 };
 
 /**
- * @param {import('knex').Knex} knex
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
  */
-exports.down = async function down(knex) {
+exports.down = function(knex) {
   return knex.schema.dropTable('repositories_security_tools');
 };
