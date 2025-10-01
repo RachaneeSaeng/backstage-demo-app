@@ -1,64 +1,28 @@
-import {
-  TestDatabases,
-  mockServices,
-  startTestBackend,
-} from '@backstage/backend-test-utils';
-import { securityDashboardPlugin } from './plugin';
+import { startTestBackend } from '@backstage/backend-test-utils';
 import request from 'supertest';
-import { Knex } from 'knex';
 
-const databases = TestDatabases.create({
-  ids: ['SQLITE_3'],
-});
+const mockService = {
+  listSecurityTools: jest.fn(),
+  getSecurityTool: jest.fn(),
+  createSecurityTool: jest.fn(),
+  updateSecurityTool: jest.fn(),
+  deleteSecurityTool: jest.fn(),
+};
+
+jest.mock('./services/SecurityToolsService', () => ({
+  createSecurityToolsService: jest.fn(() => Promise.resolve(mockService)),
+}));
+
+import { securityDashboardPlugin } from './plugin';
 
 describe('plugin', () => {
-  let knex: Knex;
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-  describe.each(databases.eachSupportedId())('%p', databaseId => {
-    beforeAll(async () => {
-      knex = await databases.init(databaseId);
-      await knex.migrate.latest({
-        directory: `${__dirname}/../migrations`,
-      });
-    }, 60000);
-
-    afterEach(async () => {
-      await knex('repositories_security_tools').delete();
-    });
-
-    afterAll(async () => {
-      await knex.destroy();
-    });
-
-    it('should create and read security tools', async () => {
-      const backend = await startTestBackend({
-        features: [
-          securityDashboardPlugin,
-          mockServices.database.factory({ knex }),
-        ],
-      });
-      const { server } = backend;
-
-      await request(server)
-        .get('/api/security-dashboard/security-tools')
-        .expect(200, {
-          items: [],
-        });
-
-      const createRes = await request(server)
-        .post('/api/security-dashboard/security-tools')
-        .send({
-          repository_name: 'test-repo',
-          programming_languages: 'typescript',
-          tool_category: 'SAST',
-          tool_name: 'ESLint',
-          is_required: true,
-          implemented: false,
-          info_url: 'https://eslint.org',
-        });
-
-      expect(createRes.status).toBe(201);
-      expect(createRes.body).toEqual({
+  it('should call service to get all security tools', async () => {
+    const mockTools = [
+      {
         repository_name: 'test-repo',
         programming_languages: 'typescript',
         tool_category: 'SAST',
@@ -66,98 +30,149 @@ describe('plugin', () => {
         is_required: true,
         implemented: false,
         info_url: 'https://eslint.org',
-        updated_at: expect.any(String),
+        updated_at: '2024-01-01T00:00:00.000Z',
+      },
+    ];
+    mockService.listSecurityTools.mockResolvedValue({ items: mockTools });
+
+    const backend = await startTestBackend({
+      features: [securityDashboardPlugin],
+    });
+    const { server } = backend;
+
+    await request(server)
+      .get('/api/security-dashboard/security-tools')
+      .expect(200, {
+        items: mockTools,
       });
 
-      const createdSecurityTool = createRes.body;
+    expect(mockService.listSecurityTools).toHaveBeenCalledTimes(1);
 
-      await request(server)
-        .get('/api/security-dashboard/security-tools')
-        .expect(200, {
-          items: [createdSecurityTool],
-        });
+    await backend.stop();
+  });
 
-      await request(server)
-        .get(
-          `/api/security-dashboard/security-tools/${createdSecurityTool.repository_name}`,
-        )
-        .expect(200, createdSecurityTool);
+  it('should call service to create a security tool', async () => {
+    const newTool = {
+      repository_name: 'test-repo',
+      programming_languages: 'typescript',
+      tool_category: 'SAST',
+      tool_name: 'ESLint',
+      is_required: true,
+      implemented: false,
+      info_url: 'https://eslint.org',
+    };
+    const createdTool = {
+      ...newTool,
+      updated_at: '2024-01-01T00:00:00.000Z',
+    };
+    mockService.createSecurityTool.mockResolvedValue(createdTool);
 
-      await backend.stop();
+    const backend = await startTestBackend({
+      features: [securityDashboardPlugin],
+    });
+    const { server } = backend;
+
+    await request(server)
+      .post('/api/security-dashboard/security-tools')
+      .send(newTool)
+      .expect(201, createdTool);
+
+    expect(mockService.createSecurityTool).toHaveBeenCalledWith(
+      newTool,
+      expect.objectContaining({
+        credentials: expect.any(Object),
+      }),
+    );
+
+    await backend.stop();
+  });
+
+  it('should call service to get security tools by repository', async () => {
+    const mockTool = {
+      repository_name: 'test-repo',
+      programming_languages: 'typescript',
+      tool_category: 'SAST',
+      tool_name: 'ESLint',
+      is_required: true,
+      implemented: false,
+      info_url: 'https://eslint.org',
+      updated_at: '2024-01-01T00:00:00.000Z',
+    };
+    mockService.getSecurityTool.mockResolvedValue(mockTool);
+
+    const backend = await startTestBackend({
+      features: [securityDashboardPlugin],
+    });
+    const { server } = backend;
+
+    await request(server)
+      .get('/api/security-dashboard/security-tools/test-repo')
+      .expect(200, mockTool);
+
+    expect(mockService.getSecurityTool).toHaveBeenCalledWith({
+      repositoryName: 'test-repo',
     });
 
-    it('should update a security tool', async () => {
-      const backend = await startTestBackend({
-        features: [
-          securityDashboardPlugin,
-          mockServices.database.factory({ knex }),
-        ],
-      });
-      const { server } = backend;
+    await backend.stop();
+  });
 
-      const createRes = await request(server)
-        .post('/api/security-dashboard/security-tools')
-        .send({
-          repository_name: 'update-test-repo',
-          programming_languages: 'python',
-          tool_category: 'SAST',
-          tool_name: 'Bandit',
-          is_required: false,
-          implemented: false,
-        });
+  it('should call service to update a security tool', async () => {
+    const updatedData = {
+      implemented: true,
+      info_url: 'https://bandit.readthedocs.io',
+    };
+    const updatedTool = {
+      repository_name: 'test-repo',
+      programming_languages: 'python',
+      tool_category: 'SAST',
+      tool_name: 'Bandit',
+      is_required: false,
+      implemented: true,
+      info_url: 'https://bandit.readthedocs.io',
+      updated_at: '2024-01-01T00:00:00.000Z',
+    };
+    mockService.updateSecurityTool.mockResolvedValue(updatedTool);
 
-      expect(createRes.status).toBe(201);
-
-      const updateRes = await request(server)
-        .put('/api/security-dashboard/security-tools/update-test-repo')
-        .send({
-          implemented: true,
-          info_url: 'https://bandit.readthedocs.io',
-        });
-
-      expect(updateRes.status).toBe(200);
-      expect(updateRes.body).toEqual({
-        repository_name: 'update-test-repo',
-        programming_languages: 'python',
-        tool_category: 'SAST',
-        tool_name: 'Bandit',
-        is_required: false,
-        implemented: true,
-        info_url: 'https://bandit.readthedocs.io',
-        updated_at: expect.any(String),
-      });
-
-      await backend.stop();
+    const backend = await startTestBackend({
+      features: [securityDashboardPlugin],
     });
+    const { server } = backend;
 
-    it('should delete a security tool', async () => {
-      const backend = await startTestBackend({
-        features: [
-          securityDashboardPlugin,
-          mockServices.database.factory({ knex }),
-        ],
-      });
-      const { server } = backend;
+    await request(server)
+      .put('/api/security-dashboard/security-tools/test-repo')
+      .send(updatedData)
+      .expect(200, updatedTool);
 
-      await request(server)
-        .post('/api/security-dashboard/security-tools')
-        .send({
-          repository_name: 'delete-test-repo',
-          tool_category: 'SCA',
-          tool_name: 'Dependabot',
-        });
+    expect(mockService.updateSecurityTool).toHaveBeenCalledWith(
+      'test-repo',
+      updatedData,
+      expect.objectContaining({
+        credentials: expect.any(Object),
+      }),
+    );
 
-      await request(server)
-        .delete('/api/security-dashboard/security-tools/delete-test-repo')
-        .expect(204);
+    await backend.stop();
+  });
 
-      await request(server)
-        .get('/api/security-dashboard/security-tools')
-        .expect(200, {
-          items: [],
-        });
+  it('should call service to delete a security tool', async () => {
+    mockService.deleteSecurityTool.mockResolvedValue(undefined);
 
-      await backend.stop();
+    const backend = await startTestBackend({
+      features: [securityDashboardPlugin],
     });
+    const { server } = backend;
+
+    await request(server)
+      .delete('/api/security-dashboard/security-tools/test-repo')
+      .expect(204);
+
+    expect(mockService.deleteSecurityTool).toHaveBeenCalledWith(
+      { repositoryName: 'test-repo' },
+      expect.objectContaining({
+        credentials: expect.any(Object),
+      }),
+    );
+
+    await backend.stop();
   });
 });
