@@ -1,8 +1,10 @@
+version: '3.8'
 services:
   db:
     image: postgres:latest
+    container_name: backstage_postgres
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - backstage_db_data:/var/lib/postgresql/data
     restart: always
     environment:      
       POSTGRES_USER: myuser
@@ -12,17 +14,17 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
 
   dbadmin:    
-    image: dpage/pgadmin4:latest
+    image: dpage/pgadmin4:9.8
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@example.com}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
     ports:
       - "${PGADMIN_LOCAL_PORT:-5050}:80"
     volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - backstage_pgadmin_data:/var/lib/pgadmin
     depends_on:
       - db
 
 volumes:
-  db_data: {}
-  pgadmin_data: {}
+  backstage_db_data: {}
+  backstage_pgadmin_data: {}
