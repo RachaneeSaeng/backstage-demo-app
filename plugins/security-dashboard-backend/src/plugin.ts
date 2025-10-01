@@ -3,8 +3,7 @@ import {
   createBackendPlugin,
 } from '@backstage/backend-plugin-api';
 import { createRouter } from './router';
-import { catalogServiceRef } from '@backstage/plugin-catalog-node';
-import { createTodoListService } from './services/TodoListService';
+import { createSecurityToolsService } from './services/SecurityToolsService';
 
 /**
  * securityDashboardPlugin backend plugin
@@ -19,18 +18,18 @@ export const securityDashboardPlugin = createBackendPlugin({
         logger: coreServices.logger,
         httpAuth: coreServices.httpAuth,
         httpRouter: coreServices.httpRouter,
-        catalog: catalogServiceRef,
+        database: coreServices.database,
       },
-      async init({ logger, httpAuth, httpRouter, catalog }) {
-        const todoListService = await createTodoListService({
+      async init({ logger, httpAuth, httpRouter, database }) {
+        const securityToolsService = await createSecurityToolsService({
+          database,
           logger,
-          catalog,
         });
 
         httpRouter.use(
           await createRouter({
             httpAuth,
-            todoListService,
+            securityToolsService,
           }),
         );
       },

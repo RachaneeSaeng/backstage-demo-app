@@ -3,48 +3,93 @@ import { InputError } from '@backstage/errors';
 import { z } from 'zod';
 import express from 'express';
 import Router from 'express-promise-router';
-import { TodoListService } from './services/TodoListService/types';
+import { SecurityToolsService } from './services/SecurityToolsService';
 
 export async function createRouter({
   httpAuth,
-  todoListService,
+  securityToolsService,
 }: {
   httpAuth: HttpAuthService;
-  todoListService: TodoListService;
+  securityToolsService: SecurityToolsService;
 }): Promise<express.Router> {
   const router = Router();
   router.use(express.json());
 
-  // TEMPLATE NOTE:
-  // Zod is a powerful library for data validation and recommended in particular
-  // for user-defined schemas. In this case we use it for input validation too.
-  //
-  // If you want to define a schema for your API we recommend using Backstage's
-  // OpenAPI tooling: https://backstage.io/docs/next/openapi/01-getting-started
-  const todoSchema = z.object({
-    title: z.string(),
-    entityRef: z.string().optional(),
+  const createSecurityToolSchema = z.object({
+    repository_name: z.string(),
+    programming_languages: z.string().nullable().optional(),
+    tool_category: z.string(),
+    tool_name: z.string(),
+    is_required: z.boolean().optional(),
+    implemented: z.boolean().optional(),
+    info_url: z.string().nullable().optional(),
   });
 
-  router.post('/todos', async (req, res) => {
-    const parsed = todoSchema.safeParse(req.body);
+  const updateSecurityToolSchema = z.object({
+    programming_languages: z.string().nullable().optional(),
+    tool_category: z.string().optional(),
+    tool_name: z.string().optional(),
+    is_required: z.boolean().optional(),
+    implemented: z.boolean().optional(),
+    info_url: z.string().nullable().optional(),
+  });
+
+  // Create a new security tool
+  router.post('/security-tools', async (req, res) => {
+    const parsed = createSecurityToolSchema.safeParse(req.body);
     if (!parsed.success) {
       throw new InputError(parsed.error.toString());
     }
 
-    const result = await todoListService.createTodo(parsed.data, {
+    const result = await securityToolsService.createSecurityTool(parsed.data, {
       credentials: await httpAuth.credentials(req, { allow: ['user'] }),
     });
 
     res.status(201).json(result);
   });
 
-  router.get('/todos', async (_req, res) => {
-    res.json(await todoListService.listTodos());
+  // List all security tools
+  router.get('/security-tools', async (_req, res) => {
+    res.json(await securityToolsService.listSecurityTools());
   });
 
-  router.get('/todos/:id', async (req, res) => {
-    res.json(await todoListService.getTodo({ id: req.params.id }));
+  // Get a specific security tool by repository name
+  router.get('/security-tools/:repositoryName', async (req, res) => {
+    res.json(
+      await securityToolsService.getSecurityTool({
+        repositoryName: req.params.repositoryName,
+      }),
+    );
+  });
+
+  // Update a security tool
+  router.put('/security-tools/:repositoryName', async (req, res) => {
+    const parsed = updateSecurityToolSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new InputError(parsed.error.toString());
+    }
+
+    const result = await securityToolsService.updateSecurityTool(
+      req.params.repositoryName,
+      parsed.data,
+      {
+        credentials: await httpAuth.credentials(req, { allow: ['user'] }),
+      },
+    );
+
+    res.json(result);
+  });
+
+  // Delete a security tool
+  router.delete('/security-tools/:repositoryName', async (req, res) => {
+    await securityToolsService.deleteSecurityTool(
+      { repositoryName: req.params.repositoryName },
+      {
+        credentials: await httpAuth.credentials(req, { allow: ['user'] }),
+      },
+    );
+
+    res.status(204).send();
   });
 
   return router;
