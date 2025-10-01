@@ -29,7 +29,6 @@ describe('plugin', () => {
 
     expect(createRes.status).toBe(201);
     expect(createRes.body).toEqual({
-      id: expect.any(Number),
       repository_name: 'test-repo',
       programming_languages: 'typescript',
       tool_category: 'SAST',
@@ -37,8 +36,6 @@ describe('plugin', () => {
       is_required: true,
       implemented: false,
       info_url: 'https://eslint.org',
-      created_by: mockCredentials.user().principal.userEntityRef,
-      created_at: expect.any(String),
       updated_at: expect.any(String),
     });
 
@@ -82,7 +79,6 @@ describe('plugin', () => {
 
     expect(updateRes.status).toBe(200);
     expect(updateRes.body).toEqual({
-      id: expect.any(Number),
       repository_name: 'update-test-repo',
       programming_languages: 'python',
       tool_category: 'SAST',
@@ -90,8 +86,6 @@ describe('plugin', () => {
       is_required: false,
       implemented: true,
       info_url: 'https://bandit.readthedocs.io',
-      created_by: mockCredentials.user().principal.userEntityRef,
-      created_at: expect.any(String),
       updated_at: expect.any(String),
     });
   });

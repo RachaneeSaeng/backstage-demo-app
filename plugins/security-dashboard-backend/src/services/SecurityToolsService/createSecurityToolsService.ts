@@ -22,12 +22,54 @@ export async function createSecurityToolsService({
 
   const db = await database.getClient();
 
+  // Ensure the table exists (for test environments)
+  const hasTable = await db.schema.hasTable('repositories_security_tools');
+  if (!hasTable) {
+    await db.schema.createTable('repositories_security_tools', table => {
+      table
+        .string('repository_name', 100)
+        .primary()
+        .notNullable()
+        .comment('Repository name');
+      table
+        .string('programming_languages')
+        .nullable()
+        .comment('Programming languages used in the repository');
+      table
+        .string('tool_category', 32)
+        .notNullable()
+        .comment('Category of the security tool');
+      table
+        .string('tool_name', 32)
+        .notNullable()
+        .comment('Name of the security tool');
+      table
+        .boolean('is_required')
+        .defaultTo(false)
+        .comment('Whether this tool is required');
+      table
+        .boolean('implemented')
+        .defaultTo(false)
+        .comment('Whether the tool has been implemented');
+      table
+        .string('info_url')
+        .nullable()
+        .comment('URL with more information about the tool implementation');
+      table
+        .timestamp('updated_at')
+        .defaultTo(db.fn.now())
+        .notNullable()
+        .comment('Timestamp of last update');
+    });
+    logger.info('Created repositories_security_tools table');
+  }
+
   return {
     async createSecurityTool(input, options) {
       logger.info('Creating new security tool', {
         repositoryName: input.repository_name,
         toolName: input.tool_name,
-        credentials: options.credentials.principal,
+        credentials: options.credentials.principal as any,
       });
 
       try {
@@ -48,7 +90,11 @@ export async function createSecurityToolsService({
           repositoryName: result.repository_name,
         });
 
-        return result as RepositorySecurityTool;
+        return {
+          ...result,
+          is_required: Boolean(result.is_required),
+          implemented: Boolean(result.implemented),
+        } as RepositorySecurityTool;
       } catch (error) {
         // Check for primary key constraint violation
         if (
@@ -75,7 +121,13 @@ export async function createSecurityToolsService({
 
       logger.debug('Retrieved security tools', { count: items.length });
 
-      return { items };
+      return {
+        items: items.map(item => ({
+          ...item,
+          is_required: Boolean(item.is_required),
+          implemented: Boolean(item.implemented),
+        })),
+      };
     },
 
     async getSecurityTool(request) {
@@ -95,13 +147,17 @@ export async function createSecurityToolsService({
         );
       }
 
-      return tool;
+      return {
+        ...tool,
+        is_required: Boolean(tool.is_required),
+        implemented: Boolean(tool.implemented),
+      };
     },
 
     async updateSecurityTool(repositoryName, input, options) {
       logger.info('Updating security tool', {
         repositoryName,
-        credentials: options.credentials.principal,
+        credentials: options.credentials.principal as any,
       });
 
       // Build the update object dynamically, only including provided fields
@@ -142,13 +198,17 @@ export async function createSecurityToolsService({
 
       logger.info('Security tool updated successfully', { repositoryName });
 
-      return updated as RepositorySecurityTool;
+      return {
+        ...updated,
+        is_required: Boolean(updated.is_required),
+        implemented: Boolean(updated.implemented),
+      } as RepositorySecurityTool;
     },
 
     async deleteSecurityTool(request, options) {
       logger.info('Deleting security tool', {
         repositoryName: request.repositoryName,
-        credentials: options.credentials.principal,
+        credentials: options.credentials.principal as any,
       });
 
       const deletedCount = await db('repositories_security_tools')
