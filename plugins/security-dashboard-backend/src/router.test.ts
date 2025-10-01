@@ -7,61 +7,129 @@ import express from 'express';
 import request from 'supertest';
 
 import { createRouter } from './router';
-import { TodoListService } from './services/TodoListService/types';
+import { SecurityToolsService } from './services/SecurityToolsService';
 
-const mockTodoItem = {
-  title: 'Do the thing',
-  id: '123',
-  createdBy: mockCredentials.user().principal.userEntityRef,
-  createdAt: new Date().toISOString(),
+const mockSecurityTool = {
+  id: 1,
+  repository_name: 'test-repo',
+  programming_languages: 'typescript',
+  tool_category: 'SAST',
+  tool_name: 'ESLint',
+  is_required: true,
+  implemented: false,
+  info_url: 'https://eslint.org',
+  created_by: mockCredentials.user().principal.userEntityRef,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
 };
 
-// TEMPLATE NOTE:
-// Testing the router directly allows you to write a unit test that mocks the provided options.
 describe('createRouter', () => {
   let app: express.Express;
-  let todoListService: jest.Mocked<TodoListService>;
+  let securityToolsService: jest.Mocked<SecurityToolsService>;
 
   beforeEach(async () => {
-    todoListService = {
-      createTodo: jest.fn(),
-      listTodos: jest.fn(),
-      getTodo: jest.fn(),
-    };
+    securityToolsService = {
+      createSecurityTool: jest.fn(),
+      listSecurityTools: jest.fn(),
+      getSecurityTool: jest.fn(),
+      updateSecurityTool: jest.fn(),
+      deleteSecurityTool: jest.fn(),
+    } as any;
     const router = await createRouter({
       httpAuth: mockServices.httpAuth(),
-      todoListService,
+      securityToolsService,
     });
     app = express();
     app.use(router);
     app.use(mockErrorHandler());
   });
 
-  it('should create a TODO', async () => {
-    todoListService.createTodo.mockResolvedValue(mockTodoItem);
+  it('should create a security tool', async () => {
+    securityToolsService.createSecurityTool.mockResolvedValue(mockSecurityTool);
 
-    const response = await request(app).post('/todos').send({
-      title: 'Do the thing',
-    });
+    const response = await request(app)
+      .post('/security-tools')
+      .send({
+        repository_name: 'test-repo',
+        programming_languages: 'typescript',
+        tool_category: 'SAST',
+        tool_name: 'ESLint',
+        is_required: true,
+        implemented: false,
+        info_url: 'https://eslint.org',
+      });
 
     expect(response.status).toBe(201);
-    expect(response.body).toEqual(mockTodoItem);
+    expect(response.body).toEqual(mockSecurityTool);
   });
 
-  it('should not allow unauthenticated requests to create a TODO', async () => {
-    todoListService.createTodo.mockResolvedValue(mockTodoItem);
+  it('should list security tools', async () => {
+    securityToolsService.listSecurityTools.mockResolvedValue({
+      items: [mockSecurityTool],
+    });
 
-    // TEMPLATE NOTE:
-    // The HttpAuth mock service considers all requests to be authenticated as a
-    // mock user by default. In order to test other cases we need to explicitly
-    // pass an authorization header with mock credentials.
+    const response = await request(app).get('/security-tools');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      items: [mockSecurityTool],
+    });
+  });
+
+  it('should get a specific security tool', async () => {
+    securityToolsService.getSecurityTool.mockResolvedValue(mockSecurityTool);
+
+    const response = await request(app).get('/security-tools/test-repo');
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockSecurityTool);
+  });
+
+  it('should update a security tool', async () => {
+    const updatedTool = { ...mockSecurityTool, implemented: true };
+    securityToolsService.updateSecurityTool.mockResolvedValue(updatedTool);
+
     const response = await request(app)
-      .post('/todos')
+      .put('/security-tools/test-repo')
+      .send({
+        implemented: true,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(updatedTool);
+  });
+
+  it('should delete a security tool', async () => {
+    securityToolsService.deleteSecurityTool.mockResolvedValue(undefined);
+
+    const response = await request(app).delete('/security-tools/test-repo');
+
+    expect(response.status).toBe(204);
+  });
+
+  it('should not allow unauthenticated requests to create a security tool', async () => {
+    securityToolsService.createSecurityTool.mockResolvedValue(mockSecurityTool);
+
+    const response = await request(app)
+      .post('/security-tools')
       .set('Authorization', mockCredentials.none.header())
       .send({
-        title: 'Do the thing',
+        repository_name: 'test-repo',
+        tool_category: 'SAST',
+        tool_name: 'ESLint',
       });
 
     expect(response.status).toBe(401);
+  });
+
+  it('should validate required fields when creating a security tool', async () => {
+    const response = await request(app)
+      .post('/security-tools')
+      .send({
+        repository_name: 'test-repo',
+        // Missing required fields: tool_category, tool_name
+      });
+
+    expect(response.status).toBe(400);
   });
 });
