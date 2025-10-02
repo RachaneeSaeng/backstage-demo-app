@@ -48,8 +48,8 @@ export const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => 
   };
 
   const chipContent = (
-      <Link href={status.link} color="inherit" underline="hover">
-        View latest scan result
+      <Link href={status.link} color="inherit" underline="hover" target='_blank' rel='noopener'>
+        {status.text}
       </Link>
       );
 
@@ -59,10 +59,7 @@ export const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => 
         label={chipContent}
         className={`${classes.chip} ${getChipClass()}`}
         size="small"
-      /> <br />
-      <Link href={status.link} color="inherit" style={{ fontSize: '0.7rem' }} underline='always'>
-          Pending Tickets
-      </Link>
+      />
     </>
 
   );

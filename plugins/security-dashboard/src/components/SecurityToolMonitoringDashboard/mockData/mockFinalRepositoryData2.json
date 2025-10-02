@@ -6,7 +6,6 @@
       "tool_name": "Secret Scanning",
       "is_required": true,
       "implemented": true,
-      "status": "critical-risk",
       "info_url": "https://docs.github.com/en/code-security/secret-scanning"
     },
     {
@@ -14,8 +13,7 @@
       "tool_category": "Github Security",
       "tool_name": "Dependabot",
       "is_required": true,
-      "implemented": true,
-      "status": "low-risk",
+      "implemented": false,
       "info_url": "https://docs.github.com/en/code-security/dependabot"
     },
     {
@@ -24,7 +22,6 @@
       "tool_name": "Dependabot",
       "is_required": true,
       "implemented": true,
-      "status": "low-risk",
       "info_url": "https://docs.github.com/en/code-security/dependabot"
     },
     {
@@ -33,7 +30,6 @@
       "tool_name": "Veracode",
       "is_required": true,
       "implemented": true,
-      "status": "medium-risk",
       "info_url": "https://www.veracode.com"
     },
     {
@@ -42,7 +38,6 @@
       "tool_name": "CodeQL",
       "is_required": true,
       "implemented": true,
-      "status": "low-risk",
       "info_url": "https://codeql.github.com"
     },
     {
@@ -51,7 +46,6 @@
       "tool_name": "SonarQube",
       "is_required": false,
       "implemented": false,
-      "status": "none",
       "info_url": "https://www.sonarsource.com/products/sonarqube"
     },
     {
@@ -60,7 +54,6 @@
       "tool_name": "Veracode",
       "is_required": true,
       "implemented": true,
-      "status": "medium-risk",
       "info_url": "https://www.veracode.com"
     },
     {
@@ -69,7 +62,6 @@
       "tool_name": "CodeQL",
       "is_required": true,
       "implemented": true,
-      "status": "low-risk",
       "info_url": "https://codeql.github.com"
     },
     {
@@ -78,7 +70,6 @@
       "tool_name": "SonarQube",
       "is_required": false,
       "implemented": false,
-      "status": "none",
       "info_url": "https://www.sonarsource.com/products/sonarqube"
     },
     {
@@ -87,7 +78,6 @@
       "tool_name": "Secret Scanning",
       "is_required": true,
       "implemented": true,
-      "status": "high-risk",
       "info_url": "https://docs.github.com/en/code-security/secret-scanning"
     },
     {
@@ -96,7 +86,6 @@
       "tool_name": "Dependabot",
       "is_required": true,
       "implemented": true,
-      "status": "high-risk",
       "info_url": "https://docs.github.com/en/code-security/dependabot"
     },
     {
@@ -105,7 +94,6 @@
       "tool_name": "Dependabot",
       "is_required": true,
       "implemented": true,
-      "status": "high-risk",
       "info_url": "https://docs.github.com/en/code-security/dependabot"
     },
     {
@@ -114,7 +102,6 @@
       "tool_name": "Veracode",
       "is_required": true,
       "implemented": true,
-      "status": "critical-risk",
       "info_url": "https://www.veracode.com"
     },
     {
@@ -123,7 +110,6 @@
       "tool_name": "CodeQL",
       "is_required": true,
       "implemented": true,
-      "status": "medium-risk",
       "info_url": "https://codeql.github.com"
     },
     {
@@ -132,7 +118,6 @@
       "tool_name": "SonarQube",
       "is_required": false,
       "implemented": false,
-      "status": "none",
       "info_url": "https://www.sonarsource.com/products/sonarqube"
     },
     {
@@ -141,7 +126,6 @@
       "tool_name": "Veracode",
       "is_required": true,
       "implemented": true,
-      "status": "critical-risk",
       "info_url": "https://www.veracode.com"
     },
     {
@@ -150,7 +134,6 @@
       "tool_name": "CodeQL",
       "is_required": true,
       "implemented": true,
-      "status": "medium-risk",
       "info_url": "https://codeql.github.com"
     },
     {
@@ -159,7 +142,6 @@
       "tool_name": "SonarQube",
       "is_required": true,
       "implemented": true,
-      "status": "medium-risk",
       "info_url": "https://www.sonarsource.com/products/sonarqube"
     },
     {
@@ -177,7 +159,6 @@
       "tool_name": "Dependabot",
       "is_required": true,
       "implemented": true,
-      "status": "low-risk",
       "info_url": "https://docs.github.com/en/code-security/dependabot"
     },
     {
@@ -186,7 +167,6 @@
       "tool_name": "Dependabot",
       "is_required": true,
       "implemented": true,
-      "status": "low-risk",
       "info_url": "https://docs.github.com/en/code-security/dependabot"
     },
     {
@@ -195,7 +175,6 @@
       "tool_name": "Veracode",
       "is_required": true,
       "implemented": true,
-      "status": "high-risk",
       "info_url": "https://www.veracode.com"
     },
     {
@@ -204,7 +183,6 @@
       "tool_name": "CodeQL",
       "is_required": false,
       "implemented": false,
-      "status": "none",
       "info_url": "https://codeql.github.com"
     },
     {
@@ -213,7 +191,6 @@
       "tool_name": "SonarQube",
       "is_required": false,
       "implemented": false,
-      "status": "none",
       "info_url": "https://www.sonarsource.com/products/sonarqube"
     },
     {
@@ -222,7 +199,6 @@
       "tool_name": "Veracode",
       "is_required": true,
       "implemented": true,
-      "status": "high-risk",
       "info_url": "https://www.veracode.com"
     },
     {
@@ -231,7 +207,6 @@
       "tool_name": "CodeQL",
       "is_required": false,
       "implemented": false,
-      "status": "none",
       "info_url": "https://codeql.github.com"
     },
     {
@@ -240,7 +215,6 @@
       "tool_name": "SonarQube",
       "is_required": false,
       "implemented": false,
-      "status": "none",
       "info_url": "https://www.sonarsource.com/products/sonarqube"
     }
   ]

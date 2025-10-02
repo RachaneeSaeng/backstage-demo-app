@@ -10,7 +10,6 @@ export interface RepositoryToolData {
   tool_name: string;
   is_required: boolean;
   implemented: boolean;
-  status: 'critical-risk' | 'high-risk' | 'medium-risk' | 'low-risk' | 'none';
   info_url: string;
 }
 
@@ -20,7 +19,9 @@ export interface Repository {
     toolCategory: string;
     tools: Array<{
       name: string;
-      status: 'critical-risk' | 'high-risk' | 'medium-risk' | 'low-risk' | 'none';
+      isRequired: boolean;
+      implemented: boolean;
+      info_url: string;
     }>;
   }>;
 }

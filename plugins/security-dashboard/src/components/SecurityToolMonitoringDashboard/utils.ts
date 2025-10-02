@@ -1,19 +1,21 @@
-import { SecurityStatus, Repository, RepositoryToolData, allowedStatuses } from './types';
+import { SecurityStatus, Repository, RepositoryToolData } from './types';
 import mockFinalRepositoryData2 from './mockData/mockFinalRepositoryData2.json';
 
 export const getToolStatus = (repository: Repository, toolCategory: string, toolName: string): SecurityStatus => {
   const step = repository.steps.find(s => s.toolCategory === toolCategory);
   const tool = step?.tools.find(t => t.name === toolName);
 
-  if (!tool || tool.status === 'none') {
+  if (!tool) {
     return { status: 'none', text: 'n/a' };
   }
 
-  return {
-    status: tool.status,
-    text: 'Latest scan report',
-    link: '#'
-  };
+  if (tool.isRequired && !tool.implemented) {
+    return { status: 'critical-risk', text: ' ⚠️ Required tool is not implemented ⚠️ '};
+  } else if (tool.implemented) {
+    return { status: 'low-risk', text: 'View the tool status', link: tool.info_url };
+  } else {
+    return { status: 'none', text: 'n/a' };
+  }
 };
 
 // Convert flat data structure to nested structure
@@ -41,7 +43,9 @@ const convertRepositoryDataStructure = (flatData: RepositoryToolData[]): Reposit
 
     step.tools.push({
       name: item.tool_name,
-      status: allowedStatuses.includes(item.status) ? item.status : 'none',
+      isRequired: item.is_required,
+      implemented: item.implemented,
+      info_url: item.info_url,
     });
   });
 
