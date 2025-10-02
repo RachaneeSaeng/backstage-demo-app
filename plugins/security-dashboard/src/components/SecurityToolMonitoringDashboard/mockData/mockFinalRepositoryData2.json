@@ -1,0 +1,247 @@
+{
+  "data": [
+    {
+      "repository_name": "repository-1",
+      "tool_category": "Github Security",
+      "tool_name": "Secret Scanning",
+      "is_required": true,
+      "implemented": true,
+      "status": "critical-risk",
+      "info_url": "https://docs.github.com/en/code-security/secret-scanning"
+    },
+    {
+      "repository_name": "repository-1",
+      "tool_category": "Github Security",
+      "tool_name": "Dependabot",
+      "is_required": true,
+      "implemented": true,
+      "status": "low-risk",
+      "info_url": "https://docs.github.com/en/code-security/dependabot"
+    },
+    {
+      "repository_name": "repository-1",
+      "tool_category": "Pull Request",
+      "tool_name": "Dependabot",
+      "is_required": true,
+      "implemented": true,
+      "status": "low-risk",
+      "info_url": "https://docs.github.com/en/code-security/dependabot"
+    },
+    {
+      "repository_name": "repository-1",
+      "tool_category": "Pull Request",
+      "tool_name": "Veracode",
+      "is_required": true,
+      "implemented": true,
+      "status": "medium-risk",
+      "info_url": "https://www.veracode.com"
+    },
+    {
+      "repository_name": "repository-1",
+      "tool_category": "Pull Request",
+      "tool_name": "CodeQL",
+      "is_required": true,
+      "implemented": true,
+      "status": "low-risk",
+      "info_url": "https://codeql.github.com"
+    },
+    {
+      "repository_name": "repository-1",
+      "tool_category": "Pull Request",
+      "tool_name": "SonarQube",
+      "is_required": false,
+      "implemented": false,
+      "status": "none",
+      "info_url": "https://www.sonarsource.com/products/sonarqube"
+    },
+    {
+      "repository_name": "repository-1",
+      "tool_category": "CI",
+      "tool_name": "Veracode",
+      "is_required": true,
+      "implemented": true,
+      "status": "medium-risk",
+      "info_url": "https://www.veracode.com"
+    },
+    {
+      "repository_name": "repository-1",
+      "tool_category": "CI",
+      "tool_name": "CodeQL",
+      "is_required": true,
+      "implemented": true,
+      "status": "low-risk",
+      "info_url": "https://codeql.github.com"
+    },
+    {
+      "repository_name": "repository-1",
+      "tool_category": "CI",
+      "tool_name": "SonarQube",
+      "is_required": false,
+      "implemented": false,
+      "status": "none",
+      "info_url": "https://www.sonarsource.com/products/sonarqube"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "Github Security",
+      "tool_name": "Secret Scanning",
+      "is_required": true,
+      "implemented": true,
+      "status": "high-risk",
+      "info_url": "https://docs.github.com/en/code-security/secret-scanning"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "Github Security",
+      "tool_name": "Dependabot",
+      "is_required": true,
+      "implemented": true,
+      "status": "high-risk",
+      "info_url": "https://docs.github.com/en/code-security/dependabot"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "Pull Request",
+      "tool_name": "Dependabot",
+      "is_required": true,
+      "implemented": true,
+      "status": "high-risk",
+      "info_url": "https://docs.github.com/en/code-security/dependabot"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "Pull Request",
+      "tool_name": "Veracode",
+      "is_required": true,
+      "implemented": true,
+      "status": "critical-risk",
+      "info_url": "https://www.veracode.com"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "Pull Request",
+      "tool_name": "CodeQL",
+      "is_required": true,
+      "implemented": true,
+      "status": "medium-risk",
+      "info_url": "https://codeql.github.com"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "Pull Request",
+      "tool_name": "SonarQube",
+      "is_required": false,
+      "implemented": false,
+      "status": "none",
+      "info_url": "https://www.sonarsource.com/products/sonarqube"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "CI",
+      "tool_name": "Veracode",
+      "is_required": true,
+      "implemented": true,
+      "status": "critical-risk",
+      "info_url": "https://www.veracode.com"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "CI",
+      "tool_name": "CodeQL",
+      "is_required": true,
+      "implemented": true,
+      "status": "medium-risk",
+      "info_url": "https://codeql.github.com"
+    },
+    {
+      "repository_name": "repository-2",
+      "tool_category": "CI",
+      "tool_name": "SonarQube",
+      "is_required": true,
+      "implemented": true,
+      "status": "medium-risk",
+      "info_url": "https://www.sonarsource.com/products/sonarqube"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "Github Security",
+      "tool_name": "Secret Scanning",
+      "is_required": true,
+      "implemented": true,
+      "status": "low-risk",
+      "info_url": "https://docs.github.com/en/code-security/secret-scanning"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "Github Security",
+      "tool_name": "Dependabot",
+      "is_required": true,
+      "implemented": true,
+      "status": "low-risk",
+      "info_url": "https://docs.github.com/en/code-security/dependabot"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "Pull Request",
+      "tool_name": "Dependabot",
+      "is_required": true,
+      "implemented": true,
+      "status": "low-risk",
+      "info_url": "https://docs.github.com/en/code-security/dependabot"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "Pull Request",
+      "tool_name": "Veracode",
+      "is_required": true,
+      "implemented": true,
+      "status": "high-risk",
+      "info_url": "https://www.veracode.com"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "Pull Request",
+      "tool_name": "CodeQL",
+      "is_required": false,
+      "implemented": false,
+      "status": "none",
+      "info_url": "https://codeql.github.com"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "Pull Request",
+      "tool_name": "SonarQube",
+      "is_required": false,
+      "implemented": false,
+      "status": "none",
+      "info_url": "https://www.sonarsource.com/products/sonarqube"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "CI",
+      "tool_name": "Veracode",
+      "is_required": true,
+      "implemented": true,
+      "status": "high-risk",
+      "info_url": "https://www.veracode.com"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "CI",
+      "tool_name": "CodeQL",
+      "is_required": false,
+      "implemented": false,
+      "status": "none",
+      "info_url": "https://codeql.github.com"
+    },
+    {
+      "repository_name": "repository-3",
+      "tool_category": "CI",
+      "tool_name": "SonarQube",
+      "is_required": false,
+      "implemented": false,
+      "status": "none",
+      "info_url": "https://www.sonarsource.com/products/sonarqube"
+    }
+  ]
+}

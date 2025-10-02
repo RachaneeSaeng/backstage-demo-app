@@ -7,49 +7,22 @@ jest.mock('./utils', () => ({
     status: 'none',
     text: 'n/a',
   })),
-  repositories: [
+  repositoriesData: [
     {
       name: 'test-repo-1',
       steps: [
         {
-          toolCategory: 'SAST',
+          toolCategory: 'Github Security',
           tools: [
-            { name: 'SonarQube', status: 'low-risk' },
-            { name: 'Semgrep', status: 'none' },
+            { name: 'Secret Scanning', status: 'low-risk' },
+            { name: 'Dependabot', status: 'none' },
           ],
         },
       ],
-    },
-    {
-      name: 'test-repo-2',
-      steps: [
-        {
-          toolCategory: 'SAST',
-          tools: [
-            { name: 'SonarQube', status: 'high-risk' },
-            { name: 'Semgrep', status: 'medium-risk' },
-          ],
-        },
-      ],
-    },
+    }
   ],
 }));
 
-// Mock the config
-jest.mock('./config/toolCategories.json', () => ({
-  toolCategories: [
-    {
-      name: 'SAST',
-      backgroundColor: '#4A90E2',
-      tools: ['SonarQube', 'Semgrep'],
-    },
-    {
-      name: 'DAST',
-      backgroundColor: '#F5A623',
-      tools: ['OWASP ZAP'],
-    },
-  ],
-}));
 
 // Mock StatusChip component
 jest.mock('./StatusChip', () => ({
@@ -75,31 +48,34 @@ describe('DenseTable', () => {
   it('should render tool category headers', () => {
     render(<DenseTable />);
 
-    expect(screen.getByText('SAST')).toBeInTheDocument();
-    expect(screen.getByText('DAST')).toBeInTheDocument();
+    expect(screen.getByText('Github Security')).toBeInTheDocument();
+    expect(screen.getByText('Pull Request')).toBeInTheDocument();
+    expect(screen.getByText('CI')).toBeInTheDocument();
   });
 
   it('should render tool names under categories', () => {
     render(<DenseTable />);
 
-    expect(screen.getByText('SonarQube')).toBeInTheDocument();
-    expect(screen.getByText('Semgrep')).toBeInTheDocument();
-    expect(screen.getByText('OWASP ZAP')).toBeInTheDocument();
+    expect(screen.getAllByText('Secret Scanning').length).toEqual(1);
+    expect(screen.getAllByText('Dependabot').length).toEqual(2);
+    expect(screen.getAllByText('pnpm audit').length).toEqual(2);
+    expect(screen.getAllByText('Veracode').length).toEqual(2);
+    expect(screen.getAllByText('CodeQL').length).toEqual(2);
+    expect(screen.getAllByText('SonarQube').length).toEqual(2);
+    expect(screen.getAllByText('Trivy').length).toEqual(2);
   });
 
   it('should render repository names', () => {
     render(<DenseTable />);
 
     expect(screen.getByText('test-repo-1')).toBeInTheDocument();
-    expect(screen.getByText('test-repo-2')).toBeInTheDocument();
   });
 
   it('should render StatusChip components for each tool', () => {
     render(<DenseTable />);
 
     const statusChips = screen.getAllByTestId('status-chip');
-    // 2 repositories * 3 tools (SonarQube, Semgrep, OWASP ZAP) = 6 chips
-    expect(statusChips.length).toBeGreaterThan(0);
+    expect(statusChips.length).toEqual(13); // 13 columns for a repository
   });
 
   it('should render category cells with background colors', () => {
@@ -109,14 +85,14 @@ describe('DenseTable', () => {
     const firstRow = thead?.querySelector('tr');
     const cells = firstRow?.querySelectorAll('th');
 
-    // Find SAST and DAST cells by checking their text content
-    const sastCell = Array.from(cells || []).find(cell => cell.textContent === 'SAST') as HTMLElement;
-    const dastCell = Array.from(cells || []).find(cell => cell.textContent === 'DAST') as HTMLElement;
+    // Find Github Security and Pull Request cells by checking their text content
+    const githubSecCell = Array.from(cells || []).find(cell => cell.textContent === 'Github Security') as HTMLElement;
+    const pullReqCell = Array.from(cells || []).find(cell => cell.textContent === 'Pull Request') as HTMLElement;
 
-    expect(sastCell).toBeDefined();
-    expect(dastCell).toBeDefined();
-    expect(sastCell?.style.backgroundColor).toBeTruthy();
-    expect(dastCell?.style.backgroundColor).toBeTruthy();
+    expect(githubSecCell).toBeDefined();
+    expect(pullReqCell).toBeDefined();
+    expect(githubSecCell?.style.backgroundColor).toBeTruthy();
+    expect(pullReqCell?.style.backgroundColor).toBeTruthy();
   });
 
   it('should render table in a Paper container', () => {
@@ -139,7 +115,7 @@ describe('DenseTable', () => {
 
     const tbody = container.querySelector('tbody');
     const bodyRows = tbody?.querySelectorAll('tr');
-    expect(bodyRows).toHaveLength(2); // 2 repositories
+    expect(bodyRows).toHaveLength(1); // 1 repositories
   });
 
   it('should render category headers spanning multiple columns', () => {
@@ -149,13 +125,13 @@ describe('DenseTable', () => {
     const firstRow = thead?.querySelector('tr');
     const cells = firstRow?.querySelectorAll('th');
 
-    // SAST should be in the header (it spans 2 tool columns)
-    const sastCell = Array.from(cells || []).find(cell => cell.textContent === 'SAST');
-    expect(sastCell).toBeDefined();
+    // Github Security should be in the header (it spans 2 tool columns)
+    const githubSecCell = Array.from(cells || []).find(cell => cell.textContent === 'Github Security');
+    expect(githubSecCell).toBeDefined();
 
-    // DAST should be in the header (it spans 1 tool column)
-    const dastCell = Array.from(cells || []).find(cell => cell.textContent === 'DAST');
-    expect(dastCell).toBeDefined();
+    // Pull Request should be in the header (it spans 4 tool columns)
+    const pullReqCell = Array.from(cells || []).find(cell => cell.textContent === 'Pull Request');
+    expect(pullReqCell).toBeDefined();
   });
 
   it('should render Repository header in first row', () => {

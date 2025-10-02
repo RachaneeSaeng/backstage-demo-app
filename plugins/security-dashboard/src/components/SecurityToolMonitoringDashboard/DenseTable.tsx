@@ -10,7 +10,7 @@ import {
   Typography
 } from '@material-ui/core';
 import toolCategoriesConfig from './config/toolCategories.json';
-import { getToolStatus, repositories } from './utils';
+import { getToolStatus, repositoriesData } from './utils';
 import { StatusChip } from './StatusChip';
 
 const useStyles = makeStyles(theme => ({
@@ -87,7 +87,7 @@ export const DenseTable = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {repositories.map((repo) => (
+            {repositoriesData.map((repo) => (
               <TableRow key={repo.name}>
                 <TableCell className={classes.repositoryCell}>
                   <div>
