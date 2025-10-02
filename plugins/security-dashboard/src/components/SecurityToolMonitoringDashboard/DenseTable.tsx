@@ -9,7 +9,7 @@ import {
   makeStyles,
   Typography
 } from '@material-ui/core';
-import toolCategoriesConfig from '../../config/toolCategories.json';
+import toolCategoriesConfig from './config/toolCategories.json';
 import { getToolStatus, repositories } from './utils';
 import { StatusChip } from './StatusChip';
 
