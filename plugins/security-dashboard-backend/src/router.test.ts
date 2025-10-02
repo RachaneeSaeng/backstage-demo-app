@@ -30,6 +30,7 @@ describe('createRouter', () => {
   beforeEach(async () => {
     securityToolsService = {
       createSecurityTool: jest.fn(),
+      bulkUpsertSecurityTools: jest.fn(),
       listSecurityTools: jest.fn(),
       getSecurityTool: jest.fn(),
       updateSecurityTool: jest.fn(),
@@ -47,17 +48,15 @@ describe('createRouter', () => {
   it('should create a security tool', async () => {
     securityToolsService.createSecurityTool.mockResolvedValue(mockSecurityTool);
 
-    const response = await request(app)
-      .post('/security-tools')
-      .send({
-        repository_name: 'test-repo',
-        programming_languages: 'typescript',
-        tool_category: 'SAST',
-        tool_name: 'ESLint',
-        is_required: true,
-        implemented: false,
-        info_url: 'https://eslint.org',
-      });
+    const response = await request(app).post('/security-tools').send({
+      repository_name: 'test-repo',
+      programming_languages: 'typescript',
+      tool_category: 'SAST',
+      tool_name: 'ESLint',
+      is_required: true,
+      implemented: false,
+      info_url: 'https://eslint.org',
+    });
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual(mockSecurityTool);
@@ -89,11 +88,9 @@ describe('createRouter', () => {
     const updatedTool = { ...mockSecurityTool, implemented: true };
     securityToolsService.updateSecurityTool.mockResolvedValue(updatedTool);
 
-    const response = await request(app)
-      .put('/security-tools/test-repo')
-      .send({
-        implemented: true,
-      });
+    const response = await request(app).put('/security-tools/test-repo').send({
+      implemented: true,
+    });
 
     expect(response.status).toBe(200);
     expect(response.body).toEqual(updatedTool);
@@ -123,13 +120,111 @@ describe('createRouter', () => {
   });
 
   it('should validate required fields when creating a security tool', async () => {
-    const response = await request(app)
-      .post('/security-tools')
-      .send({
-        repository_name: 'test-repo',
-        // Missing required fields: tool_category, tool_name
-      });
+    const response = await request(app).post('/security-tools').send({
+      repository_name: 'test-repo',
+      // Missing required fields: tool_category, tool_name
+    });
 
     expect(response.status).toBe(400);
+  });
+
+  it('should bulk upsert security tools', async () => {
+    const mockResult = {
+      created: [mockSecurityTool],
+      updated: [{ ...mockSecurityTool, repository_name: 'updated-repo' }],
+    };
+    securityToolsService.bulkUpsertSecurityTools.mockResolvedValue(mockResult);
+
+    const response = await request(app)
+      .post('/security-tools/bulk-upsert')
+      .send([
+        {
+          repository_name: 'test-repo',
+          programming_languages: 'typescript',
+          tool_category: 'SAST',
+          tool_name: 'ESLint',
+        },
+        {
+          repository_name: 'updated-repo',
+          programming_languages: 'python',
+          tool_category: 'SAST',
+          tool_name: 'Bandit',
+        },
+      ]);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockResult);
+    expect(securityToolsService.bulkUpsertSecurityTools).toHaveBeenCalledWith(
+      [
+        {
+          repository_name: 'test-repo',
+          programming_languages: 'typescript',
+          tool_category: 'SAST',
+          tool_name: 'ESLint',
+        },
+        {
+          repository_name: 'updated-repo',
+          programming_languages: 'python',
+          tool_category: 'SAST',
+          tool_name: 'Bandit',
+        },
+      ],
+      expect.objectContaining({
+        credentials: expect.anything(),
+      }),
+    );
+  });
+
+  it('should not allow unauthenticated requests to bulk upsert', async () => {
+    const response = await request(app)
+      .post('/security-tools/bulk-upsert')
+      .set('Authorization', mockCredentials.none.header())
+      .send([
+        {
+          repository_name: 'test-repo',
+          tool_category: 'SAST',
+          tool_name: 'ESLint',
+        },
+      ]);
+
+    expect(response.status).toBe(401);
+  });
+
+  it('should validate bulk upsert input is an array', async () => {
+    const response = await request(app).post('/security-tools/bulk-upsert').send({
+      repository_name: 'test-repo',
+      tool_category: 'SAST',
+      tool_name: 'ESLint',
+    });
+
+    expect(response.status).toBe(400);
+  });
+
+  it('should validate required fields in bulk upsert items', async () => {
+    const response = await request(app)
+      .post('/security-tools/bulk-upsert')
+      .send([
+        {
+          repository_name: 'test-repo',
+          // Missing required fields: tool_category, tool_name
+        },
+      ]);
+
+    expect(response.status).toBe(400);
+  });
+
+  it('should handle empty array in bulk upsert', async () => {
+    securityToolsService.bulkUpsertSecurityTools.mockResolvedValue({
+      created: [],
+      updated: [],
+    });
+
+    const response = await request(app).post('/security-tools/bulk-upsert').send([]);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      created: [],
+      updated: [],
+    });
   });
 });

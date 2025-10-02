@@ -34,6 +34,8 @@ export async function createRouter({
     info_url: z.string().nullable().optional(),
   });
 
+  const bulkUpsertSecurityToolsSchema = z.array(createSecurityToolSchema);
+
   // Create a new security tool
   router.post('/security-tools', async (req, res) => {
     const parsed = createSecurityToolSchema.safeParse(req.body);
@@ -46,6 +48,23 @@ export async function createRouter({
     });
 
     res.status(201).json(result);
+  });
+
+  // Bulk upsert security tools
+  router.post('/security-tools/bulk-upsert', async (req, res) => {
+    const parsed = bulkUpsertSecurityToolsSchema.safeParse(req.body);
+    if (!parsed.success) {
+      throw new InputError(parsed.error.toString());
+    }
+
+    const result = await securityToolsService.bulkUpsertSecurityTools(
+      parsed.data,
+      {
+        credentials: await httpAuth.credentials(req, { allow: ['user'] }),
+      },
+    );
+
+    res.status(200).json(result);
   });
 
   // List all security tools

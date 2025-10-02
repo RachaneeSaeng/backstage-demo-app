@@ -38,6 +38,16 @@ export interface SecurityToolsService {
     },
   ): Promise<RepositorySecurityTool>;
 
+  bulkUpsertSecurityTools(
+    inputs: CreateSecurityToolInput[],
+    options: {
+      credentials: BackstageCredentials;
+    },
+  ): Promise<{
+    created: RepositorySecurityTool[];
+    updated: RepositorySecurityTool[];
+  }>;
+
   listSecurityTools(): Promise<{ items: RepositorySecurityTool[] }>;
 
   getSecurityTool(request: {

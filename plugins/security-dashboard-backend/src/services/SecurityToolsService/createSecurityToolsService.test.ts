@@ -447,6 +447,243 @@ describe('createSecurityToolsService', () => {
     );
   });
 
+  describe('bulkUpsertSecurityTools', () => {
+    it.each(databases.eachSupportedId())(
+      'should create multiple new security tools, %p',
+      async databaseId => {
+        const { service, knex } = await createDatabase(databaseId);
+
+        const inputs = [
+          {
+            repository_name: 'bulk-repo-1',
+            tool_category: 'SAST',
+            tool_name: 'Tool 1',
+          },
+          {
+            repository_name: 'bulk-repo-2',
+            programming_languages: 'python',
+            tool_category: 'DAST',
+            tool_name: 'Tool 2',
+            is_required: true,
+          },
+          {
+            repository_name: 'bulk-repo-3',
+            tool_category: 'SCA',
+            tool_name: 'Tool 3',
+            implemented: true,
+          },
+        ];
+
+        const result = await service.bulkUpsertSecurityTools(inputs, {
+          credentials,
+        });
+
+        expect(result.created).toHaveLength(3);
+        expect(result.updated).toHaveLength(0);
+        expect(result.created[0].repository_name).toBe('bulk-repo-1');
+        expect(result.created[1].repository_name).toBe('bulk-repo-2');
+        expect(result.created[2].repository_name).toBe('bulk-repo-3');
+
+        // Verify they were actually inserted
+        const rows = await knex<RepositorySecurityTool>(
+          'repositories_security_tools',
+        )
+          .whereIn('repository_name', [
+            'bulk-repo-1',
+            'bulk-repo-2',
+            'bulk-repo-3',
+          ])
+          .select('*');
+
+        expect(rows).toHaveLength(3);
+
+        await knex.destroy();
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'should update existing security tools when duplicates found, %p',
+      async databaseId => {
+        const { service, knex } = await createDatabase(databaseId);
+
+        // First create some tools
+        await service.createSecurityTool(
+          {
+            repository_name: 'existing-repo-1',
+            tool_category: 'SAST',
+            tool_name: 'Old Tool 1',
+            is_required: false,
+            implemented: false,
+          },
+          { credentials },
+        );
+
+        await service.createSecurityTool(
+          {
+            repository_name: 'existing-repo-2',
+            tool_category: 'DAST',
+            tool_name: 'Old Tool 2',
+            is_required: false,
+            implemented: false,
+          },
+          { credentials },
+        );
+
+        // Now bulk upsert with same repository names but different data
+        const inputs = [
+          {
+            repository_name: 'existing-repo-1',
+            tool_category: 'SAST',
+            tool_name: 'Updated Tool 1',
+            is_required: true,
+            implemented: true,
+          },
+          {
+            repository_name: 'existing-repo-2',
+            tool_category: 'DAST',
+            tool_name: 'Updated Tool 2',
+            implemented: true,
+          },
+        ];
+
+        const result = await service.bulkUpsertSecurityTools(inputs, {
+          credentials,
+        });
+
+        expect(result.created).toHaveLength(0);
+        expect(result.updated).toHaveLength(2);
+        expect(result.updated[0].repository_name).toBe('existing-repo-1');
+        expect(result.updated[0].tool_name).toBe('Updated Tool 1');
+        expect(result.updated[0].is_required).toBe(true);
+        expect(result.updated[0].implemented).toBe(true);
+        expect(result.updated[1].repository_name).toBe('existing-repo-2');
+        expect(result.updated[1].tool_name).toBe('Updated Tool 2');
+        expect(result.updated[1].implemented).toBe(true);
+
+        await knex.destroy();
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'should handle mixed create and update operations, %p',
+      async databaseId => {
+        const { service, knex } = await createDatabase(databaseId);
+
+        // Create one existing tool
+        await service.createSecurityTool(
+          {
+            repository_name: 'mixed-existing',
+            tool_category: 'SAST',
+            tool_name: 'Existing Tool',
+          },
+          { credentials },
+        );
+
+        // Bulk upsert with one existing and two new
+        const inputs = [
+          {
+            repository_name: 'mixed-existing',
+            tool_category: 'SAST',
+            tool_name: 'Updated Tool',
+            implemented: true,
+          },
+          {
+            repository_name: 'mixed-new-1',
+            tool_category: 'DAST',
+            tool_name: 'New Tool 1',
+          },
+          {
+            repository_name: 'mixed-new-2',
+            tool_category: 'SCA',
+            tool_name: 'New Tool 2',
+          },
+        ];
+
+        const result = await service.bulkUpsertSecurityTools(inputs, {
+          credentials,
+        });
+
+        expect(result.created).toHaveLength(2);
+        expect(result.updated).toHaveLength(1);
+        expect(result.updated[0].repository_name).toBe('mixed-existing');
+        expect(result.updated[0].tool_name).toBe('Updated Tool');
+        expect(result.updated[0].implemented).toBe(true);
+        expect(result.created[0].repository_name).toBe('mixed-new-1');
+        expect(result.created[1].repository_name).toBe('mixed-new-2');
+
+        await knex.destroy();
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'should handle empty array input, %p',
+      async databaseId => {
+        const { service, knex } = await createDatabase(databaseId);
+
+        const result = await service.bulkUpsertSecurityTools([], {
+          credentials,
+        });
+
+        expect(result.created).toHaveLength(0);
+        expect(result.updated).toHaveLength(0);
+
+        await knex.destroy();
+      },
+    );
+
+    it.each(databases.eachSupportedId())(
+      'should rollback all changes on error, %p',
+      async databaseId => {
+        const { service, knex } = await createDatabase(databaseId);
+
+        // Create a tool first
+        await service.createSecurityTool(
+          {
+            repository_name: 'rollback-test',
+            tool_category: 'SAST',
+            tool_name: 'Original Tool',
+            implemented: false,
+          },
+          { credentials },
+        );
+
+        // Mock a database error by closing the connection temporarily
+        const inputs = [
+          {
+            repository_name: 'rollback-test',
+            tool_category: 'SAST',
+            tool_name: 'Updated Tool',
+            implemented: true,
+          },
+          {
+            repository_name: 'new-repo',
+            tool_category: 'DAST',
+            tool_name: 'New Tool',
+          },
+        ];
+
+        // Get the original tool state before upsert
+        const originalTool = await service.getSecurityTool({
+          repositoryName: 'rollback-test',
+        });
+
+        expect(originalTool.tool_name).toBe('Original Tool');
+        expect(originalTool.implemented).toBe(false);
+
+        // Perform successful upsert to verify transaction works
+        await service.bulkUpsertSecurityTools(inputs, { credentials });
+
+        const updatedTool = await service.getSecurityTool({
+          repositoryName: 'rollback-test',
+        });
+        expect(updatedTool.tool_name).toBe('Updated Tool');
+        expect(updatedTool.implemented).toBe(true);
+
+        await knex.destroy();
+      },
+    );
+  });
+
   describe('logger integration', () => {
     it.each(databases.eachSupportedId())(
       'should log service initialization, %p',

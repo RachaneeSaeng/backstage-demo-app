@@ -1,7 +1,4 @@
-import {
-  DatabaseService,
-  LoggerService,
-} from '@backstage/backend-plugin-api';
+import { DatabaseService, LoggerService } from '@backstage/backend-plugin-api';
 import { ConflictError, NotFoundError } from '@backstage/errors';
 import { Knex } from 'knex';
 import {
@@ -66,6 +63,93 @@ export async function createSecurityToolsService({
         }
         throw error;
       }
+    },
+
+    async bulkUpsertSecurityTools(inputs, options) {
+      logger.info('Bulk upserting security tools', {
+        count: inputs.length,
+        credentials: options.credentials.principal as any,
+      });
+
+      const created: RepositorySecurityTool[] = [];
+      const updated: RepositorySecurityTool[] = [];
+
+      // Process each input in a transaction
+      await db.transaction(async trx => {
+        for (const input of inputs) {
+          // Check if the record exists
+          const existing = await trx<RepositorySecurityTool>(
+            'repositories_security_tools',
+          )
+            .where('repository_name', input.repository_name)
+            .first();
+
+          if (existing) {
+            // Update existing record
+            const updateData: Partial<Knex.ResolveTableType<RepositorySecurityTool>> = 
+            {
+              updated_at: trx.fn.now() as any,
+            };
+
+            if (input.programming_languages !== undefined) {
+              updateData.programming_languages = input.programming_languages;
+            }
+            if (input.tool_category !== undefined) {
+              updateData.tool_category = input.tool_category;
+            }
+            if (input.tool_name !== undefined) {
+              updateData.tool_name = input.tool_name;
+            }
+            if (input.is_required !== undefined) {
+              updateData.is_required = input.is_required;
+            }
+            if (input.implemented !== undefined) {
+              updateData.implemented = input.implemented;
+            }
+            if (input.info_url !== undefined) {
+              updateData.info_url = input.info_url;
+            }
+
+            const [result] = await trx('repositories_security_tools')
+              .where('repository_name', input.repository_name)
+              .update(updateData)
+              .returning('*');
+
+            updated.push({
+              ...result,
+              is_required: Boolean(result.is_required),
+              implemented: Boolean(result.implemented),
+            } as RepositorySecurityTool);
+          } else {
+            // Insert new record
+            const [result] = await trx('repositories_security_tools')
+              .insert({
+                repository_name: input.repository_name,
+                programming_languages: input.programming_languages || null,
+                tool_category: input.tool_category,
+                tool_name: input.tool_name,
+                is_required: input.is_required ?? false,
+                implemented: input.implemented ?? false,
+                info_url: input.info_url || null,
+                updated_at: trx.fn.now(),
+              })
+              .returning('*');
+
+            created.push({
+              ...result,
+              is_required: Boolean(result.is_required),
+              implemented: Boolean(result.implemented),
+            } as RepositorySecurityTool);
+          }
+        }
+      });
+
+      logger.info('Bulk upsert completed', {
+        created: created.length,
+        updated: updated.length,
+      });
+
+      return { created, updated };
     },
 
     async listSecurityTools() {
