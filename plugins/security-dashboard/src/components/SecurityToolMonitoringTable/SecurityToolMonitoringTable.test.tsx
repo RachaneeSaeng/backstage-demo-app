@@ -2,18 +2,17 @@ import { renderInTestApp } from '@backstage/test-utils';
 import { SecurityToolMonitoringTable } from './SecurityToolMonitoringTable';
 
 describe('SecurityToolMonitoringTable', () => {
-  it('renders the user table', async () => {
-    const { getAllByText, getByAltText, getByText, findByRole } =
+  it('renders the security monitoring tools table', async () => {
+    const { getByText, findByRole } =
       await renderInTestApp(<SecurityToolMonitoringTable />);
 
     // Wait for the table to render
     const table = await findByRole('table');
-    const nationality = getAllByText('GB');
-    // Assert that the table contains the expected user data
+
+    // Assert that the table is rendered
     expect(table).toBeInTheDocument();
-    expect(getByAltText('Carolyn')).toBeInTheDocument();
-    expect(getByText('Carolyn Moore')).toBeInTheDocument();
-    expect(getByText('carolyn.moore@example.com')).toBeInTheDocument();
-    expect(nationality[0]).toBeInTheDocument();
+
+    // Assert that the table contains the expected header
+    expect(getByText('Repository')).toBeInTheDocument();
   });
 });
