@@ -1,4 +1,4 @@
-import { SecurityToolMonitoringDashboard } from './SecurityToolMonitoringDashboard';
+import { SecurityGuidelines } from './SecurityGuidelines';
 import { rest } from 'msw';
 import { setupServer } from 'msw/node';
 import { screen } from '@testing-library/react';
@@ -7,12 +7,10 @@ import {
   renderInTestApp,
 } from '@backstage/test-utils';
 
-describe('ExampleComponent', () => {
+describe('SecurityGuidelines', () => {
   const server = setupServer();
-  // Enable sane handlers for network requests
   registerMswTestHooks(server);
 
-  // setup mock response
   beforeEach(() => {
     server.use(
       rest.get('/*', (_, res, ctx) => res(ctx.status(200), ctx.json({}))),
@@ -20,9 +18,9 @@ describe('ExampleComponent', () => {
   });
 
   it('should render', async () => {
-    await renderInTestApp(<SecurityToolMonitoringDashboard />);
+    await renderInTestApp(<SecurityGuidelines />);
     expect(
-      screen.getByText('Security Tools Monitoring Dashboard'),
+      screen.getByText('Security Guidelines'),
     ).toBeInTheDocument();
   });
 });

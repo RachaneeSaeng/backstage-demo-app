@@ -12,7 +12,7 @@ import { SecurityToolMonitoringTable } from '../SecurityToolMonitoringTable';
 
 export const SecurityToolMonitoringDashboard = () => (
   <Page themeId="tool">
-    <Header title="Security Dashboard" subtitle="To monitor security scanning across our repositories">
+    <Header title="Security Tools Monitoring Dashboard" subtitle="To monitor security scanning across our repositories">
       {/* <HeaderLabel label="Owner" value="Team X" />
       <HeaderLabel label="Lifecycle" value="Alpha" /> */}
     </Header>

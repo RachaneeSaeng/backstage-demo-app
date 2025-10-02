@@ -18,6 +18,8 @@ import {
   SidebarDivider,
   SidebarGroup,
   SidebarItem,
+  SidebarSubmenu,
+  SidebarSubmenuItem,
   SidebarPage,
   SidebarScrollWrapper,
   SidebarSpace,
@@ -76,7 +78,23 @@ export const Root = ({ children }: PropsWithChildren<{}>) => (
         />
         <SidebarItem icon={ExtensionIcon} to="api-docs" text="APIs" />
         <SidebarItem icon={LibraryBooks} to="docs" text="Docs" />
-        <SidebarItem icon={Security} to="security-dashboard" text="Security Dashboard" />
+        <SidebarItem icon={Security} text="Security" >
+          <SidebarSubmenu title="Security">
+             <SidebarSubmenuItem
+              title="Guidelines Center"
+              to="security-guidelines"
+            />
+            <SidebarDivider />
+            <SidebarSubmenuItem
+              title="Security Tools Dashboard"
+              to="security-tools-dashboard"
+            />
+            <SidebarSubmenuItem
+              title="Cloud Security Dashboard"
+              to="cloud-security-dashboard"
+            />
+          </SidebarSubmenu>
+        </SidebarItem>
         <SidebarItem icon={CreateComponentIcon} to="create" text="Create..." />        
         {/* End global nav */}
         <SidebarDivider />

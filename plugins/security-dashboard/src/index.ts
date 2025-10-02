@@ -1,1 +1,1 @@
-export { securityDashboardPlugin, SecurityDashboardPage } from './plugin';
+export { securityDashboardPlugin, SecurityToolMonitoringDashboardPage, CloudSecurityDashboardPage, SecurityGuidelinesPage } from './plugin';
