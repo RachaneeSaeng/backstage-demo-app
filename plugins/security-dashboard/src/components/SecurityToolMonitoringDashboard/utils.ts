@@ -1,5 +1,5 @@
 import { SecurityStatus, Repository, RepositoryToolData } from './types';
-import mockFinalRepositoryData2 from './mockData/mockFinalRepositoryData2.json';
+
 
 export const getToolStatus = (repository: Repository, toolCategory: string, toolName: string): SecurityStatus => {
   const step = repository.steps.find(s => s.toolCategory === toolCategory);
@@ -19,7 +19,7 @@ export const getToolStatus = (repository: Repository, toolCategory: string, tool
 };
 
 // Convert flat data structure to nested structure
-const convertRepositoryDataStructure = (flatData: RepositoryToolData[]): Repository[] => {
+export const convertRepositoryDataStructure = (flatData: RepositoryToolData[]): Repository[] => {
   const repoMap = new Map<string, Repository>();
 
   flatData.forEach((item) => {
@@ -51,6 +51,3 @@ const convertRepositoryDataStructure = (flatData: RepositoryToolData[]): Reposit
 
   return Array.from(repoMap.values());
 };
-
-// New function to get repositories from flat data structure
-export const repositoriesData: Repository[] = convertRepositoryDataStructure(mockFinalRepositoryData2.data as RepositoryToolData[]);

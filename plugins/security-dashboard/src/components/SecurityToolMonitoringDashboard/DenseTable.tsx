@@ -10,8 +10,9 @@ import {
   Typography
 } from '@material-ui/core';
 import toolCategoriesConfig from './config/toolCategories.json';
-import { getToolStatus, repositoriesData } from './utils';
+import { getToolStatus } from './utils';
 import { StatusChip } from './StatusChip';
+import { Repository } from './types';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -47,7 +48,11 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export const DenseTable = () => {
+interface DenseTableProps {
+  repositoriesData: Repository[];
+}
+
+export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
   const classes = useStyles();
   const { toolCategories } = toolCategoriesConfig;
 
