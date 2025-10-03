@@ -1,12 +1,27 @@
 import {
   createPlugin,
   createRoutableExtension,
+  createApiFactory,
+  discoveryApiRef,
+  fetchApiRef,
 } from '@backstage/core-plugin-api';
 
 import { securityToolsDashboardRouteRef, cloudSecurityDashboardRouteRef, securityGuidelinesRouteRef } from './routes';
+import { SecurityDashboardClient, securityDashboardApiRef } from './api';
 
 export const securityDashboardPlugin = createPlugin({
   id: 'security-dashboard',
+  apis: [
+    createApiFactory({
+      api: securityDashboardApiRef,
+      deps: {
+        discoveryApi: discoveryApiRef,
+        fetchApi: fetchApiRef,
+      },
+      factory: ({ discoveryApi, fetchApi }) =>
+        new SecurityDashboardClient({ discoveryApi, fetchApi }),
+    }),
+  ],
   routes: {
     securityToolsDashboard: securityToolsDashboardRouteRef,
     cloudSecurityDashboard: cloudSecurityDashboardRouteRef,

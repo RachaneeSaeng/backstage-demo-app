@@ -29,7 +29,7 @@ export const SecurityToolMonitoringTable = () => {
     return (
       <Box className={classes.container}>
         <Alert severity="error">
-          Failed to load books: {error.message}
+          Failed to load respository data: {error.message}
         </Alert>
       </Box>
     );
