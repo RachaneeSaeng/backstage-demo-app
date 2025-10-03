@@ -2,7 +2,6 @@ import { Repository, RepositoryToolData } from '../types';
 
 // Convert flat data structure to nested structure
 export const convertRepositoryDataStructure = (flatData: RepositoryToolData[]): Repository[] => {
-  debugger;
   const repoMap = new Map<string, Repository>();
 
   flatData.forEach((item) => {
