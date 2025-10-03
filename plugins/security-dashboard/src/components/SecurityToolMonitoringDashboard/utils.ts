@@ -1,5 +1,4 @@
-import { SecurityStatus, Repository, RepositoryToolData } from './types';
-
+import { SecurityStatus, Repository } from '../../types';
 
 export const getToolStatus = (repository: Repository, toolCategory: string, toolName: string): SecurityStatus => {
   const step = repository.steps.find(s => s.toolCategory === toolCategory);
@@ -16,38 +15,4 @@ export const getToolStatus = (repository: Repository, toolCategory: string, tool
   } else {
     return { status: 'none', text: 'n/a' };
   }
-};
-
-// Convert flat data structure to nested structure
-export const convertRepositoryDataStructure = (flatData: RepositoryToolData[]): Repository[] => {
-  const repoMap = new Map<string, Repository>();
-
-  flatData.forEach((item) => {
-    if (!repoMap.has(item.repository_name)) {
-      repoMap.set(item.repository_name, {
-        name: item.repository_name,
-        steps: [],
-      });
-    }
-
-    const repo = repoMap.get(item.repository_name)!;
-    let step = repo.steps.find(s => s.toolCategory === item.tool_category);
-
-    if (!step) {
-      step = {
-        toolCategory: item.tool_category,
-        tools: [],
-      };
-      repo.steps.push(step);
-    }
-
-    step.tools.push({
-      name: item.tool_name,
-      isRequired: item.is_required,
-      implemented: item.implemented,
-      info_url: item.info_url,
-    });
-  });
-
-  return Array.from(repoMap.values());
 };

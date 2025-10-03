@@ -1,31 +1,50 @@
-import {
-  Progress,
-  ResponseErrorPanel,
-} from '@backstage/core-components';
-import useAsync from 'react-use/lib/useAsync';
+import { Progress } from '@backstage/core-components';
+import {Box } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
+import { makeStyles } from '@material-ui/core/styles';
 import { DenseTable } from './DenseTable';
-import { Repository, RepositoryToolData } from './types';
-import { convertRepositoryDataStructure } from './utils';
+import { useRepositorySecurityTools } from '../../hooks';
 
-
-import mockFinalRepositoryData2 from './mockData/mockFinalRepositoryData2.json';
-import { useApp } from '@backstage/core-plugin-api';
+const useStyles = makeStyles(theme => ({
+  container: {
+    padding: theme.spacing(3),
+  }
+}));
 
 export const SecurityToolMonitoringTable = () => {
-//   const app = useApp();
-// const { Progress } = app.getComponents();
-  const { value, loading, error } = useAsync(async (): Promise<Repository[]> => {
-    // Would use fetch in a real world example
-    // Add a short delay to simulate loading state
-    await new Promise(resolve => setTimeout(resolve, 500));
-    return convertRepositoryDataStructure(mockFinalRepositoryData2.data as RepositoryToolData[]);
-  }, []);
+  const classes = useStyles();
+  const { repositorySecurityTools, loading, error } = useRepositorySecurityTools();
 
+  // Loading state
   if (loading) {
-    return <div>Querying data..</div>; //<Progress />;
-  } else if (error) {
-    return <ResponseErrorPanel error={error} />;
+    return (
+      <Box className={classes.container}>
+        <Progress />
+      </Box>
+    );
   }
 
-  return <DenseTable repositoriesData={value ?? []}/>;
+  // Error state
+  if (error) {
+    return (
+      <Box className={classes.container}>
+        <Alert severity="error">
+          Failed to load books: {error.message}
+        </Alert>
+      </Box>
+    );
+  }
+
+  // Empty state
+  if (!repositorySecurityTools || repositorySecurityTools.length === 0) {
+    return (
+      <Box className={classes.container}>
+        <Alert severity="info">
+          No books found. Create your first book to get started!
+        </Alert>
+      </Box>
+    );
+  }
+
+  return <DenseTable repositoriesData={repositorySecurityTools ?? []}/>;
 };

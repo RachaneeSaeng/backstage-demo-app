@@ -1,6 +1,6 @@
 import React from 'react';
 import { Chip, Link, makeStyles } from '@material-ui/core';
-import { SecurityStatus } from './types';
+import { SecurityStatus } from '../../types';
 
 const useStyles = makeStyles((theme) => ({
   chip: {

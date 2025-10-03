@@ -12,7 +12,7 @@ import {
 import toolCategoriesConfig from './config/toolCategories.json';
 import { getToolStatus } from './utils';
 import { StatusChip } from './StatusChip';
-import { Repository } from './types';
+import { Repository } from '../../types';
 
 const useStyles = makeStyles(theme => ({
   root: {

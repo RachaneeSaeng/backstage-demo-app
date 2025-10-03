@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { StatusChip } from './StatusChip';
-import { SecurityStatus } from './types';
+import { SecurityStatus } from '../../types';
 
 describe('StatusChip', () => {
   it('should render critical-risk status chip', () => {
