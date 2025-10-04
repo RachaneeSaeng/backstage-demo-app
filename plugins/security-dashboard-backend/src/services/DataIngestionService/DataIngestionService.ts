@@ -1,5 +1,4 @@
-import { LoggerService } from '@backstage/backend-plugin-api';
-import { ScmIntegrations } from '@backstage/integration';
+import { LoggerService, RootConfigService } from '@backstage/backend-plugin-api';
 import { GitHubSecurityService } from './GithubSecurityService';
 import { RepositorySecurityInfo } from '../types';
 
@@ -10,20 +9,20 @@ export class DataIngestionService {
   private readonly githubService: GitHubSecurityService;
 
   constructor(
-    integrations: ScmIntegrations,
+    config: RootConfigService,
     private readonly logger: LoggerService,
   ) {
-    this.githubService = new GitHubSecurityService(integrations, logger);
+    this.githubService = new GitHubSecurityService(config, logger);
   }
 
   /**
-   * Fetch repository security information for an organization
+   * Fetch repository security information
    */
-  async fetchGitHubSecurityInfo(org: string): Promise<RepositorySecurityInfo[]> {
-    this.logger.info(`Fetching repository security info for org: ${org}`);
+  async fetchGitHubSecurityInfo(): Promise<RepositorySecurityInfo[]> {
+    this.logger.info(`Fetching repository security info`);
 
     const repositories = await this.githubService.getRepositoriesWithSecurityInfo({
-      org,
+      org: 'RachaneeSaeng',
       includeArchived: false,
       excludePattern: '^react',
       includePattern: '',

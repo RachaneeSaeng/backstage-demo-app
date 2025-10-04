@@ -1,4 +1,4 @@
-import { LoggerService } from '@backstage/backend-plugin-api';
+import { LoggerService, RootConfigService } from '@backstage/backend-plugin-api';
 import {
   DefaultGithubCredentialsProvider,
   GithubCredentialsProvider,
@@ -25,12 +25,12 @@ export class GitHubSecurityService {
   private readonly integrations: ScmIntegrations;
 
   constructor(
-    integrations: ScmIntegrations,
+    config: RootConfigService,
     private readonly logger: LoggerService,
   ) {
-    this.integrations = integrations;
+    this.integrations = ScmIntegrations.fromConfig(config);
     this.credentialsProvider =
-      DefaultGithubCredentialsProvider.fromIntegrations(integrations);
+      DefaultGithubCredentialsProvider.fromIntegrations(this.integrations);
   }
 
   /**
@@ -153,7 +153,7 @@ export class GitHubSecurityService {
     const query = `
       query repositories($org: String!, $cursor: String) {
         repositoryOwner(login: $org) {
-          repositories(first: 20, after: $cursor) {
+          repositories(first: 10, after: $cursor) {
             nodes {
               name
               url
@@ -180,7 +180,7 @@ export class GitHubSecurityService {
 
     const repositories: RepositoryGraphQLResponse[] = [];
     let cursor: string | undefined = undefined;
-    let hasNextPage = true;
+    let hasNextPage = true; // To change back to true if you want to fetch all pages
 
     while (hasNextPage) {
       const response: OrganizationRepositoriesResponse = await client(query, {
@@ -194,9 +194,10 @@ export class GitHubSecurityService {
 
       repositories.push(...response.repositoryOwner.repositories.nodes);
 
-      const pageInfo: PageInfo = response.repositoryOwner.repositories.pageInfo;
-      hasNextPage = pageInfo.hasNextPage;
-      cursor = pageInfo.endCursor;
+      // const pageInfo: PageInfo = response.repositoryOwner.repositories.pageInfo;
+      // hasNextPage = pageInfo.hasNextPage;
+      hasNextPage = false; // To prevent fetching multiple pages for now
+      // cursor = pageInfo.endCursor;
     }
 
     return repositories;
