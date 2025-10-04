@@ -24,8 +24,7 @@ export class DataIngestionService {
     const repositories = await this.githubService.getRepositoriesWithSecurityInfo({
       org: 'RachaneeSaeng',
       includeArchived: false,
-      excludePattern: '^react',
-      includePattern: '',
+      excludePattern: '^react'
     });
 
     return repositories;

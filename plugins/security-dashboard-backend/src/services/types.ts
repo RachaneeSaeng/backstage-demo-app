@@ -85,9 +85,7 @@ export type GitHubWorkflow = {
 export type RepositorySecurityInfo = {
   name: string;
   url: string;
-  isArchived: boolean;
-  visibility: string;
-  defaultBranch: string | null;
+  languages: string[];
   dependabotAlertsEnabled: boolean;
   secretScanningEnabled: boolean;
   workflows: GitHubWorkflow[];
@@ -100,7 +98,6 @@ export type RepositoryFilters = {
   org: string;
   includeArchived?: boolean;
   excludePattern?: string;
-  includePattern?: string;
 };
 
 /**
@@ -120,11 +117,12 @@ export type RepositoryGraphQLResponse = {
   name: string;
   url: string;
   isArchived: boolean;
-  visibility: string;
   hasVulnerabilityAlertsEnabled: boolean;
-  defaultBranchRef: {
-    name: string;
-  } | null;
+  languages: {
+    nodes: Array<{
+      name: string;
+    }>;
+  };
 };
 
 export type OrganizationRepositoriesResponse = {

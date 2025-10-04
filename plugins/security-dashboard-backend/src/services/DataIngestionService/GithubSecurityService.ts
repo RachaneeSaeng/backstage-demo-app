@@ -39,7 +39,7 @@ export class GitHubSecurityService {
   async getRepositoriesWithSecurityInfo(
     filters: RepositoryFilters,
   ): Promise<RepositorySecurityInfo[]> {
-    const { org, includeArchived = false, excludePattern, includePattern } = filters;
+    const { org, includeArchived = false, excludePattern } = filters;
 
     this.logger.info(`Fetching repositories for organization: ${org}`);
 
@@ -76,10 +76,6 @@ export class GitHubSecurityService {
 
       // Filter by name patterns
       if (excludePattern && minimatch(repo.name, excludePattern)) {
-        return false;
-      }
-
-      if (includePattern && !minimatch(repo.name, includePattern)) {
         return false;
       }
 
@@ -158,11 +154,7 @@ export class GitHubSecurityService {
               name
               url
               isArchived
-              visibility
-              hasVulnerabilityAlertsEnabled
-              defaultBranchRef {
-                name
-              },
+              hasVulnerabilityAlertsEnabled              
               languages(first: 10) {
                 nodes {
                   name
@@ -220,9 +212,7 @@ export class GitHubSecurityService {
     return {
       name: repo.name,
       url: repo.url,
-      isArchived: repo.isArchived,
-      visibility: repo.visibility,
-      defaultBranch: repo.defaultBranchRef?.name || null,
+      languages: repo.languages.nodes.map(lang => lang.name),
       dependabotAlertsEnabled: repo.hasVulnerabilityAlertsEnabled,
       secretScanningEnabled,
       workflows,
