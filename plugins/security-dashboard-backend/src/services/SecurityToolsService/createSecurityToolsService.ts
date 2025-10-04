@@ -20,11 +20,10 @@ export async function createSecurityToolsService({
   const db = await database.getClient();
 
   return {
-    async createSecurityTool(input, options) {
+    async createSecurityTool(input) {
       logger.info('Creating new security tool', {
         repositoryName: input.repository_name,
-        toolName: input.tool_name,
-        credentials: options.credentials.principal as any,
+        toolName: input.tool_name
       });
 
       try {
@@ -65,10 +64,9 @@ export async function createSecurityToolsService({
       }
     },
 
-    async bulkUpsertSecurityTools(inputs, options) {
+    async bulkUpsertSecurityTools(inputs) {
       logger.info('Bulk upserting security tools', {
-        count: inputs.length,
-        credentials: options.credentials.principal as any,
+        count: inputs.length
       });
 
       const created: RepositorySecurityTool[] = [];
@@ -196,10 +194,9 @@ export async function createSecurityToolsService({
       };
     },
 
-    async updateSecurityTool(repositoryName, input, options) {
+    async updateSecurityTool(repositoryName, input) {
       logger.info('Updating security tool', {
-        repositoryName,
-        credentials: options.credentials.principal as any,
+        repositoryName
       });
 
       // Build the update object dynamically, only including provided fields
@@ -247,10 +244,9 @@ export async function createSecurityToolsService({
       } as RepositorySecurityTool;
     },
 
-    async deleteSecurityTool(request, options) {
+    async deleteSecurityTool(request) {
       logger.info('Deleting security tool', {
-        repositoryName: request.repositoryName,
-        credentials: options.credentials.principal as any,
+        repositoryName: request.repositoryName
       });
 
       const deletedCount = await db('repositories_security_tools')

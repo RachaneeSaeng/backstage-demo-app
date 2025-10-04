@@ -32,17 +32,11 @@ export interface UpdateSecurityToolInput {
 
 export interface SecurityToolsService {
   createSecurityTool(
-    input: CreateSecurityToolInput,
-    options: {
-      credentials: BackstageCredentials;
-    },
+    input: CreateSecurityToolInput
   ): Promise<RepositorySecurityTool>;
 
   bulkUpsertSecurityTools(
-    inputs: CreateSecurityToolInput[],
-    options: {
-      credentials: BackstageCredentials;
-    },
+    inputs: CreateSecurityToolInput[]
   ): Promise<{
     created: RepositorySecurityTool[];
     updated: RepositorySecurityTool[];
@@ -56,17 +50,11 @@ export interface SecurityToolsService {
 
   updateSecurityTool(
     repositoryName: string,
-    input: UpdateSecurityToolInput,
-    options: {
-      credentials: BackstageCredentials;
-    },
+    input: UpdateSecurityToolInput
   ): Promise<RepositorySecurityTool>;
 
   deleteSecurityTool(
-    request: { repositoryName: string },
-    options: {
-      credentials: BackstageCredentials;
-    },
+    request: { repositoryName: string }
   ): Promise<void>;
 }
 

@@ -53,11 +53,8 @@ export const securityDashboardPlugin = createBackendPlugin({
           scope: 'global', // Run once across all instances
           signal: abortController.signal,
           fn: async () => {
-            logger.info('Starting daily data update');
-            const service = new DataIngestionService(config, logger);
-            const repositories = await service.fetchGitHubSecurityInfo();
-
-            logger.info('Completed daily data update');
+            const service = new DataIngestionService(config, logger, securityToolsService);
+            await service.fetchAndSaveGitHubSecurityData();
           },
         });
       },
