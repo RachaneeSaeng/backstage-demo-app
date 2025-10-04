@@ -4,6 +4,8 @@ import {
 } from '@backstage/backend-plugin-api';
 import { createRouter } from './router';
 import { createSecurityToolsService } from './services/SecurityToolsService';
+import { ScmIntegrations } from '@backstage/integration';
+import { GitHubSecurityService } from './services/DataIngestionService/GithubSecurityService';
 
 /**
  * securityDashboardPlugin backend plugin
@@ -20,8 +22,10 @@ export const securityDashboardPlugin = createBackendPlugin({
         httpRouter: coreServices.httpRouter,
         database: coreServices.database,
         scheduler: coreServices.scheduler,
+        lifecycle: coreServices.lifecycle,
+        config: coreServices.rootConfig,
       },
-      async init({ logger, httpAuth, httpRouter, database, scheduler }) {
+      async init({ logger, httpAuth, httpRouter, database, scheduler, lifecycle, config }) {
         const securityToolsService = await createSecurityToolsService({
           database,
           logger,
@@ -34,16 +38,34 @@ export const securityDashboardPlugin = createBackendPlugin({
           }),
         );
 
+        const integrations = ScmIntegrations.fromConfig(config);
+        const abortController = new AbortController();
+        // Stop the task when the plugin shuts down
+        lifecycle.addShutdownHook(() => {
+          abortController.abort();
+        });
+
         await scheduler.scheduleTask({
-          id: 'daily-data-insert',
+          id: 'daily-data-update',
           frequency: { cron: '0 0 * * *' }, // Run at midnight daily
-          timeout: { hours: 1 },
+          timeout: { minutes: 3 },
           scope: 'global', // Run once across all instances
+          signal: abortController.signal,
           fn: async () => {
-            logger.info('Starting daily data insert');
-            // Your database insert logic here
-            // await database.getClient().insert(/* ... */);
-            logger.info('Completed daily data insert');
+            logger.info('Starting daily data update');
+            const service = new GitHubSecurityService(integrations, logger);
+            const org = 'RachaneeSaeng'
+
+            logger.info(`Fetching repository security info for org: ${org}`);
+
+            const repositories = await service.getRepositoriesWithSecurityInfo({
+              org,
+              includeArchived: false,
+              excludePattern: '^react',
+              includePattern: '',
+            });
+            
+            logger.info('Completed daily data update');
           },
         });
       },

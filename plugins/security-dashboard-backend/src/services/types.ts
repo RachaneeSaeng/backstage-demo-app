@@ -69,3 +69,67 @@ export interface SecurityToolsService {
     },
   ): Promise<void>;
 }
+
+export type GitHubWorkflow = {
+  id: number;
+  name: string;
+  path: string;
+  state: string;
+  created_at: string;
+  updated_at: string;
+};
+
+/**
+ * Repository security information
+ */
+export type RepositorySecurityInfo = {
+  name: string;
+  url: string;
+  isArchived: boolean;
+  visibility: string;
+  defaultBranch: string | null;
+  dependabotAlertsEnabled: boolean;
+  secretScanningEnabled: boolean;
+  workflows: GitHubWorkflow[];
+};
+
+/**
+ * Filter options for repository queries
+ */
+export type RepositoryFilters = {
+  org: string;
+  includeArchived?: boolean;
+  excludePattern?: string;
+  includePattern?: string;
+};
+
+/**
+ * GraphQL response types
+ */
+export type PageInfo = {
+  hasNextPage: boolean;
+  endCursor?: string;
+};
+
+export type Connection<T> = {
+  pageInfo: PageInfo;
+  nodes: T[];
+};
+
+export type RepositoryGraphQLResponse = {
+  name: string;
+  url: string;
+  isArchived: boolean;
+  visibility: string;
+  hasVulnerabilityAlertsEnabled: boolean;
+  defaultBranchRef: {
+    name: string;
+  } | null;
+};
+
+export type OrganizationRepositoriesResponse = {
+  repositoryOwner?: {
+    repositories: Connection<RepositoryGraphQLResponse>;
+  };
+};
+

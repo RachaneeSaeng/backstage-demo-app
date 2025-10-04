@@ -6,7 +6,7 @@ import {
   RepositorySecurityTool,
   SecurityToolsService,
   UpdateSecurityToolInput,
-} from './types';
+} from '../types';
 
 export async function createSecurityToolsService({
   database,

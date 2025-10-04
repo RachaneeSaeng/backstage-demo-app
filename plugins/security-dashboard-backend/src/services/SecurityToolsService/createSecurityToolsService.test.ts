@@ -6,7 +6,7 @@ import {
 } from '@backstage/backend-test-utils';
 import { ConflictError, NotFoundError } from '@backstage/errors';
 import { createSecurityToolsService } from './createSecurityToolsService';
-import { RepositorySecurityTool } from './types';
+import { RepositorySecurityTool } from '../types';
 
 jest.setTimeout(60_000);
 
