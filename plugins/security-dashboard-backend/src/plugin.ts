@@ -5,7 +5,7 @@ import {
 import { createRouter } from './router';
 import { createSecurityToolsService } from './services/SecurityToolsService';
 import { ScmIntegrations } from '@backstage/integration';
-import { GitHubSecurityService } from './services/DataIngestionService/GithubSecurityService';
+import { DataIngestionService } from './services/DataIngestionService';
 
 /**
  * securityDashboardPlugin backend plugin
@@ -53,18 +53,11 @@ export const securityDashboardPlugin = createBackendPlugin({
           signal: abortController.signal,
           fn: async () => {
             logger.info('Starting daily data update');
-            const service = new GitHubSecurityService(integrations, logger);
+            const service = new DataIngestionService(integrations, logger);
             const org = 'RachaneeSaeng'
 
-            logger.info(`Fetching repository security info for org: ${org}`);
+            const repositories = await service.fetchGitHubSecurityInfo(org);
 
-            const repositories = await service.getRepositoriesWithSecurityInfo({
-              org,
-              includeArchived: false,
-              excludePattern: '^react',
-              includePattern: '',
-            });
-            
             logger.info('Completed daily data update');
           },
         });
