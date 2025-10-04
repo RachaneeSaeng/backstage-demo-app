@@ -72,6 +72,7 @@ export class DataIngestionService {
         tool_name: 'Secret Scanning',
         is_required: true,
         implemented: repo.secretScanningEnabled,
+        info_url: 'TODO: to be added',
       });
 
       // 2. Github Security - Dependabot Alerts
@@ -81,6 +82,7 @@ export class DataIngestionService {
         tool_name: 'Dependabot',
         is_required: true,
         implemented: repo.dependabotAlertsEnabled,
+        info_url: 'TODO: to be added',
       });
 
       // 3. Pull Request - Dependabot Dependency Review
@@ -92,6 +94,7 @@ export class DataIngestionService {
         implemented: repo.workflows.some(workflow =>
           workflow.name.toLowerCase().includes('dependency review'),
         ),
+        info_url: 'TODO: to be added',
       });
 
       // 4. Pull Request - pnpm audit
@@ -116,6 +119,7 @@ export class DataIngestionService {
         implemented: repo.workflows.some(workflow =>
           workflow.name.toLowerCase().includes('veracode pipeline'),
         ),
+        info_url: 'TODO: to be added',
       });
 
       // 6. Pull Request - CodeQL
@@ -127,6 +131,7 @@ export class DataIngestionService {
         implemented: repo.workflows.some(workflow =>
           workflow.name.toLowerCase().includes('codeql'),
         ),
+        info_url: 'TODO: to be added',
       });
 
       // 7. Pull Request - Trivy
@@ -138,6 +143,7 @@ export class DataIngestionService {
         implemented: repo.workflows.some(workflow =>
           workflow.name.toLowerCase().includes('trivy'),
         ),
+        info_url: 'TODO: to be added',
       });
 
       // 8. CI - Veracode Policy Scan
@@ -151,6 +157,7 @@ export class DataIngestionService {
         implemented: repo.workflows.some(workflow =>
           workflow.name.toLowerCase().includes('veracode policy'),
         ),
+        info_url: 'TODO: to be added',
       });
 
       // 9. CI - pnpm audit
@@ -162,6 +169,7 @@ export class DataIngestionService {
         implemented: repo.workflows.some(workflow =>
           workflow.name.toLowerCase().includes('pnpm audit'),
         ),
+        info_url: 'TODO: to be added',
       });
 
       // 10. CI - CodeQL
@@ -173,6 +181,7 @@ export class DataIngestionService {
         implemented: repo.workflows.some(workflow =>
           workflow.name.toLowerCase().includes('codeql'),
         ),
+        info_url: 'TODO: to be added',
       });
 
       // 11. Pull Request - Trivy
@@ -184,6 +193,7 @@ export class DataIngestionService {
         implemented: repo.workflows.some(workflow =>
           workflow.name.toLowerCase().includes('trivy'),
         ),
+        info_url: 'TODO: to be added',
       });
     }
 

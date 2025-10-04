@@ -146,6 +146,9 @@ export class GitHubSecurityService {
     client: typeof graphql,
     org: string,
   ): Promise<RepositoryGraphQLResponse[]> {
+    // TODO: To change first: 100 and implement pagination if needed
+    // TODO: Expose endpoint to fetch all repositories with pagination support
+    // TODO: Default bahaviour of the schedule task is to fetch latest 50 repositories only
     const query = `
       query repositories($org: String!, $cursor: String) {
         repositoryOwner(login: $org) {
@@ -172,7 +175,7 @@ export class GitHubSecurityService {
 
     const repositories: RepositoryGraphQLResponse[] = [];
     let cursor: string | undefined = undefined;
-    let hasNextPage = true; // To change back to true if you want to fetch all pages
+    let hasNextPage = true; // TODO: To change back to true if you want to fetch all pages
 
     while (hasNextPage) {
       const response: OrganizationRepositoriesResponse = await client(query, {
@@ -228,16 +231,14 @@ export class GitHubSecurityService {
     repo: string,
   ): Promise<boolean> {
     try {
-      // Get repository details which includes security_and_analysis
-      const { data } = await octokit.request('GET /repos/{owner}/{repo}', {
+      // TODO: Find a better endpoint to check secrete scanning feature, this one returns too much data
+      const { status } = await octokit.request('GET /repos/{owner}/{repo}/secret-scanning/scan-history', {
         owner: org,
         repo: repo,
       });
 
-      return (
-        data.security_and_analysis?.secret_scanning?.status === 'enabled' ||
-        false
-      );
+      // Return true if the response status is 200 (resource exists)
+      return status === 200;
     } catch (error: any) {
       // If we don't have permission or it's not available, return false
       if (error.status === 403 || error.status === 404) {
