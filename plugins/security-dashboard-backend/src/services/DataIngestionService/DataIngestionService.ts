@@ -22,11 +22,11 @@ export class DataIngestionService {
   }
 
   /**
-   * Fetch repositories from GitHub with security information
+   * Fetch all repositories from GitHub with security information (with pagination)
    */
-  private async fetchRepositories() {
+  private async fetchAllRepositories() {
     const repositories =
-      await this.githubService.getRepositoriesWithSecurityInfo({
+      await this.githubService.getAllRepositoriesWithSecurityInfo({
         org: this.org,
         excludePattern: this.excludeRepositoriesPattern,
       });
@@ -39,12 +39,30 @@ export class DataIngestionService {
   }
 
   /**
+   * Fetch latest updated X repositories from GitHub with security information
+   */
+  private async fetchLatestUpdatedRepositories(limit: number) {
+    const repositories =
+      await this.githubService.getLatestUpdatedRepositoriesWithSecurityInfo(
+        {
+          org: this.org,
+          excludePattern: this.excludeRepositoriesPattern,
+        },
+        limit,
+      );
+
+    this.logger.info(
+      `Retrieved ${repositories.length} latest updated repositories, transforming to security tool records`,
+    );
+
+    return repositories;
+  }
+
+  /**
    * Transform repositories to security tool records
    */
   private transformRepositoriesToSecurityToolRecords(
-    repositories: Awaited<
-      ReturnType<typeof this.githubService.getRepositoriesWithSecurityInfo>
-    >,
+    repositories: Awaited<ReturnType<any>>,
   ): CreateSecurityToolInput[] {
     const veracodeSupportedLanguages = [
       'javascript',
@@ -87,7 +105,7 @@ export class DataIngestionService {
       });
 
       // 3. Pull Request - Dependabot Dependency Review
-      const dependabotWorkflow = repo.workflows.find(workflow =>
+      const dependabotWorkflow = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('dependency review'),
       );
       securityToolRecords.push({
@@ -101,7 +119,7 @@ export class DataIngestionService {
 
       // 4. Pull Request - pnpm audit
       // TODO: To check if it run on Pull request or CI
-      const pnpmAuditWorkflow = repo.workflows.find(workflow =>
+      const pnpmAuditWorkflow = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('pnpm audit'),
       );
       securityToolRecords.push({
@@ -114,14 +132,14 @@ export class DataIngestionService {
       });
 
       // 5. Pull Request - Veracode Pipeline Scan
-      const veracodePipelineScanWorkflow = repo.workflows.find(workflow =>
+      const veracodePipelineScanWorkflow = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('veracode pipeline'),
       );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'Pull Request',
         tool_name: 'Veracode',
-        is_required: repo.languages.some(lang =>
+        is_required: repo.languages.some((lang: string) =>
           veracodeSupportedLanguages.includes(lang.toLowerCase()),
         ),
         implemented: !!veracodePipelineScanWorkflow,
@@ -130,7 +148,7 @@ export class DataIngestionService {
 
       // 6. Pull Request - CodeQL
       // TODO: To check if it run on Pull request or CI
-      const codeQL = repo.workflows.find(workflow =>
+      const codeQL = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('codeql'),
       );
       securityToolRecords.push({
@@ -144,27 +162,27 @@ export class DataIngestionService {
 
       // 7. Pull Request - Trivy
       // TODO: To check if it run on Pull request or CI
-      const trivyWorkflow = repo.workflows.find(workflow =>
+      const trivyWorkflow = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('trivy'),
       );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'Pull Request',
         tool_name: 'Trivy',
-        is_required: repo.languages.some(lang => lang === 'HCL'),
+        is_required: repo.languages.some((lang: string) => lang === 'HCL'),
         implemented: !!trivyWorkflow,
         info_url: trivyWorkflow?.url,
       });
 
       // 8. CI - Veracode Policy Scan
-      const veracodePolicyScanWorkflow = repo.workflows.find(workflow =>
+      const veracodePolicyScanWorkflow = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('veracode policy'),
       );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'CI',
         tool_name: 'Veracode',
-        is_required: repo.languages.some(lang =>
+        is_required: repo.languages.some((lang: string) =>
           veracodeSupportedLanguages.includes(lang.toLowerCase()),
         ),
         implemented: !!veracodePolicyScanWorkflow,
@@ -173,7 +191,7 @@ export class DataIngestionService {
 
       // 9. CI - pnpm audit
       // TODO: To check if it run on Pull request or CI
-      const pnpmAuditWorkflow_CI = repo.workflows.find(workflow =>
+      const pnpmAuditWorkflow_CI = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('pnpm audit'),
       );
       securityToolRecords.push({
@@ -187,7 +205,7 @@ export class DataIngestionService {
 
       // 10. CI - CodeQL
       // TODO: To check if it run on Pull request or CI
-      const codeQL_CI = repo.workflows.find(workflow =>
+      const codeQL_CI = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('codeql'),
       );
       securityToolRecords.push({
@@ -201,14 +219,14 @@ export class DataIngestionService {
 
       // 11. Pull Request - Trivy
       // TODO: To check if it run on Pull request or CI
-      const trivyWorkflow_CI = repo.workflows.find(workflow =>
+      const trivyWorkflow_CI = repo.workflows.find((workflow: { name: string; url?: string }) =>
         workflow.name.toLowerCase().includes('trivy'),
       );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'CI',
         tool_name: 'Trivy',
-        is_required: repo.languages.some(lang => lang === 'HCL'),
+        is_required: repo.languages.some((lang: string) => lang === 'HCL'),
         implemented: !!trivyWorkflow_CI,
         info_url: trivyWorkflow_CI?.url,
       });
@@ -218,12 +236,36 @@ export class DataIngestionService {
   }
 
   /**
-   * Fetch repository security information from GitHub and save to database
+   * Fetch all repository security information from GitHub and save to database (with pagination)
    */
-  async fetchAndSaveGitHubSecurityData(): Promise<void> {
-    this.logger.info(`Fetching repository security info from GitHub`);
+  async fetchAndSaveAllGitHubSecurityData(): Promise<void> {
+    this.logger.info(`Fetching all repository security info from GitHub`);
 
-    const repositories = await this.fetchRepositories();
+    const repositories = await this.fetchAllRepositories();
+    const securityToolRecords =
+      this.transformRepositoriesToSecurityToolRecords(repositories);
+
+    // Bulk upsert all records - requires system credentials
+    const result = await this.securityToolsService.bulkUpsertSecurityTools(
+      securityToolRecords,
+    );
+
+    this.logger.info(
+      `Successfully saved security tool records: ${result.created.length} created, ${result.updated.length} updated`,
+    );
+  }
+
+  /**
+   * Fetch latest updated X repository security information from GitHub and save to database
+   */
+  async fetchAndSaveLatestUpdatedGitHubSecurityData(
+    limit: number = 30,
+  ): Promise<void> {
+    this.logger.info(
+      `Fetching latest updated ${limit} repository security info from GitHub`,
+    );
+
+    const repositories = await this.fetchLatestUpdatedRepositories(limit);
     const securityToolRecords =
       this.transformRepositoriesToSecurityToolRecords(repositories);
 

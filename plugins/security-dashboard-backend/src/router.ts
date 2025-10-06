@@ -43,9 +43,7 @@ export async function createRouter({
       throw new InputError(parsed.error.toString());
     }
 
-    const result = await securityToolsService.createSecurityTool(parsed.data, {
-      credentials: await httpAuth.credentials(req, { allow: ['user'] }),
-    });
+    const result = await securityToolsService.createSecurityTool(parsed.data);
 
     res.status(201).json(result);
   });
@@ -59,9 +57,6 @@ export async function createRouter({
 
     const result = await securityToolsService.bulkUpsertSecurityTools(
       parsed.data,
-      {
-        credentials: await httpAuth.credentials(req, { allow: ['user'] }),
-      },
     );
 
     res.status(200).json(result);
@@ -91,9 +86,6 @@ export async function createRouter({
     const result = await securityToolsService.updateSecurityTool(
       req.params.repositoryName,
       parsed.data,
-      {
-        credentials: await httpAuth.credentials(req, { allow: ['user'] }),
-      },
     );
 
     res.json(result);
@@ -101,12 +93,9 @@ export async function createRouter({
 
   // Delete a security tool
   router.delete('/security-tools/:repositoryName', async (req, res) => {
-    await securityToolsService.deleteSecurityTool(
-      { repositoryName: req.params.repositoryName },
-      {
-        credentials: await httpAuth.credentials(req, { allow: ['user'] }),
-      },
-    );
+    await securityToolsService.deleteSecurityTool({
+      repositoryName: req.params.repositoryName,
+    });
 
     res.status(204).send();
   });

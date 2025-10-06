@@ -54,7 +54,7 @@ export const securityDashboardPlugin = createBackendPlugin({
           signal: abortController.signal,
           fn: async () => {
             const service = new DataIngestionService(config, logger, securityToolsService);
-            await service.fetchAndSaveGitHubSecurityData();
+            await service.fetchAndSaveLatestUpdatedGitHubSecurityData();
           },
         });
       },
