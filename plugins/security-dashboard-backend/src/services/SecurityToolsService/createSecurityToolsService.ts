@@ -85,34 +85,35 @@ export async function createSecurityToolsService({
             .first();
 
           if (existing) {
-            // Update existing record
-            const updateData: Partial<Knex.ResolveTableType<RepositorySecurityTool>> = 
-            {
-              updated_at: trx.fn.now() as any,
-            };
-
-            if (input.is_required !== undefined) {
+            // Update existing record only if fields have changed
+            const updateData: Partial<Knex.ResolveTableType<RepositorySecurityTool>> = {};
+            
+            if (input.is_required !== undefined && input.is_required !== Boolean(existing.is_required)) {
               updateData.is_required = input.is_required;
             }
-            if (input.implemented !== undefined) {
+            if (input.implemented !== undefined && input.implemented !== Boolean(existing.implemented)) {
               updateData.implemented = input.implemented;
             }
-            if (input.info_url !== undefined) {
+            if (input.info_url !== undefined && input.info_url !== existing.info_url) {
               updateData.info_url = input.info_url;
             }
 
-            const [result] = await trx('repositories_security_tools')
-              .where('repository_name', input.repository_name)
-              .andWhere('tool_category', input.tool_category)
-              .andWhere('tool_name', input.tool_name)
-              .update(updateData)
-              .returning('*');
+            if (updateData && Object.keys(updateData).length > 0) {
+              updateData.updated_at = trx.fn.now() as any;
 
-            updated.push({
-              ...result,
-              is_required: Boolean(result.is_required),
-              implemented: Boolean(result.implemented),
-            } as RepositorySecurityTool);
+              const [result] = await trx('repositories_security_tools')
+                .where('repository_name', input.repository_name)
+                .andWhere('tool_category', input.tool_category)
+                .andWhere('tool_name', input.tool_name)
+                .update(updateData)
+                .returning('*');
+
+              updated.push({
+                ...result,
+                is_required: Boolean(result.is_required),
+                implemented: Boolean(result.implemented),
+              } as RepositorySecurityTool);
+            }
           } else {
             // Insert new record
             const [result] = await trx('repositories_security_tools')
