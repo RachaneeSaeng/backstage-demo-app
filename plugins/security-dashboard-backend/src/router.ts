@@ -20,7 +20,7 @@ export async function createRouter({
 
   const createSecurityToolSchema = z.object({
     repository_name: z.string(),
-    programming_languages: z.string().nullable().optional(),
+    repository_url: z.string(),
     tool_category: z.string(),
     tool_name: z.string(),
     is_required: z.boolean().optional(),
@@ -28,28 +28,7 @@ export async function createRouter({
     info_url: z.string().nullable().optional(),
   });
 
-  const updateSecurityToolSchema = z.object({
-    programming_languages: z.string().nullable().optional(),
-    tool_category: z.string().optional(),
-    tool_name: z.string().optional(),
-    is_required: z.boolean().optional(),
-    implemented: z.boolean().optional(),
-    info_url: z.string().nullable().optional(),
-  });
-
   const bulkUpsertSecurityToolsSchema = z.array(createSecurityToolSchema);
-
-  // Create a new security tool
-  router.post('/security-tools', async (req, res) => {
-    const parsed = createSecurityToolSchema.safeParse(req.body);
-    if (!parsed.success) {
-      throw new InputError(parsed.error.toString());
-    }
-
-    const result = await securityToolsService.createSecurityTool(parsed.data);
-
-    res.status(201).json(result);
-  });
 
   // Bulk upsert security tools
   router.post('/security-tools/bulk-upsert', async (req, res) => {
@@ -77,21 +56,6 @@ export async function createRouter({
         repositoryName: req.params.repositoryName,
       }),
     );
-  });
-
-  // Update a security tool
-  router.put('/security-tools/:repositoryName', async (req, res) => {
-    const parsed = updateSecurityToolSchema.safeParse(req.body);
-    if (!parsed.success) {
-      throw new InputError(parsed.error.toString());
-    }
-
-    const result = await securityToolsService.updateSecurityTool(
-      req.params.repositoryName,
-      parsed.data,
-    );
-
-    res.json(result);
   });
 
   // Delete a security tool

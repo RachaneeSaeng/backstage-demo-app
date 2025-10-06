@@ -28,10 +28,7 @@ export interface UpdateSecurityToolInput {
 }
 
 export interface SecurityToolsService {
-  createSecurityTool(
-    input: CreateSecurityToolInput
-  ): Promise<RepositorySecurityTool>;
-
+  
   bulkUpsertSecurityTools(
     inputs: CreateSecurityToolInput[]
   ): Promise<{
@@ -44,11 +41,6 @@ export interface SecurityToolsService {
   getSecurityTool(request: {
     repositoryName: string;
   }): Promise<RepositorySecurityTool>;
-
-  updateSecurityTool(
-    repositoryName: string,
-    input: UpdateSecurityToolInput
-  ): Promise<RepositorySecurityTool>;
 
   deleteSecurityTool(
     request: { repositoryName: string }

@@ -1,11 +1,9 @@
 import { DatabaseService, LoggerService } from '@backstage/backend-plugin-api';
-import { ConflictError, NotFoundError } from '@backstage/errors';
+import { NotFoundError } from '@backstage/errors';
 import { Knex } from 'knex';
 import {
-  CreateSecurityToolInput,
   RepositorySecurityTool,
   SecurityToolsService,
-  UpdateSecurityToolInput,
 } from '../types';
 
 export async function createSecurityToolsService({
@@ -20,50 +18,6 @@ export async function createSecurityToolsService({
   const db = await database.getClient();
 
   return {
-    async createSecurityTool(input) {
-      logger.info('Creating new security tool', {
-        repositoryName: input.repository_name,
-        toolName: input.tool_name
-      });
-
-      try {
-        const [result] = await db('repositories_security_tools')
-          .insert({
-            repository_name: input.repository_name,
-            repository_url: input.repository_url,
-            tool_category: input.tool_category,
-            tool_name: input.tool_name,
-            is_required: input.is_required ?? false,
-            implemented: input.implemented ?? false,
-            info_url: input.info_url || null,
-            updated_at: db.fn.now(),
-          })
-          .returning('*');
-
-        logger.info('Security tool created successfully', {
-          repositoryName: result.repository_name,
-        });
-
-        return {
-          ...result,
-          is_required: Boolean(result.is_required),
-          implemented: Boolean(result.implemented),
-        } as RepositorySecurityTool;
-      } catch (error) {
-        // Check for primary key constraint violation
-        if (
-          error instanceof Error &&
-          (error.message.includes('UNIQUE') ||
-            error.message.includes('duplicate key'))
-        ) {
-          throw new ConflictError(
-            `Security tool for repository '${input.repository_name}' already exists`,
-          );
-        }
-        throw error;
-      }
-    },
-
     async bulkUpsertSecurityTools(inputs) {
       logger.info('Bulk upserting security tools', {
         count: inputs.length
@@ -188,53 +142,6 @@ export async function createSecurityToolsService({
         is_required: Boolean(tool.is_required),
         implemented: Boolean(tool.implemented),
       };
-    },
-
-    async updateSecurityTool(repositoryName, input) {
-      logger.info('Updating security tool', {
-        repositoryName
-      });
-
-      // Build the update object dynamically, only including provided fields
-      const updateData: Partial<Knex.ResolveTableType<RepositorySecurityTool>> =
-        {
-          updated_at: db.fn.now() as any,
-        };
-
-      if (input.tool_category !== undefined) {
-        updateData.tool_category = input.tool_category;
-      }
-      if (input.tool_name !== undefined) {
-        updateData.tool_name = input.tool_name;
-      }
-      if (input.is_required !== undefined) {
-        updateData.is_required = input.is_required;
-      }
-      if (input.implemented !== undefined) {
-        updateData.implemented = input.implemented;
-      }
-      if (input.info_url !== undefined) {
-        updateData.info_url = input.info_url;
-      }
-
-      const [updated] = await db('repositories_security_tools')
-        .where('repository_name', repositoryName)
-        .update(updateData)
-        .returning('*');
-
-      if (!updated) {
-        throw new NotFoundError(
-          `No security tool found for repository '${repositoryName}'`,
-        );
-      }
-
-      logger.info('Security tool updated successfully', { repositoryName });
-
-      return {
-        ...updated,
-        is_required: Boolean(updated.is_required),
-        implemented: Boolean(updated.implemented),
-      } as RepositorySecurityTool;
     },
 
     async deleteSecurityTool(request) {
