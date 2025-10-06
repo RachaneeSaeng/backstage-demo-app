@@ -30,7 +30,7 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
   const buildColumnsForCategory = (category: any) => {
     return category.tools.map((toolName: string) => {
       const fieldName = category.shortName
-        ? `${category.shortName}-${toolName}`
+        ? `${category.shortName} - ${toolName}`
         : toolName;
 
       return {
@@ -88,7 +88,7 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
 
           if (repoTool) {
             const fieldName = category.shortName
-              ? `${category.shortName}-${toolName}`
+              ? `${category.shortName} - ${toolName}`
               : toolName;
 
             const toolStatus = getToolStatus(repoTool);
