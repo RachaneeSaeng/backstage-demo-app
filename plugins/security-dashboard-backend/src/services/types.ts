@@ -100,7 +100,6 @@ export type Connection<T> = {
 export type RepositoryGraphQLResponse = {
   name: string;
   url: string;
-  isArchived: boolean;
   hasVulnerabilityAlertsEnabled: boolean;
   languages: {
     nodes: Array<{

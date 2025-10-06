@@ -11,6 +11,7 @@ import { CreateSecurityToolInput, SecurityToolsService } from '../types';
 export class DataIngestionService {
   private readonly githubService: GitHubSecurityService;
   private readonly org = 'RachaneeSaeng';
+  private readonly excludeRepositoriesPattern = '^react';
 
   constructor(
     config: RootConfigService,
@@ -27,8 +28,7 @@ export class DataIngestionService {
     const repositories =
       await this.githubService.getRepositoriesWithSecurityInfo({
         org: this.org,
-        includeArchived: false,
-        excludePattern: '^react',
+        excludePattern: this.excludeRepositoriesPattern,
       });
 
     this.logger.info(
@@ -73,7 +73,7 @@ export class DataIngestionService {
         tool_name: 'Secret Scanning',
         is_required: true,
         implemented: repo.secretScanningEnabled,
-        info_url:  `https://github.com/${this.org}/${repo.name}/security/secret-scanning`,
+        info_url: `https://github.com/${this.org}/${repo.name}/security/secret-scanning`,
       });
 
       // 2. Github Security - Dependabot Alerts

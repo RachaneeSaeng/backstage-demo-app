@@ -39,7 +39,7 @@ export class GitHubSecurityService {
   async getRepositoriesWithSecurityInfo(
     filters: RepositoryFilters,
   ): Promise<RepositorySecurityInfo[]> {
-    const { org, includeArchived = false, excludePattern } = filters;
+    const { org, excludePattern } = filters;
 
     this.logger.info(`Fetching repositories for organization: ${org}`);
 
@@ -68,19 +68,9 @@ export class GitHubSecurityService {
     const repositories = await this.fetchRepositories(graphqlClient, org);
 
     // Filter repositories
-    const filteredRepos = repositories.filter(repo => {
-      // Filter archived
-      if (!includeArchived && repo.isArchived) {
-        return false;
-      }
-
-      // Filter by name patterns
-      if (excludePattern && minimatch(repo.name, excludePattern)) {
-        return false;
-      }
-
-      return true;
-    });
+    const filteredRepos = excludePattern
+      ? repositories.filter(repo => !minimatch(repo.name, excludePattern))
+      : repositories;
 
     this.logger.info(
       `Found ${filteredRepos.length} repositories after filtering`,
@@ -152,7 +142,7 @@ export class GitHubSecurityService {
     const query = `
       query repositories($org: String!, $cursor: String) {
         repositoryOwner(login: $org) {
-          repositories(first: 10, after: $cursor) {
+          repositories(first: 10, orderBy: {field: UPDATED_AT, direction: DESC}, isArchived: false, after: $cursor) {
             nodes {
               name
               url
