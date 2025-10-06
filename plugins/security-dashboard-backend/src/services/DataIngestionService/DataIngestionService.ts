@@ -65,20 +65,17 @@ export class DataIngestionService {
     repositories: Awaited<ReturnType<any>>,
   ): CreateSecurityToolInput[] {
     const veracodeSupportedLanguages = [
-      'javascript',
-      'typescript',
-      'python',
-      'java',
-      'c#',
-      'ruby',
-      'go',
-      'php',
-      'ionic',
-      'kotlin',
-      'swift',
-      'objective-c',
-      'scala',
-      'perl',
+      'JavaScript',
+      'TypeScript',
+      'Python',
+      'Java',
+      'C#',
+      'Ruby',
+      'Go',
+      'PHP',      
+      'Kotlin',
+      'Scala',
+      'Ionic'
     ];
 
     const securityToolRecords: CreateSecurityToolInput[] = [];
@@ -139,7 +136,7 @@ export class DataIngestionService {
         tool_category: 'Pull Request',
         tool_name: 'Veracode',
         is_required: repo.languages.some((lang: string) =>
-          veracodeSupportedLanguages.includes(lang.toLowerCase()),
+          veracodeSupportedLanguages.includes(lang),
         ),
         implemented: !!veracodePipelineScanWorkflow,
         info_url: veracodePipelineScanWorkflow?.url,
@@ -180,7 +177,7 @@ export class DataIngestionService {
         tool_category: 'CI',
         tool_name: 'Veracode',
         is_required: repo.languages.some((lang: string) =>
-          veracodeSupportedLanguages.includes(lang.toLowerCase()),
+          veracodeSupportedLanguages.includes(lang),
         ),
         implemented: !!veracodePolicyScanWorkflow,
         info_url: veracodePolicyScanWorkflow?.url,
@@ -253,7 +250,7 @@ export class DataIngestionService {
    * Fetch latest updated X repository security information from GitHub and save to database
    */
   async fetchAndSaveLatestUpdatedGitHubSecurityData(
-    limit: number = 30,
+    limit: number = 20,
   ): Promise<void> {
     this.logger.info(
       `Fetching latest updated ${limit} repository security info from GitHub`,
