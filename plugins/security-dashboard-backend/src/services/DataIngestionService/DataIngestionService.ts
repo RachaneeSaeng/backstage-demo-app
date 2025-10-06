@@ -118,9 +118,8 @@ export class DataIngestionService {
       });
 
       // 4. Pull Request - pnpm audit
-      // TODO: To check if it run on Pull request or CI
       const pnpmAuditWorkflow = repo.workflows.find((workflow: { name: string; url?: string }) =>
-        workflow.name.toLowerCase().includes('pnpm audit'),
+        workflow.name.toLowerCase().includes('pnpm audit') && workflow.name.toLowerCase().includes('pull request'),
       );
       securityToolRecords.push({
         repository_name: repo.name,
@@ -147,9 +146,8 @@ export class DataIngestionService {
       });
 
       // 6. Pull Request - CodeQL
-      // TODO: To check if it run on Pull request or CI
       const codeQL = repo.workflows.find((workflow: { name: string; url?: string }) =>
-        workflow.name.toLowerCase().includes('codeql'),
+        workflow.name.toLowerCase().includes('codeql') && workflow.name.toLowerCase().includes('pull request'),
       );
       securityToolRecords.push({
         repository_name: repo.name,
@@ -161,9 +159,8 @@ export class DataIngestionService {
       });
 
       // 7. Pull Request - Trivy
-      // TODO: To check if it run on Pull request or CI
       const trivyWorkflow = repo.workflows.find((workflow: { name: string; url?: string }) =>
-        workflow.name.toLowerCase().includes('trivy'),
+        workflow.name.toLowerCase().includes('trivy') && workflow.name.toLowerCase().includes('pull request'),
       );
       securityToolRecords.push({
         repository_name: repo.name,
@@ -190,9 +187,8 @@ export class DataIngestionService {
       });
 
       // 9. CI - pnpm audit
-      // TODO: To check if it run on Pull request or CI
       const pnpmAuditWorkflow_CI = repo.workflows.find((workflow: { name: string; url?: string }) =>
-        workflow.name.toLowerCase().includes('pnpm audit'),
+        workflow.name.toLowerCase().includes('pnpm audit') && !workflow.name.toLowerCase().includes('pull request')
       );
       securityToolRecords.push({
         repository_name: repo.name,
@@ -204,9 +200,8 @@ export class DataIngestionService {
       });
 
       // 10. CI - CodeQL
-      // TODO: To check if it run on Pull request or CI
       const codeQL_CI = repo.workflows.find((workflow: { name: string; url?: string }) =>
-        workflow.name.toLowerCase().includes('codeql'),
+        workflow.name.toLowerCase().includes('codeql') && !workflow.name.toLowerCase().includes('pull request')
       );
       securityToolRecords.push({
         repository_name: repo.name,
@@ -218,9 +213,8 @@ export class DataIngestionService {
       });
 
       // 11. Pull Request - Trivy
-      // TODO: To check if it run on Pull request or CI
       const trivyWorkflow_CI = repo.workflows.find((workflow: { name: string; url?: string }) =>
-        workflow.name.toLowerCase().includes('trivy'),
+        workflow.name.toLowerCase().includes('trivy') && !workflow.name.toLowerCase().includes('pull request')
       );
       securityToolRecords.push({
         repository_name: repo.name,
