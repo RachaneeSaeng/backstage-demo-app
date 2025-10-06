@@ -113,7 +113,7 @@ export async function createRouter({
   router.post('/data-ingestion/github/latest', async (req, res) => {
     const limit = req.body.limit;
     await dataIngestionService.fetchAndSaveLatestUpdatedGitHubSecurityData(limit);
-    res.status(200).json({ message: `Successfully fetched and saved latest ${limit} updated repositories` });
+    res.status(200).json({ message: `Successfully fetched and saved latest updated repositories` });
   });
 
   return router;

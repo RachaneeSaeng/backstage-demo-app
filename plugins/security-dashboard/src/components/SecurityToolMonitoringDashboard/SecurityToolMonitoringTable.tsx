@@ -40,7 +40,7 @@ export const SecurityToolMonitoringTable = () => {
     return (
       <Box className={classes.container}>
         <Alert severity="info">
-          No books found. Create your first book to get started!
+          No security tools found!
         </Alert>
       </Box>
     );
