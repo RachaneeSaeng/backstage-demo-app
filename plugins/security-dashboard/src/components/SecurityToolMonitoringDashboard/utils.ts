@@ -9,7 +9,7 @@ export const getToolStatus = (repository: Repository, toolCategory: string, tool
   }
 
   if (tool.isRequired && !tool.implemented) {
-    return { status: 'critical-risk', text: ' ⚠️ Required tool is not implemented ⚠️ ', link: tool.info_url};
+    return { status: 'critical-risk', text: 'Required tool is not implemented', link: tool.info_url};
   } else if (tool.implemented) {
     return { status: 'low-risk', text: 'View the tool status', link: tool.info_url };
   } else {
