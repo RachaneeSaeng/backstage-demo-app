@@ -31,10 +31,13 @@ export const securityDashboardPlugin = createBackendPlugin({
           logger,
         });
 
+        const dataIngestionService = new DataIngestionService(config, logger, securityToolsService);
+
         httpRouter.use(
           await createRouter({
             httpAuth,
             securityToolsService,
+            dataIngestionService,
           }),
         );
 
@@ -53,8 +56,7 @@ export const securityDashboardPlugin = createBackendPlugin({
           scope: 'global', // Run once across all instances
           signal: abortController.signal,
           fn: async () => {
-            const service = new DataIngestionService(config, logger, securityToolsService);
-            await service.fetchAndSaveLatestUpdatedGitHubSecurityData();
+            await dataIngestionService.fetchAndSaveLatestUpdatedGitHubSecurityData();
           },
         });
       },

@@ -4,13 +4,16 @@ import { z } from 'zod';
 import express from 'express';
 import Router from 'express-promise-router';
 import { SecurityToolsService } from './services/SecurityToolsService';
+import { DataIngestionService } from './services/DataIngestionService';
 
 export async function createRouter({
   httpAuth,
   securityToolsService,
+  dataIngestionService,
 }: {
   httpAuth: HttpAuthService;
   securityToolsService: SecurityToolsService;
+  dataIngestionService: DataIngestionService;
 }): Promise<express.Router> {
   const router = Router();
   router.use(express.json());
@@ -98,6 +101,19 @@ export async function createRouter({
     });
 
     res.status(204).send();
+  });
+
+  // Fetch and save all GitHub security data
+  router.post('/data-ingestion/github/all', async (_req, res) => {
+    await dataIngestionService.fetchAndSaveAllGitHubSecurityData();
+    res.status(200).json({ message: 'Successfully fetched and saved all GitHub security data' });
+  });
+
+  // Fetch and save latest updated GitHub security data
+  router.post('/data-ingestion/github/latest', async (req, res) => {
+    const limit = req.body.limit || 30;
+    await dataIngestionService.fetchAndSaveLatestUpdatedGitHubSecurityData(limit);
+    res.status(200).json({ message: `Successfully fetched and saved latest ${limit} updated repositories` });
   });
 
   return router;
