@@ -1,14 +1,9 @@
+import { makeStyles } from '@material-ui/core/styles';
 import {
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  makeStyles,
-  Link
-} from '@material-ui/core';
+  TableColumn,
+  Link,
+} from '@backstage/core-components';
 import toolCategoriesConfig from './config/toolCategories.json';
 import { getToolStatus } from './utils';
 import { StatusChip } from './StatusChip';
@@ -21,31 +16,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 0,
     maxWidth: '100%',
     flexBasis: '100%',
-  },
-  table: {
-    overflow: 'auto',
-    tableLayout: 'auto',
-  },
-  categoryCell: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    whiteSpace: 'nowrap',
-    padding: '8px',
-  },
-  headerCell: {
-    color: theme.palette.primary.main,
-    fontWeight: 'bold',
-    whiteSpace: 'nowrap',
-    padding: theme.spacing(1),
-  },
-  repositoryCell: {
-    whiteSpace: 'nowrap',
-    padding: theme.spacing(2),
-  },
-  tableCell: {
-    whiteSpace: 'nowrap',
-    padding: theme.spacing(2),
-  },
+  }
 }));
 
 interface DenseTableProps {
@@ -56,67 +27,95 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
   const classes = useStyles();
   const { toolCategories } = toolCategoriesConfig;
 
+  const buildColumnsForCategory = (category: any) => {
+    return category.tools.map((toolName: string) => {
+      const fieldName = category.shortName
+        ? `${category.shortName}-${toolName}`
+        : toolName;
+
+      return {
+        title: fieldName,
+        field: fieldName,
+        headerStyle: { textTransform: 'none', whiteSpace: 'nowrap', backgroundColor: category.backgroundColor, color: '#ffffff' },
+        cellStyle: { whiteSpace: 'nowrap' },
+        render: (rowData: any) => (
+          <StatusChip status={rowData[`${fieldName}-obj`]} />
+        ),
+      };
+    });
+  };
+
+  const buildToolColumns = () => {
+    const columns: TableColumn<any>[] = [
+      {
+        title: 'Repository',
+        field: 'repositoryName',
+        highlight: true,
+        headerStyle: { textTransform: 'none', whiteSpace: 'nowrap' },
+        cellStyle: { fontWeight: 'bold', whiteSpace: 'nowrap' },
+        render: (rowData: any) => (
+          <Link
+            underline="hover"
+            target="_blank"
+            rel="noopener"
+            to={rowData.repositoryUrl}
+          >
+            {rowData.repositoryName}
+          </Link>
+        ),
+      },
+    ];
+
+    toolCategories.forEach((category: any) => {
+      columns.push(...buildColumnsForCategory(category));
+    });
+
+    return columns;
+  };
+
+  const buildData = () => {
+    return repositoriesData.map((repo: Repository) => {
+      const rowData: any = {
+        repositoryName: repo.name,
+        repositoryUrl: repo.url,
+      };
+
+      toolCategories.forEach((category: any) => {
+        category.tools.forEach((toolName: string) => {
+          const repoTool = repo.steps
+            .find(s => s.toolCategory === category.name)
+            ?.tools.find(t => t.name === toolName);
+
+          if (repoTool) {
+            const fieldName = category.shortName
+              ? `${category.shortName}-${toolName}`
+              : toolName;
+
+            const toolStatus = getToolStatus(repoTool);
+            rowData[fieldName] = toolStatus.text;
+            rowData[`${fieldName}-obj`] = toolStatus;
+          }
+        });
+      });
+      return rowData;
+    });
+  };
+
   return (
     <div className={classes.root}>
-      <TableContainer component={Paper}>
-        <Table className={classes.table} aria-label="security dashboard table">
-          <TableHead>
-            <TableRow>
-              <TableCell className={classes.headerCell} rowSpan={2}>
-                Repository
-              </TableCell>
-              {toolCategories.map((category) => (
-                <TableCell
-                  key={category.name}                  
-                  colSpan={category.tools.length}
-                  className={classes.categoryCell}
-                  style={{ backgroundColor: category.backgroundColor }}
-                  align="center"
-                >
-                  {category.name}
-                </TableCell>
-              ))}
-            </TableRow>
-            <TableRow>
-              {toolCategories.map((category) =>
-                category.tools.map((tool) => (
-                  <TableCell
-                    key={`${category.name}-${tool}`}
-                    className={classes.headerCell}
-                    align="center"
-                  >
-                    {tool}
-                  </TableCell>
-                ))
-              )}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {repositoriesData.map((repo) => (
-              <TableRow key={repo.name}>
-                <TableCell className={classes.repositoryCell}>
-                  <div>
-                    <Link href={repo.url} color="inherit" underline="hover" target='_blank' rel='noopener'>
-                      {repo.name}
-                    </Link>
-                  </div>
-                </TableCell>
-                {toolCategories.map((category) =>
-                  category.tools.map((tool) => (
-                    <TableCell
-                      key={`${repo.name}-${category.name}-${tool}`}
-                      className={classes.tableCell}
-                      align="center"
-                    >
-                      <StatusChip status={getToolStatus(repo, category.name, tool)} />
-                    </TableCell>
-                  ))
-                )}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Table
+        title="Tools Adoption by Repository"
+        style={{ overflow: 'auto', tableLayout: 'auto' }}
+        options={{
+          search: true,
+          paging: true,
+          pageSize: 10,
+          pageSizeOptions: [5, 10, 15, 20],
+          fixedColumns: { left: 1 },
+        }}
+        columns={buildToolColumns()}
+        data={buildData()}
+      />
     </div>
   );
 };

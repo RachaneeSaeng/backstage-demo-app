@@ -14,17 +14,19 @@ export interface RepositoryToolData {
   info_url: string;
 }
 
+export interface RepositoryTool {
+  name: string;
+  isRequired: boolean;
+  implemented: boolean;
+  info_url: string;
+};
+
 export interface Repository {
   name: string;
   url: string;
   steps: Array<{
     toolCategory: string;
-    tools: Array<{
-      name: string;
-      isRequired: boolean;
-      implemented: boolean;
-      info_url: string;
-    }>;
+    tools: Array<RepositoryTool>;
   }>;
 }
 
