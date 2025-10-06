@@ -1,8 +1,5 @@
-import { BackstageCredentials } from '@backstage/backend-plugin-api';
-
 export interface RepositorySecurityTool {
   repository_name: string;
-  programming_languages?: string | null;
   tool_category: string;
   tool_name: string;
   is_required: boolean;
@@ -13,7 +10,6 @@ export interface RepositorySecurityTool {
 
 export interface CreateSecurityToolInput {
   repository_name: string;
-  programming_languages?: string | null;
   tool_category: string;
   tool_name: string;
   is_required?: boolean;
@@ -22,7 +18,6 @@ export interface CreateSecurityToolInput {
 }
 
 export interface UpdateSecurityToolInput {
-  programming_languages?: string | null;
   tool_category?: string;
   tool_name?: string;
   is_required?: boolean;

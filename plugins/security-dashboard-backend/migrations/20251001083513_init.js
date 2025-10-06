@@ -13,10 +13,6 @@ exports.up = function(knex) {
       .notNullable()
       .comment('Repository name');
     table
-      .string('programming_languages')  // TODO: REmove the programing laguage column
-      .nullable()
-      .comment('Programming languages used in the repository');
-    table
       .string('tool_category', 32)
       .notNullable()
       .comment('Category of the security tool');

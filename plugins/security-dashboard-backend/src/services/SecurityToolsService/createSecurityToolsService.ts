@@ -30,7 +30,6 @@ export async function createSecurityToolsService({
         const [result] = await db('repositories_security_tools')
           .insert({
             repository_name: input.repository_name,
-            programming_languages: input.programming_languages || null,
             tool_category: input.tool_category,
             tool_name: input.tool_name,
             is_required: input.is_required ?? false,
@@ -89,9 +88,6 @@ export async function createSecurityToolsService({
               updated_at: trx.fn.now() as any,
             };
 
-            if (input.programming_languages !== undefined) {
-              updateData.programming_languages = input.programming_languages;
-            }
             if (input.tool_category !== undefined) {
               updateData.tool_category = input.tool_category;
             }
@@ -123,7 +119,6 @@ export async function createSecurityToolsService({
             const [result] = await trx('repositories_security_tools')
               .insert({
                 repository_name: input.repository_name,
-                programming_languages: input.programming_languages || null,
                 tool_category: input.tool_category,
                 tool_name: input.tool_name,
                 is_required: input.is_required ?? false,
@@ -205,9 +200,6 @@ export async function createSecurityToolsService({
           updated_at: db.fn.now() as any,
         };
 
-      if (input.programming_languages !== undefined) {
-        updateData.programming_languages = input.programming_languages;
-      }
       if (input.tool_category !== undefined) {
         updateData.tool_category = input.tool_category;
       }
