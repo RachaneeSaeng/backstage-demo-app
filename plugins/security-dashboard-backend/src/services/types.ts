@@ -56,6 +56,7 @@ export interface SecurityToolsService {
 export type GitHubWorkflow = {
   id: number;
   name: string;
+  url: string;
   path: string;
   state: string;
   created_at: string;

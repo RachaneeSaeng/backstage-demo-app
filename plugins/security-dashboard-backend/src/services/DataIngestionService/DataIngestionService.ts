@@ -10,6 +10,7 @@ import { CreateSecurityToolInput, SecurityToolsService } from '../types';
  */
 export class DataIngestionService {
   private readonly githubService: GitHubSecurityService;
+  private readonly org = 'RachaneeSaeng';
 
   constructor(
     config: RootConfigService,
@@ -25,7 +26,7 @@ export class DataIngestionService {
   private async fetchRepositories() {
     const repositories =
       await this.githubService.getRepositoriesWithSecurityInfo({
-        org: 'RachaneeSaeng',
+        org: this.org,
         includeArchived: false,
         excludePattern: '^react',
       });
@@ -72,7 +73,7 @@ export class DataIngestionService {
         tool_name: 'Secret Scanning',
         is_required: true,
         implemented: repo.secretScanningEnabled,
-        info_url: 'TODO: to be added',
+        info_url:  `https://github.com/${this.org}/${repo.name}/security/secret-scanning`,
       });
 
       // 2. Github Security - Dependabot Alerts
@@ -82,33 +83,40 @@ export class DataIngestionService {
         tool_name: 'Dependabot',
         is_required: true,
         implemented: repo.dependabotAlertsEnabled,
-        info_url: 'TODO: to be added',
+        info_url: `https://github.com/${this.org}/${repo.name}/security/dependabot`,
       });
 
       // 3. Pull Request - Dependabot Dependency Review
+      const dependabotWorkflow = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('dependency review'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'Pull Request',
         tool_name: 'Dependabot',
         is_required: true,
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('dependency review'),
-        ),
-        info_url: 'TODO: to be added',
+        implemented: !!dependabotWorkflow,
+        info_url: dependabotWorkflow?.url,
       });
 
       // 4. Pull Request - pnpm audit
+      // TODO: To check if it run on Pull request or CI
+      const pnpmAuditWorkflow = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('pnpm audit'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'Pull Request',
         tool_name: 'pnpm audit',
         is_required: false,
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('pnpm audit'),
-        ),
+        implemented: !!pnpmAuditWorkflow,
+        info_url: pnpmAuditWorkflow?.url,
       });
 
       // 5. Pull Request - Veracode Pipeline Scan
+      const veracodePipelineScanWorkflow = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('veracode pipeline'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'Pull Request',
@@ -116,37 +124,42 @@ export class DataIngestionService {
         is_required: repo.languages.some(lang =>
           veracodeSupportedLanguages.includes(lang.toLowerCase()),
         ),
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('veracode pipeline'),
-        ),
-        info_url: 'TODO: to be added',
+        implemented: !!veracodePipelineScanWorkflow,
+        info_url: veracodePipelineScanWorkflow?.url,
       });
 
       // 6. Pull Request - CodeQL
+      // TODO: To check if it run on Pull request or CI
+      const codeQL = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('codeql'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'Pull Request',
         tool_name: 'CodeQL',
         is_required: false,
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('codeql'),
-        ),
-        info_url: 'TODO: to be added',
+        implemented: !!codeQL,
+        info_url: codeQL?.url,
       });
 
       // 7. Pull Request - Trivy
+      // TODO: To check if it run on Pull request or CI
+      const trivyWorkflow = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('trivy'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'Pull Request',
         tool_name: 'Trivy',
         is_required: repo.languages.some(lang => lang === 'HCL'),
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('trivy'),
-        ),
-        info_url: 'TODO: to be added',
+        implemented: !!trivyWorkflow,
+        info_url: trivyWorkflow?.url,
       });
 
       // 8. CI - Veracode Policy Scan
+      const veracodePolicyScanWorkflow = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('veracode policy'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'CI',
@@ -154,46 +167,50 @@ export class DataIngestionService {
         is_required: repo.languages.some(lang =>
           veracodeSupportedLanguages.includes(lang.toLowerCase()),
         ),
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('veracode policy'),
-        ),
-        info_url: 'TODO: to be added',
+        implemented: !!veracodePolicyScanWorkflow,
+        info_url: veracodePolicyScanWorkflow?.url,
       });
 
       // 9. CI - pnpm audit
+      // TODO: To check if it run on Pull request or CI
+      const pnpmAuditWorkflow_CI = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('pnpm audit'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'CI',
         tool_name: 'pnpm audit',
         is_required: false,
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('pnpm audit'),
-        ),
-        info_url: 'TODO: to be added',
+        implemented: !!pnpmAuditWorkflow_CI,
+        info_url: pnpmAuditWorkflow_CI?.url,
       });
 
       // 10. CI - CodeQL
+      // TODO: To check if it run on Pull request or CI
+      const codeQL_CI = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('codeql'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'CI',
         tool_name: 'CodeQL',
         is_required: false,
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('codeql'),
-        ),
-        info_url: 'TODO: to be added',
+        implemented: !!codeQL_CI,
+        info_url: codeQL_CI?.url,
       });
 
       // 11. Pull Request - Trivy
+      // TODO: To check if it run on Pull request or CI
+      const trivyWorkflow_CI = repo.workflows.find(workflow =>
+        workflow.name.toLowerCase().includes('trivy'),
+      );
       securityToolRecords.push({
         repository_name: repo.name,
         tool_category: 'CI',
         tool_name: 'Trivy',
         is_required: repo.languages.some(lang => lang === 'HCL'),
-        implemented: repo.workflows.some(workflow =>
-          workflow.name.toLowerCase().includes('trivy'),
-        ),
-        info_url: 'TODO: to be added',
+        implemented: !!trivyWorkflow_CI,
+        info_url: trivyWorkflow_CI?.url,
       });
     }
 

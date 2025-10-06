@@ -268,6 +268,7 @@ export class GitHubSecurityService {
       return data.workflows.map(workflow => ({
         id: workflow.id,
         name: workflow.name,
+        url: workflow.url,
         path: workflow.path,
         state: workflow.state,
         created_at: workflow.created_at,
