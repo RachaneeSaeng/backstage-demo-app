@@ -60,6 +60,28 @@ export class DataIngestionService {
   }
 
   /**
+   * Helper method to find workflow and create tool info
+   */
+  private getWorkflowImplementationDetail(
+    repo: any,
+    ...searchTerms: string[]
+  ): { implemented: boolean; info_url: string } {
+    const workflow = repo.workflows.find((workflow: { name: string; path?: string }) => {
+      const lowerName = workflow.name.toLowerCase();
+      return searchTerms.every(term => {
+        if (term.startsWith('!')) {
+          return !lowerName.includes(term.substring(1));
+        }
+        return lowerName.includes(term);
+      });
+    });
+    return {
+      implemented: !!workflow,
+      info_url: workflow ? `${repo.url}/actions/${workflow.path.replace('.github/', '')}` : ''
+    };
+  }
+
+  /**
    * Transform repositories to security tool records
    */
   private transformRepositoriesToSecurityToolRecords(
@@ -105,37 +127,26 @@ export class DataIngestionService {
       });
 
       // 3. Pull Request - Dependabot Dependency Review
-      const dependabotWorkflow = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('dependency review'),
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'Pull Request',
         tool_name: 'Dependabot',
         is_required: true,
-        implemented: !!dependabotWorkflow,
-        info_url: `${repo.url}/actions/${dependabotWorkflow?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'dependency review'),
       });
 
       // 4. Pull Request - pnpm audit
-      const pnpmAuditWorkflow = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('pnpm audit') && workflow.name.toLowerCase().includes('pull request'),
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'Pull Request',
         tool_name: 'pnpm audit',
         is_required: false,
-        implemented: !!pnpmAuditWorkflow,
-        info_url: `${repo.url}/actions/${pnpmAuditWorkflow?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'pnpm audit', 'pull request'),
       });
 
       // 5. Pull Request - Veracode Pipeline Scan
-      const veracodePipelineScanWorkflow = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('veracode pipeline'),
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
@@ -144,42 +155,30 @@ export class DataIngestionService {
         is_required: repo.languages.some((lang: string) =>
           veracodeSupportedLanguages.includes(lang),
         ),
-        implemented: !!veracodePipelineScanWorkflow,
-        info_url: `${repo.url}/actions/${veracodePipelineScanWorkflow?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'veracode pipeline'),
       });
 
       // 6. Pull Request - CodeQL
-      const codeQL = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('codeql') && workflow.name.toLowerCase().includes('pull request'),
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'Pull Request',
         tool_name: 'CodeQL',
         is_required: false,
-        implemented: !!codeQL,
-        info_url: `${repo.url}/actions/${codeQL?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'codeql', 'pull request'),
       });
 
       // 7. Pull Request - Trivy
-      const trivyWorkflow = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('trivy') && workflow.name.toLowerCase().includes('pull request'),
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'Pull Request',
         tool_name: 'Trivy',
         is_required: repo.languages.some((lang: string) => lang === 'HCL'),
-        implemented: !!trivyWorkflow,
-        info_url: `${repo.url}/actions/${trivyWorkflow?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'trivy', 'pull request'),
       });
 
       // 8. CI - Veracode Policy Scan
-      const veracodePolicyScanWorkflow = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('veracode policy'),
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
@@ -188,50 +187,37 @@ export class DataIngestionService {
         is_required: repo.languages.some((lang: string) =>
           veracodeSupportedLanguages.includes(lang),
         ),
-        implemented: !!veracodePolicyScanWorkflow,
-        info_url: `${repo.url}/actions/${veracodePolicyScanWorkflow?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'veracode policy'),
       });
 
       // 9. CI - pnpm audit
-      const pnpmAuditWorkflow_CI = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('pnpm audit') && !workflow.name.toLowerCase().includes('pull request')
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'CI',
         tool_name: 'pnpm audit',
         is_required: false,
-        implemented: !!pnpmAuditWorkflow_CI,
-        info_url: `${repo.url}/actions/${pnpmAuditWorkflow_CI?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'pnpm audit', '!pull request'),
       });
 
       // 10. CI - CodeQL
-      const codeQL_CI = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('codeql') && !workflow.name.toLowerCase().includes('pull request')
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'CI',
         tool_name: 'CodeQL',
         is_required: false,
-        implemented: !!codeQL_CI,
-        info_url: `${repo.url}/actions/${codeQL_CI?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'codeql', '!pull request'),
       });
 
       // 11. CI - Trivy
-      const trivyWorkflow_CI = repo.workflows.find((workflow: { name: string; path?: string }) =>
-        workflow.name.toLowerCase().includes('trivy') && !workflow.name.toLowerCase().includes('pull request')
-      );
       securityToolRecords.push({
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'CI',
         tool_name: 'Trivy',
         is_required: repo.languages.some((lang: string) => lang === 'HCL'),
-        implemented: !!trivyWorkflow_CI,
-        info_url: `${repo.url}/actions/${trivyWorkflow_CI?.path.replace('.github/', '')}`,
+        ...this.getWorkflowImplementationDetail(repo, 'trivy', '!pull request'),
       });
     }
 
