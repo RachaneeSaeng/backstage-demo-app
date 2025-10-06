@@ -221,14 +221,16 @@ export class GitHubSecurityService {
     repo: string,
   ): Promise<boolean> {
     try {
-      // TODO: Find a better endpoint to check secrete scanning feature, this one returns too much data
-      const { status } = await octokit.request('GET /repos/{owner}/{repo}/secret-scanning/scan-history', {
+      // Get repository details which includes security_and_analysis
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}', {
         owner: org,
         repo: repo,
       });
 
-      // Return true if the response status is 200 (resource exists)
-      return status === 200;
+      return (
+        data.security_and_analysis?.secret_scanning?.status === 'enabled' ||
+        false
+      );
     } catch (error: any) {
       // If we don't have permission or it's not available, return false
       if (error.status === 403 || error.status === 404) {
