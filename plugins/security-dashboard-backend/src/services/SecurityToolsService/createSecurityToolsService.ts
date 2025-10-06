@@ -79,6 +79,8 @@ export async function createSecurityToolsService({
             'repositories_security_tools',
           )
             .where('repository_name', input.repository_name)
+            .andWhere('tool_category', input.tool_category)
+            .andWhere('tool_name', input.tool_name)
             .first();
 
           if (existing) {

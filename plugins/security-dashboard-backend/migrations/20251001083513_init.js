@@ -9,7 +9,6 @@ exports.up = function(knex) {
     );
     table
       .string('repository_name', 100)
-      .primary()
       .notNullable()
       .comment('Repository name');
     table
@@ -20,6 +19,7 @@ exports.up = function(knex) {
       .string('tool_name', 32)
       .notNullable()
       .comment('Name of the security tool');
+    table.primary(['repository_name', 'tool_category', 'tool_name']);
     table
       .boolean('is_required')
       .defaultTo(false)
