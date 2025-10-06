@@ -240,7 +240,7 @@ export class DataIngestionService {
   /**
    * Fetch all repository security information from GitHub and save to database (with pagination)
    */
-  async fetchAndSaveAllGitHubSecurityData(): Promise<void> {
+  async fetchAndSaveAllGitHubSecurityData(): Promise<{ created: number; updated: number }> {
     this.logger.info(`Fetching all repository security info from GitHub`);
 
     const repositories = await this.fetchAllRepositories();
@@ -255,6 +255,11 @@ export class DataIngestionService {
     this.logger.info(
       `Successfully saved security tool records: ${result.created.length} created, ${result.updated.length} updated`,
     );
+
+    return {
+      created: result.created.length,
+      updated: result.updated.length,
+    };
   }
 
   /**
@@ -262,7 +267,7 @@ export class DataIngestionService {
    */
   async fetchAndSaveLatestUpdatedGitHubSecurityData(
     limit: number = 10,
-  ): Promise<void> {
+  ): Promise<{ created: number; updated: number }> {
     this.logger.info(
       `Fetching latest updated ${limit} repository security info from GitHub`,
     );
@@ -279,5 +284,10 @@ export class DataIngestionService {
     this.logger.info(
       `Successfully saved security tool records: ${result.created.length} created, ${result.updated.length} updated`,
     );
+
+    return {
+      created: result.created.length,
+      updated: result.updated.length,
+    };
   }
 }

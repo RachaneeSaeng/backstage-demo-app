@@ -105,15 +105,19 @@ export async function createRouter({
 
   // Fetch and save all GitHub security data
   router.post('/data-ingestion/github/all', async (_req, res) => {
-    await dataIngestionService.fetchAndSaveAllGitHubSecurityData();
-    res.status(200).json({ message: 'Successfully fetched and saved all GitHub security data' });
+    const result = await dataIngestionService.fetchAndSaveAllGitHubSecurityData();
+    res.status(200).json({
+      message: `Successfully fetched and saved all GitHub security data: ${result.created} created, ${result.updated} updated`
+    });
   });
 
   // Fetch and save latest updated GitHub security data
   router.post('/data-ingestion/github/latest', async (req, res) => {
     const limit = req.body.limit;
-    await dataIngestionService.fetchAndSaveLatestUpdatedGitHubSecurityData(limit);
-    res.status(200).json({ message: `Successfully fetched and saved latest updated repositories` });
+    const result = await dataIngestionService.fetchAndSaveLatestUpdatedGitHubSecurityData(limit);
+    res.status(200).json({
+      message: `Successfully fetched and saved latest updated repositories: ${result.created} created, ${result.updated} updated`
+    });
   });
 
   return router;
