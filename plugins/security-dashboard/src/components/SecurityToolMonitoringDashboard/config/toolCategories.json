@@ -8,12 +8,12 @@
     {
       "name": "Pull Request",
       "backgroundColor": "#8532DB",
-      "tools": ["Dependabot", "pnpm audit", "Veracode", "CodeQL", "SonarQube", "Trivy"]
+      "tools": ["Dependabot", "pnpm audit", "Veracode", "CodeQL",  "Trivy"]
     },
     {
       "name": "CI",
       "backgroundColor": "#6A27E6",
-      "tools": ["pnpm audit", "Veracode", "CodeQL", "SonarQube", "Trivy"]
+      "tools": ["pnpm audit", "Veracode", "CodeQL", "Trivy"]
     }
   ]
 }

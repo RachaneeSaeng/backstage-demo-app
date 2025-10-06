@@ -219,7 +219,7 @@ export class DataIngestionService {
         info_url: `${repo.url}/actions/${codeQL_CI?.path.replace('.github/', '')}`,
       });
 
-      // 11. Pull Request - Trivy
+      // 11. CI - Trivy
       const trivyWorkflow_CI = repo.workflows.find((workflow: { name: string; path?: string }) =>
         workflow.name.toLowerCase().includes('trivy') && !workflow.name.toLowerCase().includes('pull request')
       );
