@@ -11,7 +11,8 @@ import { CreateSecurityToolInput, SecurityToolsService } from '../types';
 export class DataIngestionService {
   private readonly githubService: GitHubSecurityService;
   private readonly org = 'RachaneeSaeng';
-  private readonly excludeRepositoriesPattern = '^react';
+  private readonly excludeRepositoriesPattern = 'CommSys*';
+  private readonly limitLatestRecords = 20;
 
   constructor(
     config: RootConfigService,
@@ -266,7 +267,7 @@ export class DataIngestionService {
    * Fetch latest updated X repository security information from GitHub and save to database
    */
   async fetchAndSaveLatestUpdatedGitHubSecurityData(
-    limit: number = 10,
+    limit: number = this.limitLatestRecords,
   ): Promise<{ created: number; updated: number }> {
     this.logger.info(
       `Fetching latest updated ${limit} repository security info from GitHub`,
