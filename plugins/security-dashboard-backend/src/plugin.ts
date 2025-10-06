@@ -50,7 +50,7 @@ export const securityDashboardPlugin = createBackendPlugin({
         });
 
         await scheduler.scheduleTask({
-          id: 'daily-data-update3',
+          id: 'daily-data-update',
           frequency: { cron: '0 0 * * *' }, // Run at midnight daily
           timeout: { minutes: 3 },
           scope: 'global', // Run once across all instances
