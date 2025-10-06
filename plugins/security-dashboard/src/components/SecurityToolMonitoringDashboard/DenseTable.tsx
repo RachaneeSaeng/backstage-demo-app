@@ -36,8 +36,9 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
       return {
         title: fieldName,
         field: fieldName,
-        headerStyle: { textTransform: 'none', whiteSpace: 'nowrap', backgroundColor: category.backgroundColor, color: '#ffffff' },
-        cellStyle: { whiteSpace: 'nowrap' },
+        width: '220px',
+        headerStyle: { textTransform: 'none', whiteSpace: 'nowrap', textAlign: 'center', backgroundColor: category.backgroundColor, color: '#ffffff' },
+        cellStyle: { whiteSpace: 'nowrap', textAlign: 'center' },
         render: (rowData: any) => (
           <StatusChip status={rowData[`${fieldName}-obj`]} />
         ),
@@ -51,8 +52,9 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
         title: 'Repository',
         field: 'repositoryName',
         highlight: true,
-        headerStyle: { textTransform: 'none', whiteSpace: 'nowrap' },
-        cellStyle: { fontWeight: 'bold', whiteSpace: 'nowrap' },
+        width: '250px',
+        headerStyle: { textTransform: 'none' },
+        cellStyle: { fontWeight: 'bold' },
         render: (rowData: any) => (
           <Link
             underline="hover"
