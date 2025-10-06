@@ -39,94 +39,13 @@ export class GitHubSecurityService {
   async getAllRepositoriesWithSecurityInfo(
     filters: RepositoryFilters,
   ): Promise<RepositorySecurityInfo[]> {
-    const { org, excludePattern } = filters;
-
+    const { org } = filters;
     this.logger.info(`Fetching all repositories for organization: ${org}`);
 
-    // Get GitHub integration config
-    const githubIntegration = this.integrations.github.byHost('github.com');
-    if (!githubIntegration) {
-      throw new Error('GitHub integration not configured');
-    }
-
-    // Get credentials
-    const credentials = await this.credentialsProvider.getCredentials({
-      url: `https://github.com/${org}`,
-    });
-
-    if (!credentials.headers || !credentials.token) {
-      throw new Error('GitHub credentials not found for');
-    }
-
-    // Create GraphQL client
-    const graphqlClient = this.createGraphQLClient(
-      credentials.headers,
-      githubIntegration.config.apiBaseUrl || 'https://api.github.com',
-    );
-
-    // Fetch all repositories using GraphQL with pagination
+    const { graphqlClient, octokit } = await this.setupGitHubClients(org);
     const repositories = await this.fetchAllRepositories(graphqlClient, org);
 
-    // Filter repositories
-    const filteredRepos = excludePattern
-      ? repositories.filter(repo => !minimatch(repo.name, excludePattern))
-      : repositories;
-
-    this.logger.info(
-      `Found ${filteredRepos.length} repositories after filtering`,
-    );
-
-    // Create REST client for additional API calls
-    const ThrottledOctokit = Octokit.plugin(throttling);
-    const octokit = new ThrottledOctokit({
-      auth: credentials.token,
-      baseUrl: githubIntegration.config.apiBaseUrl || 'https://api.github.com',
-      throttle: {
-        onRateLimit: (retryAfter, options, octo, retryCount) => {
-          this.logger.warn(
-            `Request quota exhausted for request ${options.method} ${options.url}`,
-          );
-          if (retryCount < 2) {
-            this.logger.info(`Retrying after ${retryAfter} seconds`);
-            return true;
-          }
-          return false;
-        },
-        onSecondaryRateLimit: (retryAfter, options, octo, retryCount) => {
-          this.logger.warn(
-            `Secondary rate limit hit for request ${options.method} ${options.url}`,
-          );
-          if (retryCount < 2) {
-            this.logger.info(`Retrying after ${retryAfter} seconds`);
-            return true;
-          }
-          return false;
-        },
-      },
-    });
-
-    // Fetch additional security info for each repository
-    const securityInfoPromises = filteredRepos.map(repo =>
-      this.enrichRepositoryWithSecurityInfo(octokit, org, repo),
-    );
-
-    const results = await Promise.allSettled(securityInfoPromises);
-
-    // Filter out failed requests and log errors
-    const successfulResults = results
-      .map((result, index) => {
-        if (result.status === 'fulfilled') {
-          return result.value;
-        } else {
-          this.logger.error(
-            `Failed to fetch security info for ${filteredRepos[index].name}: ${result.reason}`,
-          );
-          return null;
-        }
-      })
-      .filter((r): r is RepositorySecurityInfo => r !== null);
-
-    return successfulResults;
+    return this.processRepositories(repositories, filters, octokit, org);
   }
 
   /**
@@ -136,17 +55,27 @@ export class GitHubSecurityService {
     filters: RepositoryFilters,
     limit: number,
   ): Promise<RepositorySecurityInfo[]> {
-    const { org, excludePattern } = filters;
-
+    const { org } = filters;
     this.logger.info(`Fetching latest updated ${limit} repositories for organization: ${org}`);
 
-    // Get GitHub integration config
+    const { graphqlClient, octokit } = await this.setupGitHubClients(org);
+    const repositories = await this.fetchLatestUpdatedRepositories(graphqlClient, org, limit);
+
+    return this.processRepositories(repositories, filters, octokit, org);
+  }
+
+  /**
+   * Setup GitHub clients (GraphQL and REST)
+   */
+  private async setupGitHubClients(org: string): Promise<{
+    graphqlClient: typeof graphql;
+    octokit: Octokit;
+  }> {
     const githubIntegration = this.integrations.github.byHost('github.com');
     if (!githubIntegration) {
       throw new Error('GitHub integration not configured');
     }
 
-    // Get credentials
     const credentials = await this.credentialsProvider.getCredentials({
       url: `https://github.com/${org}`,
     });
@@ -155,29 +84,22 @@ export class GitHubSecurityService {
       throw new Error('GitHub credentials not found for');
     }
 
-    // Create GraphQL client
-    const graphqlClient = this.createGraphQLClient(
-      credentials.headers,
-      githubIntegration.config.apiBaseUrl || 'https://api.github.com',
-    );
+    const baseUrl = githubIntegration.config.apiBaseUrl || 'https://api.github.com';
 
-    // Fetch latest updated repositories
-    const repositories = await this.fetchLatestUpdatedRepositories(graphqlClient, org, limit);
+    const graphqlClient = this.createGraphQLClient(credentials.headers, baseUrl);
+    const octokit = this.createOctokitClient(credentials.token, baseUrl);
 
-    // Filter repositories
-    const filteredRepos = excludePattern
-      ? repositories.filter(repo => !minimatch(repo.name, excludePattern))
-      : repositories;
+    return { graphqlClient, octokit };
+  }
 
-    this.logger.info(
-      `Found ${filteredRepos.length} repositories after filtering`,
-    );
-
-    // Create REST client for additional API calls
+  /**
+   * Create Octokit REST client with throttling
+   */
+  private createOctokitClient(token: string, baseUrl: string): Octokit {
     const ThrottledOctokit = Octokit.plugin(throttling);
-    const octokit = new ThrottledOctokit({
-      auth: credentials.token,
-      baseUrl: githubIntegration.config.apiBaseUrl || 'https://api.github.com',
+    return new ThrottledOctokit({
+      auth: token,
+      baseUrl,
       throttle: {
         onRateLimit: (retryAfter, options, octo, retryCount) => {
           this.logger.warn(
@@ -201,16 +123,34 @@ export class GitHubSecurityService {
         },
       },
     });
+  }
 
-    // Fetch additional security info for each repository
+  /**
+   * Process repositories: filter, enrich with security info, and handle errors
+   */
+  private async processRepositories(
+    repositories: RepositoryGraphQLResponse[],
+    filters: RepositoryFilters,
+    octokit: Octokit,
+    org: string,
+  ): Promise<RepositorySecurityInfo[]> {
+    const { excludePattern } = filters;
+
+    const filteredRepos = excludePattern
+      ? repositories.filter(repo => !minimatch(repo.name, excludePattern))
+      : repositories;
+
+    this.logger.info(
+      `Found ${filteredRepos.length} repositories after filtering`,
+    );
+
     const securityInfoPromises = filteredRepos.map(repo =>
       this.enrichRepositoryWithSecurityInfo(octokit, org, repo),
     );
 
     const results = await Promise.allSettled(securityInfoPromises);
 
-    // Filter out failed requests and log errors
-    const successfulResults = results
+    return results
       .map((result, index) => {
         if (result.status === 'fulfilled') {
           return result.value;
@@ -222,8 +162,6 @@ export class GitHubSecurityService {
         }
       })
       .filter((r): r is RepositorySecurityInfo => r !== null);
-
-    return successfulResults;
   }
 
   /**
