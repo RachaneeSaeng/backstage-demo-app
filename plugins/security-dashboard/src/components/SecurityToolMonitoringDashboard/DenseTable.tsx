@@ -7,7 +7,7 @@ import {
   TableRow,
   Paper,
   makeStyles,
-  Typography
+  Link
 } from '@material-ui/core';
 import toolCategoriesConfig from './config/toolCategories.json';
 import { getToolStatus } from './utils';
@@ -96,9 +96,9 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
               <TableRow key={repo.name}>
                 <TableCell className={classes.repositoryCell}>
                   <div>
-                    <Typography variant="body2">
+                    <Link href={repo.url} color="inherit" underline="hover" target='_blank' rel='noopener'>
                       {repo.name}
-                    </Typography>
+                    </Link>
                   </div>
                 </TableCell>
                 {toolCategories.map((category) =>

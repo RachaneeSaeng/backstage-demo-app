@@ -15,6 +15,7 @@ export interface RepositoryToolData {
 
 export interface Repository {
   name: string;
+  url: string;
   steps: Array<{
     toolCategory: string;
     tools: Array<{
