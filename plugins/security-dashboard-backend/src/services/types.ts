@@ -1,5 +1,6 @@
 export interface RepositorySecurityTool {
   repository_name: string;
+  repository_url: string;
   tool_category: string;
   tool_name: string;
   is_required: boolean;
@@ -10,6 +11,7 @@ export interface RepositorySecurityTool {
 
 export interface CreateSecurityToolInput {
   repository_name: string;
+  repository_url: string;
   tool_category: string;
   tool_name: string;
   is_required?: boolean;

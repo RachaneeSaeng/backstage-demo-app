@@ -4,12 +4,11 @@ import { Repository, RepositoryToolData } from '../types';
 export const convertRepositoryDataStructure = (flatData: RepositoryToolData[]): Repository[] => {
   const repoMap = new Map<string, Repository>();
 
-  const repo_owner = 'RachaneeSaeng';
   flatData.forEach((item) => {
     if (!repoMap.has(item.repository_name)) {
       repoMap.set(item.repository_name, {
         name: item.repository_name,
-        url: `https://github.com/${repo_owner}/${item.repository_name}`, // Placeholder, as URL is not provided in RepositoryToolData
+        url: item.repository_url,
         steps: [],
       });
     }

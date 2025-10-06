@@ -6,6 +6,7 @@ export interface SecurityStatus {
 
 export interface RepositoryToolData {
   repository_name: string;
+  repository_url: string;
   tool_category: string;
   tool_name: string;
   is_required: boolean;

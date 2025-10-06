@@ -12,6 +12,10 @@ exports.up = function(knex) {
       .notNullable()
       .comment('Repository name');
     table
+      .string('repository_url')
+      .notNullable()
+      .comment('Repository URL');
+    table
       .string('tool_category', 32)
       .notNullable()
       .comment('Category of the security tool');

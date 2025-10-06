@@ -30,6 +30,7 @@ export async function createSecurityToolsService({
         const [result] = await db('repositories_security_tools')
           .insert({
             repository_name: input.repository_name,
+            repository_url: input.repository_url,
             tool_category: input.tool_category,
             tool_name: input.tool_name,
             is_required: input.is_required ?? false,
@@ -90,12 +91,6 @@ export async function createSecurityToolsService({
               updated_at: trx.fn.now() as any,
             };
 
-            if (input.tool_category !== undefined) {
-              updateData.tool_category = input.tool_category;
-            }
-            if (input.tool_name !== undefined) {
-              updateData.tool_name = input.tool_name;
-            }
             if (input.is_required !== undefined) {
               updateData.is_required = input.is_required;
             }
@@ -108,6 +103,8 @@ export async function createSecurityToolsService({
 
             const [result] = await trx('repositories_security_tools')
               .where('repository_name', input.repository_name)
+              .andWhere('tool_category', input.tool_category)
+              .andWhere('tool_name', input.tool_name)
               .update(updateData)
               .returning('*');
 
@@ -121,6 +118,7 @@ export async function createSecurityToolsService({
             const [result] = await trx('repositories_security_tools')
               .insert({
                 repository_name: input.repository_name,
+                repository_url: input.repository_url,
                 tool_category: input.tool_category,
                 tool_name: input.tool_name,
                 is_required: input.is_required ?? false,
