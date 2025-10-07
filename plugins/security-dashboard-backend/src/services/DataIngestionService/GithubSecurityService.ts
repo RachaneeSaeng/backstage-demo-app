@@ -420,7 +420,7 @@ export class GitHubSecurityService {
 
       // Fetch and parse each workflow file
       const workflowsWithJobs = await Promise.all(
-        data.workflows.map(async workflow => {
+        data.workflows.map(async (workflow: any) => {
           const content = await this.fetchWorkflowFileContent(
             octokit,
             org,
