@@ -411,7 +411,7 @@ export class GitHubSecurityService {
   ): Promise<GitHubWorkflow[]> {
     try {
       const { data } = await octokit.request(
-        'GET /repos/{owner}/{repo}/actions/workflows',
+        'GET /repos/{owner}/{repo}/actions/workflows?per_page=50',
         {
           owner: org,
           repo: repo,
