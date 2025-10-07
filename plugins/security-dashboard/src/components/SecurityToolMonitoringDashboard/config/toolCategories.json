@@ -7,13 +7,11 @@
     },
     {
       "name": "Pull Request",
-      "shortName": "PR",
       "backgroundColor": "#8636d9",
       "tools": ["Dependabot", "pnpm audit", "Veracode", "CodeQL",  "Trivy"]
     },
     {
       "name": "CI",
-      "shortName": "CI",
       "backgroundColor": "#6A27E6",
       "tools": ["pnpm audit", "Veracode", "CodeQL", "Trivy"]
     }

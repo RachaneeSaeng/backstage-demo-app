@@ -1,9 +1,5 @@
 import { makeStyles } from '@material-ui/core/styles';
-import {
-  Table,
-  TableColumn,
-  Link,
-} from '@backstage/core-components';
+import { Table, TableColumn, Link } from '@backstage/core-components';
 import toolCategoriesConfig from './config/toolCategories.json';
 import { getToolStatus } from './utils';
 import { StatusChip } from './StatusChip';
@@ -17,7 +13,7 @@ const useStyles = makeStyles(theme => ({
     flexGrow: 0,
     maxWidth: '100%',
     flexBasis: '100%',
-  }
+  },
 }));
 
 interface DenseTableProps {
@@ -30,15 +26,27 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
 
   const buildColumnsForCategory = (category: any) => {
     return category.tools.map((toolName: string) => {
-      const fieldName = category.shortName
-        ? `${category.shortName} - ${toolName}`
+      const fieldName = category.name
+        ? `${category.name}-${toolName}`
         : toolName;
 
       return {
-        title: <><Typography variant="caption">{category.name}</Typography><br/><Typography variant="inherit">{toolName}</Typography></>,
+        title: (
+          <>
+            <Typography variant="caption">{category.name}</Typography>
+            <br />
+            <Typography variant="inherit">{toolName}</Typography>
+          </>
+        ),
         field: fieldName,
         width: '220px',
-        headerStyle: { textTransform: 'none', whiteSpace: 'nowrap', textAlign: 'center', backgroundColor: category.backgroundColor, color: '#ffffff' },
+        headerStyle: {
+          textTransform: 'none',
+          whiteSpace: 'nowrap',
+          textAlign: 'center',
+          backgroundColor: category.backgroundColor,
+          color: '#ffffff',
+        },
         cellStyle: { whiteSpace: 'nowrap', textAlign: 'center' },
         render: (rowData: any) => (
           <StatusChip status={rowData[`${fieldName}-obj`]} />
@@ -90,8 +98,8 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
             ?.tools.find(t => t.name === toolName);
 
           if (repoTool) {
-            const fieldName = category.shortName
-              ? `${category.shortName} - ${toolName}`
+            const fieldName = category.name
+              ? `${category.name}-${toolName}`
               : toolName;
 
             const toolStatus = getToolStatus(repoTool);
