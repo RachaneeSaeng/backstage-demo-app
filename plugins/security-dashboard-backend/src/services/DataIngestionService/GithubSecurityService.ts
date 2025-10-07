@@ -6,9 +6,7 @@ import {
 } from '@backstage/integration';
 import { Octokit } from '@octokit/core';
 import { graphql } from '@octokit/graphql';
-import { throttling } from '@octokit/plugin-throttling';
 import { minimatch } from 'minimatch';
-import * as yaml from 'js-yaml';
 import {
   RepositorySecurityInfo,
   RepositoryFilters,
@@ -17,6 +15,18 @@ import {
   GitHubWorkflow,
   RepositoryGraphQLResponse,
 } from '../types';
+import { OctokitFactory } from './OctokitFactory';
+import { WorkflowParser } from './WorkflowParser';
+import { GITHUB_API, HTTP_STATUS } from './constants';
+import {
+  FETCH_ALL_REPOSITORIES_QUERY,
+  FETCH_LATEST_REPOSITORIES_QUERY,
+} from './graphqlQueries';
+
+interface GitHubClients {
+  graphqlClient: typeof graphql;
+  octokit: Octokit;
+}
 
 /**
  * Service for fetching GitHub repository security information
@@ -24,6 +34,8 @@ import {
 export class GitHubSecurityService {
   private readonly credentialsProvider: GithubCredentialsProvider;
   private readonly integrations: ScmIntegrations;
+  private readonly octokitFactory: OctokitFactory;
+  private readonly workflowParser: WorkflowParser;
 
   constructor(
     config: RootConfigService,
@@ -32,6 +44,8 @@ export class GitHubSecurityService {
     this.integrations = ScmIntegrations.fromConfig(config);
     this.credentialsProvider =
       DefaultGithubCredentialsProvider.fromIntegrations(this.integrations);
+    this.octokitFactory = new OctokitFactory(logger);
+    this.workflowParser = new WorkflowParser(logger);
   }
 
   /**
@@ -68,62 +82,26 @@ export class GitHubSecurityService {
   /**
    * Setup GitHub clients (GraphQL and REST)
    */
-  private async setupGitHubClients(org: string): Promise<{
-    graphqlClient: typeof graphql;
-    octokit: Octokit;
-  }> {
-    const githubIntegration = this.integrations.github.byHost('github.com');
+  private async setupGitHubClients(org: string): Promise<GitHubClients> {
+    const githubIntegration = this.integrations.github.byHost(GITHUB_API.HOST);
     if (!githubIntegration) {
       throw new Error('GitHub integration not configured');
     }
 
     const credentials = await this.credentialsProvider.getCredentials({
-      url: `https://github.com/${org}`,
+      url: `https://${GITHUB_API.HOST}/${org}`,
     });
 
     if (!credentials.headers || !credentials.token) {
-      throw new Error('GitHub credentials not found for');
+      throw new Error('GitHub credentials not found');
     }
 
-    const baseUrl = githubIntegration.config.apiBaseUrl || 'https://api.github.com';
+    const baseUrl = githubIntegration.config.apiBaseUrl || GITHUB_API.DEFAULT_BASE_URL;
 
-    const graphqlClient = this.createGraphQLClient(credentials.headers, baseUrl);
-    const octokit = this.createOctokitClient(credentials.token, baseUrl);
+    const graphqlClient = this.octokitFactory.createGraphQLClient(credentials.headers, baseUrl);
+    const octokit = this.octokitFactory.createRestClient(credentials.token, baseUrl);
 
     return { graphqlClient, octokit };
-  }
-
-  /**
-   * Create Octokit REST client with throttling
-   */
-  private createOctokitClient(token: string, baseUrl: string): Octokit {
-    const ThrottledOctokit = Octokit.plugin(throttling);
-    return new ThrottledOctokit({
-      auth: token,
-      baseUrl,
-      throttle: {
-        onRateLimit: (retryAfter, options, octo, retryCount) => {
-          this.logger.warn(
-            `Request quota exhausted for request ${options.method} ${options.url}`,
-          );
-          if (retryCount < 2) {
-            this.logger.info(`Retrying after ${retryAfter} seconds`);
-            return true;
-          }
-          return false;
-        },
-        onSecondaryRateLimit: (retryAfter, options, octo, retryCount) => {
-          this.logger.warn(
-            `Secondary rate limit hit for request ${options.method} ${options.url}`,
-          );
-          if (retryCount < 2) {
-            this.logger.info(`Retrying after ${retryAfter} seconds`);
-            return true;
-          }
-          return false;
-        },
-      },
-    });
   }
 
   /**
@@ -172,47 +150,25 @@ export class GitHubSecurityService {
     client: typeof graphql,
     org: string,
   ): Promise<RepositoryGraphQLResponse[]> {
-    const query = `
-      query repositories($org: String!, $cursor: String) {
-        repositoryOwner(login: $org) {
-          repositories(first: 100, isArchived: false, after: $cursor) {
-            nodes {
-              name
-              url
-              isArchived
-              hasVulnerabilityAlertsEnabled
-              languages(first: 10) {
-                nodes {
-                  name
-                }
-              }
-            }
-            pageInfo {
-              hasNextPage
-              endCursor
-            }
-          }
-        }
-      }
-    `;
-
     const repositories: RepositoryGraphQLResponse[] = [];
     let cursor: string | undefined = undefined;
     let hasNextPage = true;
 
     while (hasNextPage) {
-      const response: OrganizationRepositoriesResponse = await client(query, {
-        org,
-        cursor,
-      });
+      const response: OrganizationRepositoriesResponse = await client(
+        FETCH_ALL_REPOSITORIES_QUERY,
+        { org, cursor },
+      );
 
-      if (!response.repositoryOwner?.repositories) {
+      const repositoryOwner = response.repositoryOwner;
+      if (!repositoryOwner?.repositories) {
         throw new Error(`Organization ${org} not found or has no repositories`);
       }
 
-      repositories.push(...response.repositoryOwner.repositories.nodes);
+      const repos = repositoryOwner.repositories;
+      repositories.push(...repos.nodes);
 
-      const pageInfo: PageInfo = response.repositoryOwner.repositories.pageInfo;
+      const pageInfo: PageInfo = repos.pageInfo;
       hasNextPage = pageInfo.hasNextPage;
       cursor = pageInfo.endCursor;
     }
@@ -228,36 +184,17 @@ export class GitHubSecurityService {
     org: string,
     limit: number,
   ): Promise<RepositoryGraphQLResponse[]> {
-    const query = `
-      query repositories($org: String!, $first: Int!) {
-        repositoryOwner(login: $org) {
-          repositories(first: $first, orderBy: {field: UPDATED_AT, direction: DESC}, isArchived: false) {
-            nodes {
-              name
-              url
-              isArchived
-              hasVulnerabilityAlertsEnabled
-              languages(first: 10) {
-                nodes {
-                  name
-                }
-              }
-            }
-          }
-        }
-      }
-    `;
+    const response: OrganizationRepositoriesResponse = await client(
+      FETCH_LATEST_REPOSITORIES_QUERY,
+      { org, first: limit },
+    );
 
-    const response: OrganizationRepositoriesResponse = await client(query, {
-      org,
-      first: limit,
-    });
-
-    if (!response.repositoryOwner?.repositories) {
+    const repositoryOwner = response.repositoryOwner;
+    if (!repositoryOwner?.repositories) {
       throw new Error(`Organization ${org} not found or has no repositories`);
     }
 
-    return response.repositoryOwner.repositories.nodes;
+    return repositoryOwner.repositories.nodes;
   }
 
   /**
@@ -293,16 +230,15 @@ export class GitHubSecurityService {
     repo: string,
   ): Promise<boolean> {
     try {
-      // Get secret-alert information
       const response = await octokit.request('GET /repos/{owner}/{repo}/secret-scanning/alerts', {
         owner: org,
         repo: repo,
       });
 
-      return response.status === 200;
+      return response.status === HTTP_STATUS.OK;
     } catch (error: any) {
       // If we don't have permission or it's not available, return false
-      if (error.status === 403 || error.status === 404) {
+      if (error.status === HTTP_STATUS.FORBIDDEN || error.status === HTTP_STATUS.NOT_FOUND) {
         return false;
       }
       throw error;
@@ -319,14 +255,11 @@ export class GitHubSecurityService {
     path: string,
   ): Promise<string | null> {
     try {
-      const { data } = await octokit.request(
-        'GET /repos/{owner}/{repo}/contents/{path}',
-        {
-          owner: org,
-          repo: repo,
-          path: path,
-        },
-      );
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/contents/{path}', {
+        owner: org,
+        repo: repo,
+        path: path,
+      });
 
       // GitHub API returns base64 encoded content
       if ('content' in data && typeof data.content === 'string') {
@@ -334,68 +267,10 @@ export class GitHubSecurityService {
       }
       return null;
     } catch (error: any) {
-      if (error.status === 403 || error.status === 404) {
+      if (error.status === HTTP_STATUS.FORBIDDEN || error.status === HTTP_STATUS.NOT_FOUND) {
         return null;
       }
       throw error;
-    }
-  }
-
-  /**
-   * Parse workflow YAML file to extract jobs and their trigger events
-   */
-  private parseWorkflowFile(content: string): Array<{
-    name: string;
-    runsOn: Array<'pull_request' | 'push' | 'schedule'>;
-  }> {
-    try {
-      const workflowData = yaml.load(content) as any;
-
-      if (!workflowData || !workflowData.jobs) {
-        return [];
-      }
-
-      // Determine which events trigger this workflow
-      const triggers = new Set<string>();
-      if (workflowData.on) {
-        if (typeof workflowData.on === 'string') {
-          triggers.add(workflowData.on);
-        } else if (Array.isArray(workflowData.on)) {
-          workflowData.on.forEach((event: string) => triggers.add(event));
-        } else if (typeof workflowData.on === 'object') {
-          Object.keys(workflowData.on).forEach(event => triggers.add(event));
-        }
-      }
-
-      // Build runsOn array from relevant triggers
-      // Note: workflow_dispatch is treated as 'push' for CI purposes
-      const runsOn: Array<'pull_request' | 'push' | 'schedule'> = [];
-
-      if (triggers.has('pull_request')) {
-        runsOn.push('pull_request');
-      }
-      if (triggers.has('push') || triggers.has('workflow_dispatch')) {
-        runsOn.push('push');
-      }
-      if (triggers.has('schedule')) {
-        runsOn.push('schedule');
-      }
-
-      // If no recognized triggers, default to push
-      if (runsOn.length === 0) {
-        runsOn.push('push');
-      }
-
-      // Extract job names
-      const jobs = Object.entries(workflowData.jobs).map(([jobKey, jobValue]: [string, any]) => ({
-        name: jobValue.name || jobKey,
-        runsOn,
-      }));
-
-      return jobs;
-    } catch (error) {
-      this.logger.warn(`Failed to parse workflow file: ${error}`);
-      return [];
     }
   }
 
@@ -410,13 +285,10 @@ export class GitHubSecurityService {
     repo: string,
   ): Promise<GitHubWorkflow[]> {
     try {
-      const { data } = await octokit.request(
-        'GET /repos/{owner}/{repo}/actions/workflows?per_page=50',
-        {
-          owner: org,
-          repo: repo,
-        },
-      );
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/actions/workflows?per_page=50', {
+        owner: org,
+        repo: repo,
+      });
 
       // Fetch and parse each workflow file
       const workflowsWithJobs = await Promise.all(
@@ -428,14 +300,7 @@ export class GitHubSecurityService {
             workflow.path,
           );
 
-          let jobs: Array<{
-            name: string;
-            runsOn: Array<'pull_request' | 'push' | 'schedule'>;
-          }> = [];
-
-          if (content) {
-            jobs = this.parseWorkflowFile(content);
-          }
+          const jobs = content ? this.workflowParser.parseWorkflowFile(content) : [];
 
           return {
             id: workflow.id,
@@ -453,53 +318,10 @@ export class GitHubSecurityService {
       return workflowsWithJobs;
     } catch (error: any) {
       // If workflows are not accessible, return empty array
-      if (error.status === 403 || error.status === 404) {
+      if (error.status === HTTP_STATUS.FORBIDDEN || error.status === HTTP_STATUS.NOT_FOUND) {
         return [];
       }
       throw error;
     }
-  }
-
-  /**
-   * Create GraphQL client with throttling
-   */
-  private createGraphQLClient(
-    headers: { [name: string]: string } | undefined,
-    baseUrl: string,
-  ): typeof graphql {
-    const ThrottledOctokit = Octokit.plugin(throttling);
-    const octokit = new ThrottledOctokit({
-      throttle: {
-        onRateLimit: (retryAfter, options, octo, retryCount) => {
-          this.logger.warn(
-            `GraphQL request quota exhausted for request ${options.method} ${options.url}`,
-          );
-          if (retryCount < 2) {
-            this.logger.info(
-              `Retrying after ${retryAfter} seconds for the ${retryCount} time`,
-            );
-            return true;
-          }
-          return false;
-        },
-        onSecondaryRateLimit: (retryAfter, options, octo, retryCount) => {
-          this.logger.warn(
-            `GraphQL secondary rate limit hit for request ${options.method} ${options.url}`,
-          );
-          if (retryCount < 2) {
-            this.logger.info(
-              `Retrying after ${retryAfter} seconds for the ${retryCount} time`,
-            );
-            return true;
-          }
-          return false;
-        },
-      },
-    });
-
-    return octokit.graphql.defaults({
-      headers,
-      baseUrl,
-    });
   }
 }

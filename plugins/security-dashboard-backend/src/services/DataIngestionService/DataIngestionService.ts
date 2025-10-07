@@ -3,7 +3,13 @@ import {
   RootConfigService,
 } from '@backstage/backend-plugin-api';
 import { GitHubSecurityService } from './GithubSecurityService';
-import { CreateSecurityToolInput, SecurityToolsService } from '../types';
+import { CreateSecurityToolInput, SecurityToolsService, RepositorySecurityInfo } from '../types';
+import { SECURITY_TOOLS_CONFIG, SecurityToolDefinition } from './securityToolsConfig';
+
+interface WorkflowImplementationDetail {
+  is_implemented: boolean;
+  info_url: string;
+}
 
 /**
  * Service for data ingestion from various sources
@@ -64,13 +70,13 @@ export class DataIngestionService {
    * Checks both workflow names and job names for matches
    */
   private getWorkflowImplementationDetail(
-    repo: any,
+    repo: RepositorySecurityInfo,
     isPullRequest: boolean,
-    ...searchTerms: string[]
-  ): { is_implemented: boolean; info_url: string } {
+    searchTerms: string[],
+  ): WorkflowImplementationDetail {
     // First try to find in workflow names (backward compatibility)
-    let workflow = repo.workflows.find((workflow: { name: string; path?: string; jobs?: any[] }) => {
-      const lowerName = workflow.name.toLowerCase();
+    let workflow = repo.workflows.find(wf => {
+      const lowerName = wf.name.toLowerCase();
       return searchTerms.every(term => {
         if (term.startsWith('!')) {
           return !lowerName.includes(term.substring(1));
@@ -81,13 +87,13 @@ export class DataIngestionService {
 
     // If not found in workflow name, search in job names
     if (!workflow) {
-      workflow = repo.workflows.find((workflow: { jobs?: Array<{ name: string; runsOn: Array<'pull_request' | 'push' | 'schedule'> }> }) => {
-        if (!workflow.jobs || workflow.jobs.length === 0) {
+      workflow = repo.workflows.find(wf => {
+        if (!wf.jobs || wf.jobs.length === 0) {
           return false;
         }
 
         // Check if any job matches the search terms and runs on the correct event
-        return workflow.jobs.some(job => {
+        return wf.jobs.some(job => {
           const lowerJobName = job.name.toLowerCase();
           const matchesSearchTerms = searchTerms.every(term => {
             if (term.startsWith('!')) {
@@ -109,148 +115,81 @@ export class DataIngestionService {
 
     return {
       is_implemented: !!workflow,
-      info_url: workflow ? `${repo.url}/actions/${workflow.path.replace('.github/', '')}` : ''
+      info_url: workflow
+        ? `${repo.url}/actions/${workflow.path.replace('.github/', '')}`
+        : '',
     };
+  }
+
+  /**
+   * Create a security tool record from a tool definition
+   */
+  private createSecurityToolRecord(
+    repo: RepositorySecurityInfo,
+    toolDef: SecurityToolDefinition,
+  ): CreateSecurityToolInput {
+    const baseRecord: CreateSecurityToolInput = {
+      repository_name: repo.name,
+      repository_url: repo.url,
+      tool_category: toolDef.category,
+      tool_name: toolDef.name,
+      is_required: toolDef.isRequired(repo.languages),
+    };
+
+    // Handle GitHub Security tools with direct implementation status
+    if (toolDef.infoUrl) {
+      return {
+        ...baseRecord,
+        is_implemented: this.getDirectImplementationStatus(repo, toolDef),
+        info_url: toolDef.infoUrl(repo.url),
+      };
+    }
+
+    // Handle workflow-based tools
+    if (toolDef.useWorkflowImplementation && toolDef.workflowSearchTerms) {
+      const workflowDetail = this.getWorkflowImplementationDetail(
+        repo,
+        toolDef.isPullRequest ?? false,
+        toolDef.workflowSearchTerms,
+      );
+      return {
+        ...baseRecord,
+        ...workflowDetail,
+      };
+    }
+
+    return baseRecord;
+  }
+
+  /**
+   * Get direct implementation status for GitHub Security tools
+   */
+  private getDirectImplementationStatus(
+    repo: RepositorySecurityInfo,
+    toolDef: SecurityToolDefinition,
+  ): boolean {
+    switch (toolDef.name) {
+      case 'Secret Scanning':
+        return repo.secretScanningEnabled;
+      case 'Dependabot Alerts':
+        return repo.dependabotAlertsEnabled;
+      default:
+        return false;
+    }
   }
 
   /**
    * Transform repositories to security tool records
    */
   private transformRepositoriesToSecurityToolRecords(
-    repositories: Awaited<ReturnType<any>>,
+    repositories: RepositorySecurityInfo[],
   ): CreateSecurityToolInput[] {
-    const veracodeSupportedLanguages = [
-      'JavaScript',
-      'TypeScript',
-      'Python',
-      'Java',
-      'C#',
-      'Ruby',
-      'Go',
-      'PHP',      
-      'Kotlin',
-      'Scala',
-      'Ionic'
-    ];
-
     const securityToolRecords: CreateSecurityToolInput[] = [];
 
     for (const repo of repositories) {
-      // 1. Github Security - Secret Scanning
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'Github Security',
-        tool_name: 'Secret Scanning',
-        is_required: true,
-        is_implemented: repo.secretScanningEnabled,
-        info_url: `${repo.url}/security/secret-scanning`,
-      });
-
-      // 2. Github Security - Dependabot Alerts
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'Github Security',
-        tool_name: 'Dependabot Alerts',
-        is_required: true,
-        is_implemented: repo.dependabotAlertsEnabled,
-        info_url: `${repo.url}/security/dependabot`,
-      });
-
-      // 3. Pull Request - Dependabot Dependency Review
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'Pull Request',
-        tool_name: 'Dependabot Dependency Review',
-        is_required: true,
-        ...this.getWorkflowImplementationDetail(repo, true, 'dependency review'),
-      });
-
-      // 4. Pull Request - pnpm audit
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'Pull Request',
-        tool_name: 'pnpm audit',
-        is_required: false,
-        ...this.getWorkflowImplementationDetail(repo, true, 'pnpm audit'),
-      });
-
-      // 5. Pull Request - Veracode Pipeline Scan
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'Pull Request',
-        tool_name: 'Veracode Pipeline Scan',
-        is_required: repo.languages.some((lang: string) =>
-          veracodeSupportedLanguages.includes(lang),
-        ),
-        ...this.getWorkflowImplementationDetail(repo, true, 'veracode', 'pipeline'),
-      });
-
-      // 6. Pull Request - CodeQL
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'Pull Request',
-        tool_name: 'CodeQL',
-        is_required: false,
-        ...this.getWorkflowImplementationDetail(repo, true, 'codeql'),
-      });
-
-      // 7. Pull Request - Trivy
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'Pull Request',
-        tool_name: 'Trivy',
-        is_required: repo.languages.some((lang: string) => lang === 'HCL'),
-        ...this.getWorkflowImplementationDetail(repo, true, 'trivy'),
-      });
-
-      // 8. CI - Veracode Policy Scan
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'CI',
-        tool_name: 'Veracode Policy Scan',
-        is_required: repo.languages.some((lang: string) =>
-          veracodeSupportedLanguages.includes(lang),
-        ),
-        ...this.getWorkflowImplementationDetail(repo, false, 'veracode', 'policy'),
-      });
-
-      // 9. CI - pnpm audit
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'CI',
-        tool_name: 'pnpm audit',
-        is_required: false,
-        ...this.getWorkflowImplementationDetail(repo, false, 'pnpm audit'),
-      });
-
-      // 10. CI - CodeQL
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'CI',
-        tool_name: 'CodeQL',
-        is_required: false,
-        ...this.getWorkflowImplementationDetail(repo, false, 'codeql'),
-      });
-
-      // 11. CI - Trivy
-      securityToolRecords.push({
-        repository_name: repo.name,
-        repository_url: repo.url,
-        tool_category: 'CI',
-        tool_name: 'Trivy',
-        is_required: repo.languages.some((lang: string) => lang === 'HCL'),
-        ...this.getWorkflowImplementationDetail(repo, false, 'trivy'),
-      });
+      for (const toolDef of SECURITY_TOOLS_CONFIG) {
+        securityToolRecords.push(this.createSecurityToolRecord(repo, toolDef));
+      }
     }
 
     return securityToolRecords;
