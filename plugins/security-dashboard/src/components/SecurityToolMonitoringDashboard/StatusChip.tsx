@@ -2,7 +2,7 @@ import React from 'react';
 import { Chip, Link, makeStyles } from '@material-ui/core';
 import { SecurityStatus } from '../../types';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(theme => ({
   chip: {
     minWidth: 120,
     fontSize: '0.75rem',
@@ -24,12 +24,17 @@ const useStyles = makeStyles((theme) => ({
     color: 'white',
   },
   noneChip: {
-    backgroundColor: theme.palette.type === 'dark' ? theme.palette.grey[700] : theme.palette.grey[300],
+    backgroundColor:
+      theme.palette.type === 'dark'
+        ? theme.palette.grey[700]
+        : theme.palette.grey[300],
     color: theme.palette.text.secondary,
   },
 }));
 
-export const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => {
+export const StatusChip: React.FC<{ status: SecurityStatus }> = ({
+  status,
+}) => {
   const classes = useStyles();
 
   const getChipClass = () => {
@@ -47,11 +52,19 @@ export const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => 
     }
   };
 
-  const chipContent = (
-      <Link href={status.link} color="inherit" underline="hover" target='_blank' rel='noopener'>
-        {status.text}
-      </Link>
-      );
+  const chipContent = status.link ? (
+    <Link
+      href={status.link}
+      color="inherit"
+      underline="hover"
+      target="_blank"
+      rel="noopener"
+    >
+      {status.text}
+    </Link>
+  ) : (
+    <>{status.text}</>
+  );
 
   return (
     <>
@@ -61,6 +74,5 @@ export const StatusChip: React.FC<{ status: SecurityStatus }> = ({ status }) => 
         size="small"
       />
     </>
-
   );
 };
