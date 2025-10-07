@@ -3,13 +3,10 @@ import {
   RootConfigService,
 } from '@backstage/backend-plugin-api';
 import { GitHubSecurityService } from '../GitHubSecurityService';
-import { CreateSecurityToolInput, SecurityToolsService, RepositorySecurityInfo } from '../types';
+import { RepositorySecurityInfo } from '../GitHubSecurityService';
+import { CreateSecurityToolInput, SecurityToolsService } from '../SecurityToolsService';
 import { SECURITY_TOOLS_CONFIG, SecurityToolDefinition } from './securityToolsConfig';
-
-interface WorkflowImplementationDetail {
-  is_implemented: boolean;
-  info_url: string;
-}
+import { WorkflowImplementationDetail } from './types';
 
 /**
  * Service for data ingestion from various sources

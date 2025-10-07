@@ -14,7 +14,7 @@ import {
   PageInfo,
   GitHubWorkflow,
   RepositoryGraphQLResponse,
-} from '../types';
+} from './types';
 import { OctokitFactory } from './OctokitFactory';
 import { WorkflowParser } from './WorkflowParser';
 import { GITHUB_API, HTTP_STATUS } from './constants';

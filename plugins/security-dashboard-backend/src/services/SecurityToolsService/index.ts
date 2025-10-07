@@ -1,2 +1,2 @@
-export * from '../types';
+export type { CreateSecurityToolInput, SecurityToolsService } from './types';
 export * from './createSecurityToolsService';

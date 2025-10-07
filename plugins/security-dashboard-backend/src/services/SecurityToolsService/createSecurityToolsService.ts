@@ -4,8 +4,9 @@ import { Knex } from 'knex';
 import {
   RepositorySecurityTool,
   SecurityToolsService,
-} from '../types';
-import { SecurityToolKey, SecurityToolInput } from './types';
+  SecurityToolKey,
+  SecurityToolInput,
+} from './types';
 
 const TABLE_NAME = 'repositories_security_tools';
 
