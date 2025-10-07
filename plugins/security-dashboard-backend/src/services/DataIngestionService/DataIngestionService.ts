@@ -61,12 +61,15 @@ export class DataIngestionService {
 
   /**
    * Helper method to find workflow and create tool info
+   * Checks both workflow names and job names for matches
    */
   private getWorkflowImplementationDetail(
     repo: any,
+    isPullRequest: boolean,
     ...searchTerms: string[]
   ): { is_implemented: boolean; info_url: string } {
-    const workflow = repo.workflows.find((workflow: { name: string; path?: string }) => {
+    // First try to find in workflow names (backward compatibility)
+    let workflow = repo.workflows.find((workflow: { name: string; path?: string; jobs?: any[] }) => {
       const lowerName = workflow.name.toLowerCase();
       return searchTerms.every(term => {
         if (term.startsWith('!')) {
@@ -75,6 +78,35 @@ export class DataIngestionService {
         return lowerName.includes(term);
       });
     });
+
+    // If not found in workflow name, search in job names
+    if (!workflow) {
+      workflow = repo.workflows.find((workflow: { jobs?: Array<{ name: string; runsOn: Array<'pull_request' | 'push' | 'schedule'> }> }) => {
+        if (!workflow.jobs || workflow.jobs.length === 0) {
+          return false;
+        }
+
+        // Check if any job matches the search terms and runs on the correct event
+        return workflow.jobs.some(job => {
+          const lowerJobName = job.name.toLowerCase();
+          const matchesSearchTerms = searchTerms.every(term => {
+            if (term.startsWith('!')) {
+              return !lowerJobName.includes(term.substring(1));
+            }
+            return lowerJobName.includes(term);
+          });
+
+          // For Pull Request: check if runsOn includes 'pull_request'
+          // For CI (push): check if runsOn includes 'push' or 'schedule'
+          const runsOnExpectedEvent = isPullRequest
+            ? job.runsOn.includes('pull_request')
+            : job.runsOn.includes('push') || job.runsOn.includes('schedule');
+
+          return matchesSearchTerms && runsOnExpectedEvent;
+        });
+      });
+    }
+
     return {
       is_implemented: !!workflow,
       info_url: workflow ? `${repo.url}/actions/${workflow.path.replace('.github/', '')}` : ''
@@ -133,7 +165,7 @@ export class DataIngestionService {
         tool_category: 'Pull Request',
         tool_name: 'Dependabot Dependency Review',
         is_required: true,
-        ...this.getWorkflowImplementationDetail(repo, 'dependency review'),
+        ...this.getWorkflowImplementationDetail(repo, true, 'dependency review'),
       });
 
       // 4. Pull Request - pnpm audit
@@ -143,7 +175,7 @@ export class DataIngestionService {
         tool_category: 'Pull Request',
         tool_name: 'pnpm audit',
         is_required: false,
-        ...this.getWorkflowImplementationDetail(repo, 'pnpm audit', 'pull request'),
+        ...this.getWorkflowImplementationDetail(repo, true, 'pnpm audit'),
       });
 
       // 5. Pull Request - Veracode Pipeline Scan
@@ -155,7 +187,7 @@ export class DataIngestionService {
         is_required: repo.languages.some((lang: string) =>
           veracodeSupportedLanguages.includes(lang),
         ),
-        ...this.getWorkflowImplementationDetail(repo, 'veracode', 'pipeline'),
+        ...this.getWorkflowImplementationDetail(repo, true, 'veracode', 'pipeline'),
       });
 
       // 6. Pull Request - CodeQL
@@ -165,7 +197,7 @@ export class DataIngestionService {
         tool_category: 'Pull Request',
         tool_name: 'CodeQL',
         is_required: false,
-        ...this.getWorkflowImplementationDetail(repo, 'codeql', 'pull request'),
+        ...this.getWorkflowImplementationDetail(repo, true, 'codeql'),
       });
 
       // 7. Pull Request - Trivy
@@ -175,7 +207,7 @@ export class DataIngestionService {
         tool_category: 'Pull Request',
         tool_name: 'Trivy',
         is_required: repo.languages.some((lang: string) => lang === 'HCL'),
-        ...this.getWorkflowImplementationDetail(repo, 'trivy', 'pull request'),
+        ...this.getWorkflowImplementationDetail(repo, true, 'trivy'),
       });
 
       // 8. CI - Veracode Policy Scan
@@ -187,7 +219,7 @@ export class DataIngestionService {
         is_required: repo.languages.some((lang: string) =>
           veracodeSupportedLanguages.includes(lang),
         ),
-        ...this.getWorkflowImplementationDetail(repo, 'veracode', 'policy'),
+        ...this.getWorkflowImplementationDetail(repo, false, 'veracode', 'policy'),
       });
 
       // 9. CI - pnpm audit
@@ -197,7 +229,7 @@ export class DataIngestionService {
         tool_category: 'CI',
         tool_name: 'pnpm audit',
         is_required: false,
-        ...this.getWorkflowImplementationDetail(repo, 'pnpm audit', '!pull request'),
+        ...this.getWorkflowImplementationDetail(repo, false, 'pnpm audit'),
       });
 
       // 10. CI - CodeQL
@@ -207,7 +239,7 @@ export class DataIngestionService {
         tool_category: 'CI',
         tool_name: 'CodeQL',
         is_required: false,
-        ...this.getWorkflowImplementationDetail(repo, 'codeql', '!pull request'),
+        ...this.getWorkflowImplementationDetail(repo, false, 'codeql'),
       });
 
       // 11. CI - Trivy
@@ -217,7 +249,7 @@ export class DataIngestionService {
         tool_category: 'CI',
         tool_name: 'Trivy',
         is_required: repo.languages.some((lang: string) => lang === 'HCL'),
-        ...this.getWorkflowImplementationDetail(repo, 'trivy', '!pull request'),
+        ...this.getWorkflowImplementationDetail(repo, false, 'trivy'),
       });
     }
 

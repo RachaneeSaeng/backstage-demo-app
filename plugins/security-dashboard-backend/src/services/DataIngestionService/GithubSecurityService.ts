@@ -8,6 +8,7 @@ import { Octokit } from '@octokit/core';
 import { graphql } from '@octokit/graphql';
 import { throttling } from '@octokit/plugin-throttling';
 import { minimatch } from 'minimatch';
+import * as yaml from 'js-yaml';
 import {
   RepositorySecurityInfo,
   RepositoryFilters,
@@ -309,7 +310,99 @@ export class GitHubSecurityService {
   }
 
   /**
-   * Fetch workflows for a repository
+   * Fetch workflow file content from repository
+   */
+  private async fetchWorkflowFileContent(
+    octokit: Octokit,
+    org: string,
+    repo: string,
+    path: string,
+  ): Promise<string | null> {
+    try {
+      const { data } = await octokit.request(
+        'GET /repos/{owner}/{repo}/contents/{path}',
+        {
+          owner: org,
+          repo: repo,
+          path: path,
+        },
+      );
+
+      // GitHub API returns base64 encoded content
+      if ('content' in data && typeof data.content === 'string') {
+        return Buffer.from(data.content, 'base64').toString('utf-8');
+      }
+      return null;
+    } catch (error: any) {
+      if (error.status === 403 || error.status === 404) {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Parse workflow YAML file to extract jobs and their trigger events
+   */
+  private parseWorkflowFile(content: string): Array<{
+    name: string;
+    runsOn: Array<'pull_request' | 'push' | 'schedule'>;
+  }> {
+    try {
+      const workflowData = yaml.load(content) as any;
+
+      if (!workflowData || !workflowData.jobs) {
+        return [];
+      }
+
+      // Determine which events trigger this workflow
+      const triggers = new Set<string>();
+      if (workflowData.on) {
+        if (typeof workflowData.on === 'string') {
+          triggers.add(workflowData.on);
+        } else if (Array.isArray(workflowData.on)) {
+          workflowData.on.forEach((event: string) => triggers.add(event));
+        } else if (typeof workflowData.on === 'object') {
+          Object.keys(workflowData.on).forEach(event => triggers.add(event));
+        }
+      }
+
+      // Build runsOn array from relevant triggers
+      // Note: workflow_dispatch is treated as 'push' for CI purposes
+      const runsOn: Array<'pull_request' | 'push' | 'schedule'> = [];
+
+      if (triggers.has('pull_request')) {
+        runsOn.push('pull_request');
+      }
+      if (triggers.has('push') || triggers.has('workflow_dispatch')) {
+        runsOn.push('push');
+      }
+      if (triggers.has('schedule')) {
+        runsOn.push('schedule');
+      }
+
+      // If no recognized triggers, default to push
+      if (runsOn.length === 0) {
+        runsOn.push('push');
+      }
+
+      // Extract job names
+      const jobs = Object.entries(workflowData.jobs).map(([jobKey, jobValue]: [string, any]) => ({
+        name: jobValue.name || jobKey,
+        runsOn,
+      }));
+
+      return jobs;
+    } catch (error) {
+      this.logger.warn(`Failed to parse workflow file: ${error}`);
+      return [];
+    }
+  }
+
+  /**
+   * Fetch workflows for a repository with hybrid approach:
+   * 1. Fetch workflow list
+   * 2. Fetch and parse workflow files to extract jobs and trigger events
    */
   private async fetchWorkflows(
     octokit: Octokit,
@@ -325,15 +418,39 @@ export class GitHubSecurityService {
         },
       );
 
-      return data.workflows.map(workflow => ({
-        id: workflow.id,
-        name: workflow.name,
-        url: workflow.url,
-        path: workflow.path,
-        state: workflow.state,
-        created_at: workflow.created_at,
-        updated_at: workflow.updated_at,
-      }));
+      // Fetch and parse each workflow file
+      const workflowsWithJobs = await Promise.all(
+        data.workflows.map(async workflow => {
+          const content = await this.fetchWorkflowFileContent(
+            octokit,
+            org,
+            repo,
+            workflow.path,
+          );
+
+          let jobs: Array<{
+            name: string;
+            runsOn: Array<'pull_request' | 'push' | 'schedule'>;
+          }> = [];
+
+          if (content) {
+            jobs = this.parseWorkflowFile(content);
+          }
+
+          return {
+            id: workflow.id,
+            name: workflow.name,
+            url: workflow.url,
+            path: workflow.path,
+            state: workflow.state,
+            created_at: workflow.created_at,
+            updated_at: workflow.updated_at,
+            jobs,
+          };
+        }),
+      );
+
+      return workflowsWithJobs;
     } catch (error: any) {
       // If workflows are not accessible, return empty array
       if (error.status === 403 || error.status === 404) {
