@@ -29,7 +29,7 @@ exports.up = function(knex) {
       .defaultTo(false)
       .comment('Whether this tool is required');
     table
-      .boolean('implemented')
+      .boolean('is_implemented')
       .defaultTo(false)
       .comment('Whether the tool has been implemented');
     table

@@ -45,8 +45,8 @@ export async function createSecurityToolsService({
             if (input.is_required !== undefined && input.is_required !== Boolean(existing.is_required)) {
               updateData.is_required = input.is_required;
             }
-            if (input.implemented !== undefined && input.implemented !== Boolean(existing.implemented)) {
-              updateData.implemented = input.implemented;
+            if (input.is_implemented !== undefined && input.is_implemented !== Boolean(existing.is_implemented)) {
+              updateData.is_implemented = input.is_implemented;
             }
             if (input.info_url !== undefined && input.info_url !== existing.info_url) {
               updateData.info_url = input.info_url;
@@ -65,7 +65,7 @@ export async function createSecurityToolsService({
               updated.push({
                 ...result,
                 is_required: Boolean(result.is_required),
-                implemented: Boolean(result.implemented),
+                is_implemented: Boolean(result.is_implemented),
               } as RepositorySecurityTool);
             }
           } else {
@@ -77,7 +77,7 @@ export async function createSecurityToolsService({
                 tool_category: input.tool_category,
                 tool_name: input.tool_name,
                 is_required: input.is_required ?? false,
-                implemented: input.implemented ?? false,
+                is_implemented: input.is_implemented ?? false,
                 info_url: input.info_url || null,
                 updated_at: trx.fn.now(),
               })
@@ -86,7 +86,7 @@ export async function createSecurityToolsService({
             created.push({
               ...result,
               is_required: Boolean(result.is_required),
-              implemented: Boolean(result.implemented),
+              is_implemented: Boolean(result.is_implemented),
             } as RepositorySecurityTool);
           }
         }
@@ -115,7 +115,7 @@ export async function createSecurityToolsService({
         items: items.map(item => ({
           ...item,
           is_required: Boolean(item.is_required),
-          implemented: Boolean(item.implemented),
+          is_implemented: Boolean(item.is_implemented),
         })),
       };
     },
@@ -140,7 +140,7 @@ export async function createSecurityToolsService({
       return {
         ...tool,
         is_required: Boolean(tool.is_required),
-        implemented: Boolean(tool.implemented),
+        is_implemented: Boolean(tool.is_implemented),
       };
     },
 

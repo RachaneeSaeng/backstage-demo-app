@@ -65,7 +65,7 @@ export class DataIngestionService {
   private getWorkflowImplementationDetail(
     repo: any,
     ...searchTerms: string[]
-  ): { implemented: boolean; info_url: string } {
+  ): { is_implemented: boolean; info_url: string } {
     const workflow = repo.workflows.find((workflow: { name: string; path?: string }) => {
       const lowerName = workflow.name.toLowerCase();
       return searchTerms.every(term => {
@@ -76,7 +76,7 @@ export class DataIngestionService {
       });
     });
     return {
-      implemented: !!workflow,
+      is_implemented: !!workflow,
       info_url: workflow ? `${repo.url}/actions/${workflow.path.replace('.github/', '')}` : ''
     };
   }
@@ -111,7 +111,7 @@ export class DataIngestionService {
         tool_category: 'Github Security',
         tool_name: 'Secret Scanning',
         is_required: true,
-        implemented: repo.secretScanningEnabled,
+        is_implemented: repo.secretScanningEnabled,
         info_url: `${repo.url}/security/secret-scanning`,
       });
 
@@ -122,7 +122,7 @@ export class DataIngestionService {
         tool_category: 'Github Security',
         tool_name: 'Dependabot Alerts',
         is_required: true,
-        implemented: repo.dependabotAlertsEnabled,
+        is_implemented: repo.dependabotAlertsEnabled,
         info_url: `${repo.url}/security/dependabot`,
       });
 

@@ -24,7 +24,7 @@ export async function createRouter({
     tool_category: z.string(),
     tool_name: z.string(),
     is_required: z.boolean().optional(),
-    implemented: z.boolean().optional(),
+    is_implemented: z.boolean().optional(),
     info_url: z.string().nullable().optional(),
   });
 

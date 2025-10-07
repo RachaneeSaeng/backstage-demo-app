@@ -10,14 +10,14 @@ export interface RepositoryToolData {
   tool_category: string;
   tool_name: string;
   is_required: boolean;
-  implemented: boolean;
+  is_implemented: boolean;
   info_url: string;
 }
 
 export interface RepositoryTool {
   name: string;
   isRequired: boolean;
-  implemented: boolean;
+  isImplemented: boolean;
   info_url: string;
 };
 

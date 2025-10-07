@@ -27,7 +27,7 @@ export const convertRepositoryDataStructure = (flatData: RepositoryToolData[]): 
     step.tools.push({
       name: item.tool_name,
       isRequired: item.is_required,
-      implemented: item.implemented,
+      isImplemented: item.is_implemented,
       info_url: item.info_url,
     });
   });

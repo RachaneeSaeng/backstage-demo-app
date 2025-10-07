@@ -4,7 +4,7 @@ export interface RepositorySecurityTool {
   tool_category: string;
   tool_name: string;
   is_required: boolean;
-  implemented: boolean;
+  is_implemented: boolean;
   info_url?: string | null;
   updated_at: string;
 }
@@ -15,7 +15,7 @@ export interface CreateSecurityToolInput {
   tool_category: string;
   tool_name: string;
   is_required?: boolean;
-  implemented?: boolean;
+  is_implemented?: boolean;
   info_url?: string | null;
 }
 
@@ -23,7 +23,7 @@ export interface UpdateSecurityToolInput {
   tool_category?: string;
   tool_name?: string;
   is_required?: boolean;
-  implemented?: boolean;
+  is_implemented?: boolean;
   info_url?: string | null;
 }
 
