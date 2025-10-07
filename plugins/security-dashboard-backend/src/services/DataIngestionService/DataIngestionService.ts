@@ -120,7 +120,7 @@ export class DataIngestionService {
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'Github Security',
-        tool_name: 'Dependabot',
+        tool_name: 'Dependabot Alerts',
         is_required: true,
         implemented: repo.dependabotAlertsEnabled,
         info_url: `${repo.url}/security/dependabot`,
@@ -131,7 +131,7 @@ export class DataIngestionService {
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'Pull Request',
-        tool_name: 'Dependabot',
+        tool_name: 'Dependabot Dependency Review',
         is_required: true,
         ...this.getWorkflowImplementationDetail(repo, 'dependency review'),
       });
@@ -151,11 +151,11 @@ export class DataIngestionService {
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'Pull Request',
-        tool_name: 'Veracode',
+        tool_name: 'Veracode Pipeline Scan',
         is_required: repo.languages.some((lang: string) =>
           veracodeSupportedLanguages.includes(lang),
         ),
-        ...this.getWorkflowImplementationDetail(repo, 'veracode pipeline'),
+        ...this.getWorkflowImplementationDetail(repo, 'veracode', 'pipeline'),
       });
 
       // 6. Pull Request - CodeQL
@@ -183,11 +183,11 @@ export class DataIngestionService {
         repository_name: repo.name,
         repository_url: repo.url,
         tool_category: 'CI',
-        tool_name: 'Veracode',
+        tool_name: 'Veracode Policy Scan',
         is_required: repo.languages.some((lang: string) =>
           veracodeSupportedLanguages.includes(lang),
         ),
-        ...this.getWorkflowImplementationDetail(repo, 'veracode policy'),
+        ...this.getWorkflowImplementationDetail(repo, 'veracode', 'policy'),
       });
 
       // 9. CI - pnpm audit

@@ -3,17 +3,17 @@
     {
       "name": "Github Security",
       "backgroundColor": "#8027db",
-      "tools": ["Secret Scanning", "Dependabot"]
+      "tools": ["Secret Scanning", "Dependabot Alerts"]
     },
     {
       "name": "Pull Request",
       "backgroundColor": "#b666fa",
-      "tools": ["Dependabot", "pnpm audit", "Veracode", "CodeQL",  "Trivy"]
+      "tools": ["Dependabot Dependency Review", "pnpm audit", "Veracode Pipeline Scan", "CodeQL",  "Trivy"]
     },
     {
       "name": "CI",
       "backgroundColor": "#6A27E6",
-      "tools": ["pnpm audit", "Veracode", "CodeQL", "Trivy"]
+      "tools": ["pnpm audit", "Veracode Policy Scan", "CodeQL", "Trivy"]
     }
   ]
 }
