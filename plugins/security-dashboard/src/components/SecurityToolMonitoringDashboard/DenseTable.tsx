@@ -8,6 +8,7 @@ import toolCategoriesConfig from './config/toolCategories.json';
 import { getToolStatus } from './utils';
 import { StatusChip } from './StatusChip';
 import { Repository } from '../../types';
+import { Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -34,7 +35,7 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
         : toolName;
 
       return {
-        title: fieldName,
+        title: <><Typography variant="caption">{category.name}</Typography><br/><Typography variant="inherit">{toolName}</Typography></>,
         field: fieldName,
         width: '220px',
         headerStyle: { textTransform: 'none', whiteSpace: 'nowrap', textAlign: 'center', backgroundColor: category.backgroundColor, color: '#ffffff' },
