@@ -33,17 +33,20 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
       return {
         title: (
           <>
-            <Typography variant="caption">{category.name}</Typography>
+            <Typography variant="caption" style={{fontSize: window.innerWidth < 1400 ? '0.4rem' : '0.7rem', whiteSpace: 'nowrap'}}>
+              {category.name}
+            </Typography>
             <br />
-            <Typography variant="inherit">{toolName}</Typography>
+            <Typography variant="inherit" style={{fontSize: window.innerWidth < 1400 ? '0.6rem' : '1rem'}}>
+              {toolName}
+            </Typography>
           </>
         ),
         field: fieldName,
-        width: '220px',
         headerStyle: {
           textTransform: 'none',
-          whiteSpace: 'nowrap',
           textAlign: 'center',
+          verticalAlign: 'top',
           backgroundColor: category.backgroundColor,
           color: '#ffffff',
         },
@@ -61,7 +64,7 @@ export const DenseTable = ({ repositoriesData }: DenseTableProps) => {
         title: 'Repository',
         field: 'repositoryName',
         highlight: true,
-        width: '250px',
+        width: window.innerWidth < 1400 ? '200px' : '250px',
         headerStyle: { textTransform: 'none' },
         cellStyle: { fontWeight: 'bold' },
         render: (rowData: any) => (

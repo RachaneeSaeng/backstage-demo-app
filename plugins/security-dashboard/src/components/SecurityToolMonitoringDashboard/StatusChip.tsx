@@ -4,8 +4,8 @@ import { SecurityStatus } from '../../types';
 
 const useStyles = makeStyles(theme => ({
   chip: {
-    minWidth: 120,
-    fontSize: '0.75rem',
+    minWidth: 50,
+    cursor: 'pointer'
   },
   criticalChip: {
     backgroundColor: theme.palette.type === 'dark' ? '#FF4757' : '#E22134',
@@ -38,7 +38,7 @@ export const StatusChip: React.FC<{ status: SecurityStatus }> = ({
   const classes = useStyles();
 
   const getChipClass = () => {
-    switch (status.status) {
+    switch (status?.status) {
       case 'critical-risk':
         return classes.criticalChip;
       case 'high-risk':
@@ -52,27 +52,22 @@ export const StatusChip: React.FC<{ status: SecurityStatus }> = ({
     }
   };
 
-  const chipContent = status.link ? (
+  return status && status.link ? (
     <Link
       href={status.link}
-      color="inherit"
-      underline="hover"
       target="_blank"
-      rel="noopener"
     >
-      {status.text}
-    </Link>
-  ) : (
-    <>{status.text}</>
-  );
-
-  return (
-    <>
       <Chip
-        label={chipContent}
+        label={' '}
         className={`${classes.chip} ${getChipClass()}`}
         size="small"
       />
-    </>
+    </Link>
+  ) : (
+    <Chip
+      label={' '}
+      className={`${classes.chip} ${getChipClass()}`}
+      size="small"
+    />
   );
 };
