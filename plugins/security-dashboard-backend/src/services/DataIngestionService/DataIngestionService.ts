@@ -11,7 +11,7 @@ import { CreateSecurityToolInput, SecurityToolsService } from '../types';
 export class DataIngestionService {
   private readonly githubService: GitHubSecurityService;
   private readonly org = 'RachaneeSaeng';
-  private readonly excludeRepositoriesPattern = 'CommSys*';
+  private readonly excludeRepositoriesPattern = 'Comm*';
   private readonly limitLatestRecords = 20;
 
   constructor(

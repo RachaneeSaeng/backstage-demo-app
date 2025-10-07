@@ -292,16 +292,13 @@ export class GitHubSecurityService {
     repo: string,
   ): Promise<boolean> {
     try {
-      // Get repository details which includes security_and_analysis
-      const { data } = await octokit.request('GET /repos/{owner}/{repo}', {
+      // Get secret-alert information
+      const response = await octokit.request('GET /repos/{owner}/{repo}/secret-scanning/alerts', {
         owner: org,
         repo: repo,
       });
 
-      return (
-        data.security_and_analysis?.secret_scanning?.status === 'enabled' ||
-        false
-      );
+      return response.status === 200;
     } catch (error: any) {
       // If we don't have permission or it's not available, return false
       if (error.status === 403 || error.status === 404) {
