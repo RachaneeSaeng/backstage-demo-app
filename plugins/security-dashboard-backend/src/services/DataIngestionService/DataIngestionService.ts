@@ -2,7 +2,7 @@ import {
   LoggerService,
   RootConfigService,
 } from '@backstage/backend-plugin-api';
-import { GitHubSecurityService } from './GithubSecurityService';
+import { GitHubSecurityService } from '../GitHubSecurityService';
 import { CreateSecurityToolInput, SecurityToolsService, RepositorySecurityInfo } from '../types';
 import { SECURITY_TOOLS_CONFIG, SecurityToolDefinition } from './securityToolsConfig';
 

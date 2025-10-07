@@ -1,7 +1,4 @@
-import {
-  VERACODE_SUPPORTED_LANGUAGES,
-  TRIVY_REQUIRED_LANGUAGES,
-} from './constants';
+import { VERACODE_SUPPORTED_LANGUAGES, TRIVY_REQUIRED_LANGUAGES } from './constants';
 
 /**
  * Security tool definition interface
@@ -42,7 +39,7 @@ export const SECURITY_TOOLS_CONFIG: SecurityToolDefinition[] = [
     isRequired: () => true,
     isPullRequest: true,
     useWorkflowImplementation: true,
-    workflowSearchTerms: ['dependency review'],    
+    workflowSearchTerms: ['dependency review'],
   },
   {
     category: 'Pull Request',
@@ -56,7 +53,9 @@ export const SECURITY_TOOLS_CONFIG: SecurityToolDefinition[] = [
     category: 'Pull Request',
     name: 'Veracode Pipeline Scan',
     isRequired: (languages: string[]) =>
-      languages.some(lang => VERACODE_SUPPORTED_LANGUAGES.includes(lang as any)),
+      languages.some(lang =>
+        VERACODE_SUPPORTED_LANGUAGES.includes(lang as any),
+      ),
     isPullRequest: true,
     useWorkflowImplementation: true,
     workflowSearchTerms: ['veracode', 'pipeline'],
@@ -84,7 +83,9 @@ export const SECURITY_TOOLS_CONFIG: SecurityToolDefinition[] = [
     category: 'CI',
     name: 'Veracode Policy Scan',
     isRequired: (languages: string[]) =>
-      languages.some(lang => VERACODE_SUPPORTED_LANGUAGES.includes(lang as any)),
+      languages.some(lang =>
+        VERACODE_SUPPORTED_LANGUAGES.includes(lang as any),
+      ),
     isPullRequest: false,
     useWorkflowImplementation: true,
     workflowSearchTerms: ['veracode', 'policy'],
