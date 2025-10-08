@@ -1,5 +1,5 @@
 import { mockServices } from '@backstage/backend-test-utils';
-import { GitHubSecurityService } from './GitHubSecurityService';
+import { GitHubSecurityService } from './GithubSecurityService';
 import { OctokitFactory } from './OctokitFactory';
 import { WorkflowParser } from './WorkflowParser';
 
