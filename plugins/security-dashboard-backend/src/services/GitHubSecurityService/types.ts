@@ -6,9 +6,9 @@ export type GitHubWorkflow = {
   state: string;
   created_at: string;
   updated_at: string;
+  runsOn: Array<'pull_request' | 'push' | 'schedule'>;
   jobs?: Array<{
     name: string;
-    runsOn: Array<'pull_request' | 'push' | 'schedule'>;
   }>;
 };
 

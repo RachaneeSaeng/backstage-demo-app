@@ -58,7 +58,7 @@ export const SECURITY_TOOLS_CONFIG: SecurityToolDefinition[] = [
       ),
     isPullRequest: true,
     useWorkflowImplementation: true,
-    workflowSearchTerms: ['veracode', 'pipeline'],
+    workflowSearchTerms: ['veracode'],
   },
   {
     category: 'Pull Request',
@@ -88,7 +88,7 @@ export const SECURITY_TOOLS_CONFIG: SecurityToolDefinition[] = [
       ),
     isPullRequest: false,
     useWorkflowImplementation: true,
-    workflowSearchTerms: ['veracode', 'policy'],
+    workflowSearchTerms: ['veracode'],
   },
   {
     category: 'CI',

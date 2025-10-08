@@ -18,14 +18,36 @@ export class WorkflowMatcher {
     });
   }
 
+
   /**
-   * Check if a workflow name matches the search terms
+   * Check if workflow or any job matches expected event trigger
+   */
+  private matchesExpectedEvent(
+    workflow: any,
+    isPullRequest: boolean,
+  ): boolean {
+    const workflowRunsOn = workflow.runsOn;
+    if (workflowRunsOn && workflowRunsOn.length > 0) {
+      return isPullRequest
+        ? workflowRunsOn.includes('pull_request')
+        : workflowRunsOn.includes('push') || workflowRunsOn.includes('schedule');
+    }
+
+    return false;
+  }
+
+  /**
+   * Check if a workflow name matches the search terms and runs on expected event
    */
   private matchesWorkflowName(
-    workflowName: string,
+    workflow: any,
     searchTerms: string[],
+    isPullRequest: boolean,
   ): boolean {
-    return this.matchesSearchTerms(workflowName, searchTerms);
+    const matchesSearchTerms = this.matchesSearchTerms(workflow.name, searchTerms);
+    const runsOnExpectedEvent = this.matchesExpectedEvent(workflow, isPullRequest);
+
+    return matchesSearchTerms && runsOnExpectedEvent;
   }
 
   /**
@@ -42,12 +64,7 @@ export class WorkflowMatcher {
 
     return workflow.jobs.some((job: any) => {
       const matchesSearchTerms = this.matchesSearchTerms(job.name, searchTerms);
-
-      // For Pull Request: check if runsOn includes 'pull_request'
-      // For CI (push): check if runsOn includes 'push' or 'schedule'
-      const runsOnExpectedEvent = isPullRequest
-        ? job.runsOn.includes('pull_request')
-        : job.runsOn.includes('push') || job.runsOn.includes('schedule');
+      const runsOnExpectedEvent = this.matchesExpectedEvent(workflow, isPullRequest);
 
       return matchesSearchTerms && runsOnExpectedEvent;
     });
@@ -64,7 +81,7 @@ export class WorkflowMatcher {
   ): WorkflowImplementationDetail {
     // First try to find in workflow names (backward compatibility)
     let workflow = repo.workflows.find(wf =>
-      this.matchesWorkflowName(wf.name, searchTerms),
+      this.matchesWorkflowName(wf, searchTerms, isPullRequest),
     );
 
     // If not found in workflow name, search in job names

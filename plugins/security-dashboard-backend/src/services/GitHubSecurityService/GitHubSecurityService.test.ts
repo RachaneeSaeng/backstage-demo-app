@@ -48,7 +48,7 @@ describe('GitHubSecurityService', () => {
     };
 
     mockWorkflowParser = {
-      parseWorkflowFile: jest.fn(() => []),
+      parseWorkflowFile: jest.fn(() => null),
     };
 
     (OctokitFactory as jest.MockedClass<typeof OctokitFactory>).mockImplementation(
@@ -405,9 +405,10 @@ describe('GitHubSecurityService', () => {
           },
         });
 
-      mockWorkflowParser.parseWorkflowFile.mockReturnValue([
-        { name: 'test', runsOn: ['push'] },
-      ]);
+      mockWorkflowParser.parseWorkflowFile.mockReturnValue({
+        jobs: [{ name: 'test' }],
+        runsOn: ['push'],
+      });
 
       const result = await service.getAllRepositoriesWithSecurityInfo({
         org: 'test-org',
@@ -415,6 +416,7 @@ describe('GitHubSecurityService', () => {
 
       expect(result[0].workflows).toHaveLength(1);
       expect(result[0].workflows[0].name).toBe('CI');
+      expect(result[0].workflows[0].runsOn).toEqual(['push']);
       expect(result[0].workflows[0].jobs).toHaveLength(1);
     });
 

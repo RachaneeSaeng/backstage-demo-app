@@ -3,9 +3,13 @@ import * as yaml from 'js-yaml';
 
 export type WorkflowTriggerEvent = 'pull_request' | 'push' | 'schedule';
 
+export interface ParsedWorkflow {
+  jobs: ParsedJob[];
+  runsOn?: WorkflowTriggerEvent[];
+}
+
 export interface ParsedJob {
   name: string;
-  runsOn: WorkflowTriggerEvent[];
 }
 
 /**
@@ -17,21 +21,24 @@ export class WorkflowParser {
   /**
    * Parse workflow YAML file to extract jobs and their trigger events
    */
-  parseWorkflowFile(content: string): ParsedJob[] {
+  parseWorkflowFile(content: string): ParsedWorkflow | null {
     try {
       const workflowData = yaml.load(content) as any;
 
       if (!workflowData || !workflowData.jobs) {
-        return [];
+        return null;
       }
 
       const triggers = this.extractTriggers(workflowData.on);
       const runsOn = this.mapTriggersToRunsOn(triggers);
 
-      return this.extractJobs(workflowData.jobs, runsOn);
+      return {
+        jobs: this.extractJobs(workflowData.jobs),
+        runsOn,
+      };
     } catch (error) {
       this.logger.warn(`Failed to parse workflow file: ${error}`);
-      return [];
+      return null;
     }
   }
 
@@ -84,10 +91,9 @@ export class WorkflowParser {
   /**
    * Extract jobs from workflow configuration
    */
-  private extractJobs(jobs: any, runsOn: WorkflowTriggerEvent[]): ParsedJob[] {
+  private extractJobs(jobs: any): ParsedJob[] {
     return Object.entries(jobs).map(([jobKey, jobValue]: [string, any]) => ({
       name: jobValue.name || jobKey,
-      runsOn,
     }));
   }
 }

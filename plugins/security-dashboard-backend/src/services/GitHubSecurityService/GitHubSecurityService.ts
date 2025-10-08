@@ -291,8 +291,9 @@ export class GitHubSecurityService {
       });
 
       // Fetch and parse each workflow file
+      const activeWorkflows = data.workflows.filter((workflow: any) => workflow.state === 'active');
       const workflowsWithJobs = await Promise.all(
-        data.workflows.map(async (workflow: any) => {
+        activeWorkflows.map(async (workflow: any) => {
           const content = await this.fetchWorkflowFileContent(
             octokit,
             org,
@@ -300,7 +301,7 @@ export class GitHubSecurityService {
             workflow.path,
           );
 
-          const jobs = content ? this.workflowParser.parseWorkflowFile(content) : [];
+          const parsedWorkflow = content ? this.workflowParser.parseWorkflowFile(content) : null;
 
           return {
             id: workflow.id,
@@ -310,7 +311,8 @@ export class GitHubSecurityService {
             state: workflow.state,
             created_at: workflow.created_at,
             updated_at: workflow.updated_at,
-            jobs,
+            runsOn: parsedWorkflow?.runsOn || [],
+            jobs: parsedWorkflow?.jobs || [],
           };
         }),
       );

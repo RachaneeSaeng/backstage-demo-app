@@ -1,5 +1,5 @@
 import { mockServices } from '@backstage/backend-test-utils';
-import { WorkflowParser, ParsedJob } from './WorkflowParser';
+import { WorkflowParser, ParsedWorkflow } from './WorkflowParser';
 
 describe('WorkflowParser', () => {
   const logger = mockServices.logger.mock();
@@ -24,10 +24,11 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(['pull_request']);
+      expect(result?.jobs).toHaveLength(1);
+      expect(result?.jobs[0]).toEqual({
         name: 'Run Tests',
-        runsOn: ['pull_request'],
       });
     });
 
@@ -44,10 +45,11 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(['push']);
+      expect(result?.jobs).toHaveLength(1);
+      expect(result?.jobs[0]).toEqual({
         name: 'build',
-        runsOn: ['push'],
       });
     });
 
@@ -67,10 +69,11 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(1);
-      expect(result[0]).toEqual({
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(['schedule']);
+      expect(result?.jobs).toHaveLength(1);
+      expect(result?.jobs[0]).toEqual({
         name: 'Nightly Job',
-        runsOn: ['schedule'],
       });
     });
 
@@ -88,9 +91,10 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('Test Job');
-      expect(result[0].runsOn).toEqual(expect.arrayContaining(['push', 'pull_request']));
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(expect.arrayContaining(['push', 'pull_request']));
+      expect(result?.jobs).toHaveLength(1);
+      expect(result?.jobs[0].name).toBe('Test Job');
     });
 
     it('should parse workflow with multiple triggers as object', () => {
@@ -118,11 +122,11 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(2);
-      expect(result[0].name).toBe('First Job');
-      expect(result[0].runsOn).toEqual(expect.arrayContaining(['push', 'pull_request', 'schedule']));
-      expect(result[1].name).toBe('Second Job');
-      expect(result[1].runsOn).toEqual(expect.arrayContaining(['push', 'pull_request', 'schedule']));
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(expect.arrayContaining(['push', 'pull_request', 'schedule']));
+      expect(result?.jobs).toHaveLength(2);
+      expect(result?.jobs[0].name).toBe('First Job');
+      expect(result?.jobs[1].name).toBe('Second Job');
     });
 
     it('should use job key as name when name is not provided', () => {
@@ -138,8 +142,9 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('build-and-test');
+      expect(result).not.toBeNull();
+      expect(result?.jobs).toHaveLength(1);
+      expect(result?.jobs[0].name).toBe('build-and-test');
     });
 
     it('should handle workflow with no triggers (default to push)', () => {
@@ -155,8 +160,9 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].runsOn).toEqual(['push']);
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(['push']);
+      expect(result?.jobs).toHaveLength(1);
     });
 
     it('should handle workflow with unrecognized triggers (default to push)', () => {
@@ -173,11 +179,12 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].runsOn).toEqual(['push']);
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(['push']);
+      expect(result?.jobs).toHaveLength(1);
     });
 
-    it('should return empty array for workflow with no jobs', () => {
+    it('should return null for workflow with no jobs', () => {
       const yamlContent = `
 name: No Jobs
 on: push
@@ -185,10 +192,10 @@ on: push
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toEqual([]);
+      expect(result).toBeNull();
     });
 
-    it('should return empty array for invalid YAML', () => {
+    it('should return null for invalid YAML', () => {
       const yamlContent = `
 this is not: valid: yaml: content
   - broken
@@ -196,14 +203,14 @@ this is not: valid: yaml: content
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toEqual([]);
+      expect(result).toBeNull();
       expect(logger.warn).toHaveBeenCalled();
     });
 
-    it('should return empty array for empty content', () => {
+    it('should return null for empty content', () => {
       const result = parser.parseWorkflowFile('');
 
-      expect(result).toEqual([]);
+      expect(result).toBeNull();
     });
 
     it('should parse workflow with multiple jobs and preserve job order', () => {
@@ -235,11 +242,10 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(4);
-      expect(result.map(j => j.name)).toEqual(['Setup', 'Build', 'Test', 'Deploy']);
-      result.forEach(job => {
-        expect(job.runsOn).toEqual(['push']);
-      });
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(['push']);
+      expect(result?.jobs).toHaveLength(4);
+      expect(result?.jobs.map(j => j.name)).toEqual(['Setup', 'Build', 'Test', 'Deploy']);
     });
 
     it('should handle complex trigger configurations with mixed formats', () => {
@@ -262,8 +268,9 @@ jobs:
 
       const result = parser.parseWorkflowFile(yamlContent);
 
-      expect(result).toHaveLength(1);
-      expect(result[0].runsOn).toEqual(expect.arrayContaining(['push', 'pull_request']));
+      expect(result).not.toBeNull();
+      expect(result?.runsOn).toEqual(expect.arrayContaining(['push', 'pull_request']));
+      expect(result?.jobs).toHaveLength(1);
     });
   });
 });

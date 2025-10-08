@@ -98,10 +98,10 @@ describe('DataIngestionService', () => {
               state: 'active',
               created_at: '2023-01-01',
               updated_at: '2023-01-02',
+              runsOn: ['pull_request'],
               jobs: [
                 {
                   name: 'CodeQL',
-                  runsOn: ['pull_request'],
                 },
               ],
             },
@@ -211,6 +211,7 @@ describe('DataIngestionService', () => {
               state: 'active',
               created_at: '2023-01-01',
               updated_at: '2023-01-02',
+              runsOn: ['pull_request'],
               jobs: [],
             },
           ],
@@ -254,10 +255,10 @@ describe('DataIngestionService', () => {
               state: 'active',
               created_at: '2023-01-01',
               updated_at: '2023-01-02',
+              runsOn: ['pull_request'],
               jobs: [
                 {
                   name: 'Trivy Scan',
-                  runsOn: ['pull_request'],
                 },
               ],
             },
@@ -299,14 +300,13 @@ describe('DataIngestionService', () => {
               state: 'active',
               created_at: '2023-01-01',
               updated_at: '2023-01-02',
+              runsOn: ['push', 'pull_request'],
               jobs: [
                 {
-                  name: 'Trivy PR',
-                  runsOn: ['pull_request'],
+                  name: 'Trivy PR'
                 },
                 {
-                  name: 'Trivy CI',
-                  runsOn: ['push'],
+                  name: 'Trivy CI'
                 },
               ],
             },

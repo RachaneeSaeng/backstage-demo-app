@@ -14,16 +14,16 @@ export interface CreateSecurityToolInput {
   repository_url: string;
   tool_category: string;
   tool_name: string;
-  is_required?: boolean;
-  is_implemented?: boolean;
+  is_required: boolean;
+  is_implemented: boolean;
   info_url?: string | null;
 }
 
 export interface UpdateSecurityToolInput {
   tool_category?: string;
   tool_name?: string;
-  is_required?: boolean;
-  is_implemented?: boolean;
+  is_required: boolean;
+  is_implemented: boolean;
   info_url?: string | null;
 }
 
@@ -54,7 +54,7 @@ export type SecurityToolInput = {
   repository_url?: string;
   tool_category: string;
   tool_name: string;
-  is_required?: boolean;
-  is_implemented?: boolean;
+  is_required: boolean;
+  is_implemented: boolean;
   info_url?: string | null;
 };
