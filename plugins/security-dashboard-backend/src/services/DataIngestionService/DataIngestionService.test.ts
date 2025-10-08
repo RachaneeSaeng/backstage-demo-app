@@ -258,7 +258,7 @@ describe('DataIngestionService', () => {
               triggersOn: ['pull_request'],
               jobs: [
                 {
-                  name: 'Trivy Scan',
+                  name: 'IaC Scan',
                 },
               ],
             },
@@ -303,10 +303,10 @@ describe('DataIngestionService', () => {
               triggersOn: ['push', 'pull_request'],
               jobs: [
                 {
-                  name: 'Trivy PR'
+                  name: 'IaC Scan - Trivy PR'
                 },
                 {
-                  name: 'Trivy CI'
+                  name: 'IaC Scan - Trivy CI'
                 },
               ],
             },

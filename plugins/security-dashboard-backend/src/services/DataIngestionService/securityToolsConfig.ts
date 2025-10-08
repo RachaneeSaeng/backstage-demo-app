@@ -75,7 +75,7 @@ export const SECURITY_TOOLS_CONFIG: SecurityToolDefinition[] = [
       languages.some(lang => TRIVY_REQUIRED_LANGUAGES.includes(lang as any)),
     isPullRequest: true,
     useWorkflowImplementation: true,
-    workflowSearchTerms: ['trivy'],
+    workflowSearchTerms: ['iac', 'scan'],
   },
 
   // CI Tools
@@ -113,6 +113,6 @@ export const SECURITY_TOOLS_CONFIG: SecurityToolDefinition[] = [
       languages.some(lang => TRIVY_REQUIRED_LANGUAGES.includes(lang as any)),
     isPullRequest: false,
     useWorkflowImplementation: true,
-    workflowSearchTerms: ['trivy'],
+    workflowSearchTerms: ['iac', 'scan'],
   },
 ];
