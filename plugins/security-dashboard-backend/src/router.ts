@@ -23,8 +23,8 @@ export async function createRouter({
     repository_url: z.string(),
     tool_category: z.string(),
     tool_name: z.string(),
-    is_required: z.boolean().optional(),
-    is_implemented: z.boolean().optional(),
+    is_required: z.boolean(),
+    is_implemented: z.boolean(),
     info_url: z.string().nullable().optional(),
   });
 

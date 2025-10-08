@@ -122,6 +122,7 @@ describe('plugin', () => {
         repository_url: 'https://github.com/test/existing-repo',
         tool_category: 'SAST',
         tool_name: 'Bandit',
+        is_required: false,
         is_implemented: true,
       },
     ];

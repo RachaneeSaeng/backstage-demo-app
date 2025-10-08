@@ -5,7 +5,7 @@ export type WorkflowTriggerEvent = 'pull_request' | 'push' | 'schedule';
 
 export interface ParsedWorkflow {
   jobs: ParsedJob[];
-  runsOn?: WorkflowTriggerEvent[];
+  triggersOn?: WorkflowTriggerEvent[];
 }
 
 export interface ParsedJob {
@@ -30,11 +30,11 @@ export class WorkflowParser {
       }
 
       const triggers = this.extractTriggers(workflowData.on);
-      const runsOn = this.mapTriggersToRunsOn(triggers);
+      const triggersOn = this.mapTriggersToTriggersOn(triggers);
 
       return {
         jobs: this.extractJobs(workflowData.jobs),
-        runsOn,
+        triggersOn,
       };
     } catch (error) {
       this.logger.warn(`Failed to parse workflow file: ${error}`);
@@ -64,28 +64,28 @@ export class WorkflowParser {
   }
 
   /**
-   * Map workflow triggers to runsOn events
+   * Map workflow triggers to triggersOn events
    * Note: workflow_dispatch is treated as 'push' for CI purposes
    */
-  private mapTriggersToRunsOn(triggers: Set<string>): WorkflowTriggerEvent[] {
-    const runsOn: WorkflowTriggerEvent[] = [];
+  private mapTriggersToTriggersOn(triggers: Set<string>): WorkflowTriggerEvent[] {
+    const triggersOn: WorkflowTriggerEvent[] = [];
 
     if (triggers.has('pull_request')) {
-      runsOn.push('pull_request');
+      triggersOn.push('pull_request');
     }
     if (triggers.has('push')) {
-      runsOn.push('push');
+      triggersOn.push('push');
     }
     if (triggers.has('schedule')) {
-      runsOn.push('schedule');
+      triggersOn.push('schedule');
     }
 
     // If no recognized triggers, default to push
-    if (runsOn.length === 0) {
-      runsOn.push('push');
+    if (triggersOn.length === 0) {
+      triggersOn.push('push');
     }
 
-    return runsOn;
+    return triggersOn;
   }
 
   /**

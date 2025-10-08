@@ -26,11 +26,11 @@ export class WorkflowMatcher {
     workflow: any,
     isPullRequest: boolean,
   ): boolean {
-    const workflowRunsOn = workflow.runsOn;
-    if (workflowRunsOn && workflowRunsOn.length > 0) {
+    const workflowTriggersOn = workflow.triggersOn;
+    if (workflowTriggersOn && workflowTriggersOn.length > 0) {
       return isPullRequest
-        ? workflowRunsOn.includes('pull_request')
-        : workflowRunsOn.includes('push') || workflowRunsOn.includes('schedule');
+        ? workflowTriggersOn.includes('pull_request')
+        : workflowTriggersOn.includes('push') || workflowTriggersOn.includes('schedule');
     }
 
     return false;
@@ -45,9 +45,9 @@ export class WorkflowMatcher {
     isPullRequest: boolean,
   ): boolean {
     const matchesSearchTerms = this.matchesSearchTerms(workflow.name, searchTerms);
-    const runsOnExpectedEvent = this.matchesExpectedEvent(workflow, isPullRequest);
+    const triggersOnExpectedEvent = this.matchesExpectedEvent(workflow, isPullRequest);
 
-    return matchesSearchTerms && runsOnExpectedEvent;
+    return matchesSearchTerms && triggersOnExpectedEvent;
   }
 
   /**
@@ -64,9 +64,9 @@ export class WorkflowMatcher {
 
     return workflow.jobs.some((job: any) => {
       const matchesSearchTerms = this.matchesSearchTerms(job.name, searchTerms);
-      const runsOnExpectedEvent = this.matchesExpectedEvent(workflow, isPullRequest);
+      const triggersOnExpectedEvent = this.matchesExpectedEvent(workflow, isPullRequest);
 
-      return matchesSearchTerms && runsOnExpectedEvent;
+      return matchesSearchTerms && triggersOnExpectedEvent;
     });
   }
 

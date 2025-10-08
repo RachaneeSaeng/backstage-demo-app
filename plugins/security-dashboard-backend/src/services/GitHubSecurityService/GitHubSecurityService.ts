@@ -311,7 +311,7 @@ export class GitHubSecurityService {
             state: workflow.state,
             created_at: workflow.created_at,
             updated_at: workflow.updated_at,
-            runsOn: parsedWorkflow?.runsOn || [],
+            triggersOn: parsedWorkflow?.triggersOn || [],
             jobs: parsedWorkflow?.jobs || [],
           };
         }),

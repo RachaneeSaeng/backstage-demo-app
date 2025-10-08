@@ -407,7 +407,7 @@ describe('GitHubSecurityService', () => {
 
       mockWorkflowParser.parseWorkflowFile.mockReturnValue({
         jobs: [{ name: 'test' }],
-        runsOn: ['push'],
+        triggersOn: ['push'],
       });
 
       const result = await service.getAllRepositoriesWithSecurityInfo({
@@ -416,7 +416,7 @@ describe('GitHubSecurityService', () => {
 
       expect(result[0].workflows).toHaveLength(1);
       expect(result[0].workflows[0].name).toBe('CI');
-      expect(result[0].workflows[0].runsOn).toEqual(['push']);
+      expect(result[0].workflows[0].triggersOn).toEqual(['push']);
       expect(result[0].workflows[0].jobs).toHaveLength(1);
     });
 

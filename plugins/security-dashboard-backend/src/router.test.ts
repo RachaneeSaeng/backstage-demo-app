@@ -64,12 +64,16 @@ describe('createRouter', () => {
             repository_url: 'https://github.com/test/test-repo',
             tool_category: 'SAST',
             tool_name: 'ESLint',
+            is_required: false,
+            is_implemented: false
           },
           {
             repository_name: 'updated-repo',
             repository_url: 'https://github.com/test/updated-repo',
             tool_category: 'SAST',
             tool_name: 'Bandit',
+            is_required: false,
+            is_implemented: true
           },
         ]);
 
@@ -81,12 +85,16 @@ describe('createRouter', () => {
           repository_url: 'https://github.com/test/test-repo',
           tool_category: 'SAST',
           tool_name: 'ESLint',
+          is_required: false,
+          is_implemented: false
         },
         {
           repository_name: 'updated-repo',
           repository_url: 'https://github.com/test/updated-repo',
           tool_category: 'SAST',
           tool_name: 'Bandit',
+          is_required: false,
+          is_implemented: true
         },
       ]);
     });

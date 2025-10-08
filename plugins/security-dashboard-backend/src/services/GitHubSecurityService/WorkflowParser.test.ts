@@ -25,7 +25,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(['pull_request']);
+      expect(result?.triggersOn).toEqual(['pull_request']);
       expect(result?.jobs).toHaveLength(1);
       expect(result?.jobs[0]).toEqual({
         name: 'Run Tests',
@@ -46,7 +46,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(['push']);
+      expect(result?.triggersOn).toEqual(['push']);
       expect(result?.jobs).toHaveLength(1);
       expect(result?.jobs[0]).toEqual({
         name: 'build',
@@ -70,7 +70,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(['schedule']);
+      expect(result?.triggersOn).toEqual(['schedule']);
       expect(result?.jobs).toHaveLength(1);
       expect(result?.jobs[0]).toEqual({
         name: 'Nightly Job',
@@ -92,7 +92,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(expect.arrayContaining(['push', 'pull_request']));
+      expect(result?.triggersOn).toEqual(expect.arrayContaining(['push', 'pull_request']));
       expect(result?.jobs).toHaveLength(1);
       expect(result?.jobs[0].name).toBe('Test Job');
     });
@@ -123,7 +123,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(expect.arrayContaining(['push', 'pull_request', 'schedule']));
+      expect(result?.triggersOn).toEqual(expect.arrayContaining(['push', 'pull_request', 'schedule']));
       expect(result?.jobs).toHaveLength(2);
       expect(result?.jobs[0].name).toBe('First Job');
       expect(result?.jobs[1].name).toBe('Second Job');
@@ -161,7 +161,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(['push']);
+      expect(result?.triggersOn).toEqual(['push']);
       expect(result?.jobs).toHaveLength(1);
     });
 
@@ -180,7 +180,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(['push']);
+      expect(result?.triggersOn).toEqual(['push']);
       expect(result?.jobs).toHaveLength(1);
     });
 
@@ -243,7 +243,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(['push']);
+      expect(result?.triggersOn).toEqual(['push']);
       expect(result?.jobs).toHaveLength(4);
       expect(result?.jobs.map(j => j.name)).toEqual(['Setup', 'Build', 'Test', 'Deploy']);
     });
@@ -269,7 +269,7 @@ jobs:
       const result = parser.parseWorkflowFile(yamlContent);
 
       expect(result).not.toBeNull();
-      expect(result?.runsOn).toEqual(expect.arrayContaining(['push', 'pull_request']));
+      expect(result?.triggersOn).toEqual(expect.arrayContaining(['push', 'pull_request']));
       expect(result?.jobs).toHaveLength(1);
     });
   });

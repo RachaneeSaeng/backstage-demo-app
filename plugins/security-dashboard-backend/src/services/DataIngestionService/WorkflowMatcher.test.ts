@@ -25,7 +25,7 @@ describe('WorkflowMatcher', () => {
             state: 'active',
             created_at: '2023-01-01T00:00:00Z',
             updated_at: '2023-01-02T00:00:00Z',
-            runsOn: ['push', 'schedule'],
+            triggersOn: ['push', 'schedule'],
             jobs: [],
           },
         ],
@@ -53,7 +53,7 @@ describe('WorkflowMatcher', () => {
             state: 'active',
             created_at: '2023-01-01T00:00:00Z',
             updated_at: '2023-01-02T00:00:00Z',
-            runsOn: ['push', 'schedule'],
+            triggersOn: ['push', 'schedule'],
             jobs: [
               {
                 name: 'Trivy Security Scan',
@@ -85,7 +85,7 @@ describe('WorkflowMatcher', () => {
             state: 'active',
             created_at: '2023-01-01T00:00:00Z',
             updated_at: '2023-01-02T00:00:00Z',
-            runsOn: ['push'],
+            triggersOn: ['push'],
             jobs: [
               {
                 name: 'Trivy Security Scan',
@@ -116,7 +116,7 @@ describe('WorkflowMatcher', () => {
             state: 'active',
             created_at: '2023-01-01T00:00:00Z',
             updated_at: '2023-01-02T00:00:00Z',
-            runsOn: ['push'],
+            triggersOn: ['push'],
             jobs: [],
           },
           {
@@ -127,7 +127,7 @@ describe('WorkflowMatcher', () => {
             state: 'active',
             created_at: '2023-01-01T00:00:00Z',
             updated_at: '2023-01-02T00:00:00Z',
-            runsOn: ['push'],
+            triggersOn: ['push'],
             jobs: [],
           },
         ],
