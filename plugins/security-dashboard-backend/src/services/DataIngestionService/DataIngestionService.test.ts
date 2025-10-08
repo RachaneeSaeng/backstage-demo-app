@@ -34,7 +34,11 @@ describe('DataIngestionService', () => {
       () => mockGitHubService as any,
     );
 
-    service = new DataIngestionService(config, logger, mockSecurityToolsService);
+    service = new DataIngestionService(config, logger, mockSecurityToolsService, {
+      org: 'ORG',
+      excludeRepositoriesPattern: 'ABC*',
+      limitLatestRecords: 30,
+    });
   });
 
   describe('fetchAndSaveAllGitHubSecurityData', () => {
@@ -68,8 +72,8 @@ describe('DataIngestionService', () => {
 
       expect(result).toEqual({ created: 1, updated: 1 });
       expect(mockGitHubService.getAllRepositoriesWithSecurityInfo).toHaveBeenCalledWith({
-        org: 'RachaneeSaeng',
-        excludePattern: 'Comm*',
+        org: 'ORG',
+        excludePattern: 'ABC*',
       });
       expect(mockSecurityToolsService.bulkUpsertSecurityTools).toHaveBeenCalled();
       expect(logger.info).toHaveBeenCalledWith(
@@ -166,8 +170,8 @@ describe('DataIngestionService', () => {
       expect(result).toEqual({ created: 1, updated: 0 });
       expect(mockGitHubService.getLatestUpdatedRepositoriesWithSecurityInfo).toHaveBeenCalledWith(
         {
-          org: 'RachaneeSaeng',
-          excludePattern: 'Comm*',
+          org: 'ORG',
+          excludePattern: 'ABC*',
         },
         30,
       );

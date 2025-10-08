@@ -31,7 +31,16 @@ export const securityDashboardPlugin = createBackendPlugin({
           logger,
         });
 
-        const dataIngestionService = new DataIngestionService(config, logger, securityToolsService);
+        const dataIngestionService = new DataIngestionService(
+          config,
+          logger,
+          securityToolsService,
+          {
+            org: 'RachaneeSaeng',
+            excludeRepositoriesPattern: 'Comm*',
+            limitLatestRecords: 30,
+          },
+        );
 
         httpRouter.use(
           await createRouter({

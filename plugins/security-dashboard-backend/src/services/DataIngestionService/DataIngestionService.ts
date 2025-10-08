@@ -6,23 +6,35 @@ import { GitHubSecurityService } from '../GitHubSecurityService';
 import { RepositorySecurityInfo } from '../GitHubSecurityService';
 import { CreateSecurityToolInput, SecurityToolsService } from '../SecurityToolsService';
 import { SECURITY_TOOLS_CONFIG, SecurityToolDefinition } from './securityToolsConfig';
-import { WorkflowImplementationDetail } from './types';
+import { WorkflowMatcher } from './WorkflowMatcher';
+
+export interface DataIngestionOptions {
+  org: string;
+  excludeRepositoriesPattern: string;
+  limitLatestRecords: number;
+}
 
 /**
  * Service for data ingestion from various sources
  */
 export class DataIngestionService {
   private readonly githubService: GitHubSecurityService;
-  private readonly org = 'RachaneeSaeng';
-  private readonly excludeRepositoriesPattern = 'Comm*';
-  private readonly limitLatestRecords = 30;
+  private readonly workflowMatcher: WorkflowMatcher;
+  private readonly org: string;
+  private readonly excludeRepositoriesPattern: string;
+  private readonly limitLatestRecords: number;
 
   constructor(
     config: RootConfigService,
     private readonly logger: LoggerService,
     private readonly securityToolsService: SecurityToolsService,
+    options: DataIngestionOptions,
   ) {
     this.githubService = new GitHubSecurityService(config, logger);
+    this.workflowMatcher = new WorkflowMatcher();
+    this.org = options.org;
+    this.excludeRepositoriesPattern = options.excludeRepositoriesPattern;
+    this.limitLatestRecords = options.limitLatestRecords;
   }
 
   /**
@@ -62,61 +74,6 @@ export class DataIngestionService {
     return repositories;
   }
 
-  /**
-   * Helper method to find workflow and create tool info
-   * Checks both workflow names and job names for matches
-   */
-  private getWorkflowImplementationDetail(
-    repo: RepositorySecurityInfo,
-    isPullRequest: boolean,
-    searchTerms: string[],
-  ): WorkflowImplementationDetail {
-    // First try to find in workflow names (backward compatibility)
-    let workflow = repo.workflows.find(wf => {
-      const lowerName = wf.name.toLowerCase();
-      return searchTerms.every(term => {
-        if (term.startsWith('!')) {
-          return !lowerName.includes(term.substring(1));
-        }
-        return lowerName.includes(term);
-      });
-    });
-
-    // If not found in workflow name, search in job names
-    if (!workflow) {
-      workflow = repo.workflows.find(wf => {
-        if (!wf.jobs || wf.jobs.length === 0) {
-          return false;
-        }
-
-        // Check if any job matches the search terms and runs on the correct event
-        return wf.jobs.some(job => {
-          const lowerJobName = job.name.toLowerCase();
-          const matchesSearchTerms = searchTerms.every(term => {
-            if (term.startsWith('!')) {
-              return !lowerJobName.includes(term.substring(1));
-            }
-            return lowerJobName.includes(term);
-          });
-
-          // For Pull Request: check if runsOn includes 'pull_request'
-          // For CI (push): check if runsOn includes 'push' or 'schedule'
-          const runsOnExpectedEvent = isPullRequest
-            ? job.runsOn.includes('pull_request')
-            : job.runsOn.includes('push') || job.runsOn.includes('schedule');
-
-          return matchesSearchTerms && runsOnExpectedEvent;
-        });
-      });
-    }
-
-    return {
-      is_implemented: !!workflow,
-      info_url: workflow
-        ? `${repo.url}/actions/${workflow.path.replace('.github/', '')}`
-        : '',
-    };
-  }
 
   /**
    * Create a security tool record from a tool definition
@@ -144,7 +101,7 @@ export class DataIngestionService {
 
     // Handle workflow-based tools
     if (toolDef.useWorkflowImplementation && toolDef.workflowSearchTerms) {
-      const workflowDetail = this.getWorkflowImplementationDetail(
+      const workflowDetail = this.workflowMatcher.getWorkflowImplementationDetail(
         repo,
         toolDef.isPullRequest ?? false,
         toolDef.workflowSearchTerms,
