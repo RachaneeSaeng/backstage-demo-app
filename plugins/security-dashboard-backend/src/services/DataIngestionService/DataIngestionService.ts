@@ -87,7 +87,7 @@ export class DataIngestionService {
       repository_url: repo.url,
       tool_category: toolDef.category,
       tool_name: toolDef.name,
-      is_implemented: this.getDirectImplementationStatus(repo, toolDef),
+      is_implemented: false,
       is_required: toolDef.isRequired(repo.languages),
     };
 
@@ -95,6 +95,7 @@ export class DataIngestionService {
     if (toolDef.infoUrl) {
       return {
         ...baseRecord,
+        is_implemented: this.getDirectImplementationStatus(repo, toolDef),
         info_url: toolDef.infoUrl(repo.url),
       };
     }

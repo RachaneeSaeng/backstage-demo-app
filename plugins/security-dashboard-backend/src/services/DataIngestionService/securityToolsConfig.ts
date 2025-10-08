@@ -1,4 +1,4 @@
-import { VERACODE_SUPPORTED_LANGUAGES, TRIVY_REQUIRED_LANGUAGES } from './constants';
+import { DEPENDABOT_SUPPORTED_LANGUAGES, VERACODE_SUPPORTED_LANGUAGES, TRIVY_REQUIRED_LANGUAGES } from './constants';
 
 /**
  * Security tool definition interface
@@ -36,7 +36,10 @@ export const SECURITY_TOOLS_CONFIG: SecurityToolDefinition[] = [
   {
     category: 'Pull Request',
     name: 'Dependabot Dependency Review',
-    isRequired: () => true,
+    isRequired: (languages: string[]) =>
+      languages.some(lang =>
+        DEPENDABOT_SUPPORTED_LANGUAGES.includes(lang as any),
+      ),
     isPullRequest: true,
     useWorkflowImplementation: true,
     workflowSearchTerms: ['dependency review'],
