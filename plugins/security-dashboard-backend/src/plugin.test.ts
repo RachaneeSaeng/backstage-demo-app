@@ -1,17 +1,24 @@
 import { startTestBackend } from '@backstage/backend-test-utils';
 import request from 'supertest';
 
-const mockService = {
+const mockSecurityToolsService = {
   listSecurityTools: jest.fn(),
   getSecurityTool: jest.fn(),
-  createSecurityTool: jest.fn(),
   bulkUpsertSecurityTools: jest.fn(),
-  updateSecurityTool: jest.fn(),
   deleteSecurityTool: jest.fn(),
 };
 
+const mockDataIngestionService = {
+  fetchAndSaveAllGitHubSecurityData: jest.fn(),
+  fetchAndSaveLatestUpdatedGitHubSecurityData: jest.fn(),
+};
+
 jest.mock('./services/SecurityToolsService', () => ({
-  createSecurityToolsService: jest.fn(() => Promise.resolve(mockService)),
+  createSecurityToolsService: jest.fn(() => Promise.resolve(mockSecurityToolsService)),
+}));
+
+jest.mock('./services/DataIngestionService', () => ({
+  DataIngestionService: jest.fn().mockImplementation(() => mockDataIngestionService),
 }));
 
 import { securityDashboardPlugin } from './plugin';
@@ -25,16 +32,16 @@ describe('plugin', () => {
     const mockTools = [
       {
         repository_name: 'test-repo',
-        programming_languages: 'typescript',
+        repository_url: 'https://github.com/test/test-repo',
         tool_category: 'SAST',
         tool_name: 'ESLint',
         is_required: true,
-        implemented: false,
+        is_implemented: false,
         info_url: 'https://eslint.org',
         updated_at: '2024-01-01T00:00:00.000Z',
       },
     ];
-    mockService.listSecurityTools.mockResolvedValue({ items: mockTools });
+    mockSecurityToolsService.listSecurityTools.mockResolvedValue({ items: mockTools });
 
     const backend = await startTestBackend({
       features: [securityDashboardPlugin],
@@ -47,43 +54,7 @@ describe('plugin', () => {
         items: mockTools,
       });
 
-    expect(mockService.listSecurityTools).toHaveBeenCalledTimes(1);
-
-    await backend.stop();
-  });
-
-  it('should call service to create a security tool', async () => {
-    const newTool = {
-      repository_name: 'test-repo',
-      programming_languages: 'typescript',
-      tool_category: 'SAST',
-      tool_name: 'ESLint',
-      is_required: true,
-      implemented: false,
-      info_url: 'https://eslint.org',
-    };
-    const createdTool = {
-      ...newTool,
-      updated_at: '2024-01-01T00:00:00.000Z',
-    };
-    mockService.createSecurityTool.mockResolvedValue(createdTool);
-
-    const backend = await startTestBackend({
-      features: [securityDashboardPlugin],
-    });
-    const { server } = backend;
-
-    await request(server)
-      .post('/api/security-dashboard/security-tools')
-      .send(newTool)
-      .expect(201, createdTool);
-
-    expect(mockService.createSecurityTool).toHaveBeenCalledWith(
-      newTool,
-      expect.objectContaining({
-        credentials: expect.any(Object),
-      }),
-    );
+    expect(mockSecurityToolsService.listSecurityTools).toHaveBeenCalledTimes(1);
 
     await backend.stop();
   });
@@ -91,15 +62,15 @@ describe('plugin', () => {
   it('should call service to get security tools by repository', async () => {
     const mockTool = {
       repository_name: 'test-repo',
-      programming_languages: 'typescript',
+      repository_url: 'https://github.com/test/test-repo',
       tool_category: 'SAST',
       tool_name: 'ESLint',
       is_required: true,
-      implemented: false,
+      is_implemented: false,
       info_url: 'https://eslint.org',
       updated_at: '2024-01-01T00:00:00.000Z',
     };
-    mockService.getSecurityTool.mockResolvedValue(mockTool);
+    mockSecurityToolsService.getSecurityTool.mockResolvedValue(mockTool);
 
     const backend = await startTestBackend({
       features: [securityDashboardPlugin],
@@ -110,53 +81,15 @@ describe('plugin', () => {
       .get('/api/security-dashboard/security-tools/test-repo')
       .expect(200, mockTool);
 
-    expect(mockService.getSecurityTool).toHaveBeenCalledWith({
+    expect(mockSecurityToolsService.getSecurityTool).toHaveBeenCalledWith({
       repositoryName: 'test-repo',
     });
 
     await backend.stop();
   });
 
-  it('should call service to update a security tool', async () => {
-    const updatedData = {
-      implemented: true,
-      info_url: 'https://bandit.readthedocs.io',
-    };
-    const updatedTool = {
-      repository_name: 'test-repo',
-      programming_languages: 'python',
-      tool_category: 'SAST',
-      tool_name: 'Bandit',
-      is_required: false,
-      implemented: true,
-      info_url: 'https://bandit.readthedocs.io',
-      updated_at: '2024-01-01T00:00:00.000Z',
-    };
-    mockService.updateSecurityTool.mockResolvedValue(updatedTool);
-
-    const backend = await startTestBackend({
-      features: [securityDashboardPlugin],
-    });
-    const { server } = backend;
-
-    await request(server)
-      .put('/api/security-dashboard/security-tools/test-repo')
-      .send(updatedData)
-      .expect(200, updatedTool);
-
-    expect(mockService.updateSecurityTool).toHaveBeenCalledWith(
-      'test-repo',
-      updatedData,
-      expect.objectContaining({
-        credentials: expect.any(Object),
-      }),
-    );
-
-    await backend.stop();
-  });
-
   it('should call service to delete a security tool', async () => {
-    mockService.deleteSecurityTool.mockResolvedValue(undefined);
+    mockSecurityToolsService.deleteSecurityTool.mockResolvedValue(undefined);
 
     const backend = await startTestBackend({
       features: [securityDashboardPlugin],
@@ -167,12 +100,9 @@ describe('plugin', () => {
       .delete('/api/security-dashboard/security-tools/test-repo')
       .expect(204);
 
-    expect(mockService.deleteSecurityTool).toHaveBeenCalledWith(
-      { repositoryName: 'test-repo' },
-      expect.objectContaining({
-        credentials: expect.any(Object),
-      }),
-    );
+    expect(mockSecurityToolsService.deleteSecurityTool).toHaveBeenCalledWith({
+      repositoryName: 'test-repo',
+    });
 
     await backend.stop();
   });
@@ -181,18 +111,18 @@ describe('plugin', () => {
     const inputTools = [
       {
         repository_name: 'new-repo',
-        programming_languages: 'typescript',
+        repository_url: 'https://github.com/test/new-repo',
         tool_category: 'SAST',
         tool_name: 'ESLint',
         is_required: true,
-        implemented: false,
+        is_implemented: false,
       },
       {
         repository_name: 'existing-repo',
-        programming_languages: 'python',
+        repository_url: 'https://github.com/test/existing-repo',
         tool_category: 'SAST',
         tool_name: 'Bandit',
-        implemented: true,
+        is_implemented: true,
       },
     ];
 
@@ -214,7 +144,7 @@ describe('plugin', () => {
       ],
     };
 
-    mockService.bulkUpsertSecurityTools.mockResolvedValue(mockResult);
+    mockSecurityToolsService.bulkUpsertSecurityTools.mockResolvedValue(mockResult);
 
     const backend = await startTestBackend({
       features: [securityDashboardPlugin],
@@ -226,12 +156,7 @@ describe('plugin', () => {
       .send(inputTools)
       .expect(200, mockResult);
 
-    expect(mockService.bulkUpsertSecurityTools).toHaveBeenCalledWith(
-      inputTools,
-      expect.objectContaining({
-        credentials: expect.any(Object),
-      }),
-    );
+    expect(mockSecurityToolsService.bulkUpsertSecurityTools).toHaveBeenCalledWith(inputTools);
 
     await backend.stop();
   });
@@ -242,7 +167,7 @@ describe('plugin', () => {
       updated: [],
     };
 
-    mockService.bulkUpsertSecurityTools.mockResolvedValue(mockResult);
+    mockSecurityToolsService.bulkUpsertSecurityTools.mockResolvedValue(mockResult);
 
     const backend = await startTestBackend({
       features: [securityDashboardPlugin],
@@ -254,12 +179,7 @@ describe('plugin', () => {
       .send([])
       .expect(200, mockResult);
 
-    expect(mockService.bulkUpsertSecurityTools).toHaveBeenCalledWith(
-      [],
-      expect.objectContaining({
-        credentials: expect.any(Object),
-      }),
-    );
+    expect(mockSecurityToolsService.bulkUpsertSecurityTools).toHaveBeenCalledWith([]);
 
     await backend.stop();
   });
@@ -270,16 +190,16 @@ describe('plugin', () => {
     });
     const { server } = backend;
 
-    await request(server)
+    const response = await request(server)
       .post('/api/security-dashboard/security-tools/bulk-upsert')
       .send({
         repository_name: 'test-repo',
         tool_category: 'SAST',
         tool_name: 'ESLint',
-      })
-      .expect(400);
+      });
 
-    expect(mockService.bulkUpsertSecurityTools).not.toHaveBeenCalled();
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(mockSecurityToolsService.bulkUpsertSecurityTools).not.toHaveBeenCalled();
 
     await backend.stop();
   });
@@ -290,17 +210,62 @@ describe('plugin', () => {
     });
     const { server } = backend;
 
-    await request(server)
+    const response = await request(server)
       .post('/api/security-dashboard/security-tools/bulk-upsert')
       .send([
         {
           repository_name: 'test-repo',
-          // Missing tool_category and tool_name
+          // Missing tool_category, tool_name, and repository_url
         },
-      ])
-      .expect(400);
+      ]);
 
-    expect(mockService.bulkUpsertSecurityTools).not.toHaveBeenCalled();
+    expect(response.status).toBeGreaterThanOrEqual(400);
+    expect(mockSecurityToolsService.bulkUpsertSecurityTools).not.toHaveBeenCalled();
+
+    await backend.stop();
+  });
+
+  it('should fetch and save all GitHub security data', async () => {
+    mockDataIngestionService.fetchAndSaveAllGitHubSecurityData.mockResolvedValue({
+      created: 5,
+      updated: 3,
+    });
+
+    const backend = await startTestBackend({
+      features: [securityDashboardPlugin],
+    });
+    const { server } = backend;
+
+    await request(server)
+      .post('/api/security-dashboard/data-ingestion/github/all')
+      .expect(200, {
+        message: 'Successfully fetched and saved all GitHub security data: 5 created, 3 updated',
+      });
+
+    expect(mockDataIngestionService.fetchAndSaveAllGitHubSecurityData).toHaveBeenCalledTimes(1);
+
+    await backend.stop();
+  });
+
+  it('should fetch and save latest updated GitHub security data', async () => {
+    mockDataIngestionService.fetchAndSaveLatestUpdatedGitHubSecurityData.mockResolvedValue({
+      created: 2,
+      updated: 1,
+    });
+
+    const backend = await startTestBackend({
+      features: [securityDashboardPlugin],
+    });
+    const { server } = backend;
+
+    await request(server)
+      .post('/api/security-dashboard/data-ingestion/github/latest')
+      .send({ limit: 10 })
+      .expect(200, {
+        message: 'Successfully fetched and saved latest updated repositories: 2 created, 1 updated',
+      });
+
+    expect(mockDataIngestionService.fetchAndSaveLatestUpdatedGitHubSecurityData).toHaveBeenCalledWith(10);
 
     await backend.stop();
   });

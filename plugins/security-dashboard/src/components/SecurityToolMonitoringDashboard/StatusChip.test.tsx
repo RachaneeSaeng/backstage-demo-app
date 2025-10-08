@@ -10,10 +10,13 @@ describe('StatusChip', () => {
       link: 'https://example.com/scan',
     };
 
-    render(<StatusChip status={status} />);
+    const { container } = render(<StatusChip status={status} />);
 
-    expect(screen.getByText('View latest scan result')).toBeInTheDocument();
-    expect(screen.getByText('Pending Tickets')).toBeInTheDocument();
+    const chip = container.querySelector('.MuiChip-root');
+    expect(chip).toBeInTheDocument();
+    // Check that the chip has the critical chip class (dynamically generated)
+    const chipClasses = chip?.className || '';
+    expect(chipClasses).toMatch(/makeStyles-criticalChip-/);
   });
 
   it('should render high-risk status chip', () => {
@@ -23,10 +26,13 @@ describe('StatusChip', () => {
       link: 'https://example.com/scan',
     };
 
-    render(<StatusChip status={status} />);
+    const { container } = render(<StatusChip status={status} />);
 
-    expect(screen.getByText('View latest scan result')).toBeInTheDocument();
-    expect(screen.getByText('Pending Tickets')).toBeInTheDocument();
+    const chip = container.querySelector('.MuiChip-root');
+    expect(chip).toBeInTheDocument();
+    // Check that the chip has the high chip class (dynamically generated)
+    const chipClasses = chip?.className || '';
+    expect(chipClasses).toMatch(/makeStyles-highChip-/);
   });
 
   it('should render medium-risk status chip', () => {
@@ -36,10 +42,13 @@ describe('StatusChip', () => {
       link: 'https://example.com/scan',
     };
 
-    render(<StatusChip status={status} />);
+    const { container } = render(<StatusChip status={status} />);
 
-    expect(screen.getByText('View latest scan result')).toBeInTheDocument();
-    expect(screen.getByText('Pending Tickets')).toBeInTheDocument();
+    const chip = container.querySelector('.MuiChip-root');
+    expect(chip).toBeInTheDocument();
+    // Check that the chip has the medium chip class (dynamically generated)
+    const chipClasses = chip?.className || '';
+    expect(chipClasses).toMatch(/makeStyles-mediumChip-/);
   });
 
   it('should render low-risk status chip', () => {
@@ -49,10 +58,13 @@ describe('StatusChip', () => {
       link: 'https://example.com/scan',
     };
 
-    render(<StatusChip status={status} />);
+    const { container } = render(<StatusChip status={status} />);
 
-    expect(screen.getByText('View latest scan result')).toBeInTheDocument();
-    expect(screen.getByText('Pending Tickets')).toBeInTheDocument();
+    const chip = container.querySelector('.MuiChip-root');
+    expect(chip).toBeInTheDocument();
+    // Check that the chip has the low chip class (dynamically generated)
+    const chipClasses = chip?.className || '';
+    expect(chipClasses).toMatch(/makeStyles-lowChip-/);
   });
 
   it('should render none status chip', () => {
@@ -61,10 +73,13 @@ describe('StatusChip', () => {
       text: 'n/a',
     };
 
-    render(<StatusChip status={status} />);
+    const { container } = render(<StatusChip status={status} />);
 
-    expect(screen.getByText('View latest scan result')).toBeInTheDocument();
-    expect(screen.getByText('Pending Tickets')).toBeInTheDocument();
+    const chip = container.querySelector('.MuiChip-root');
+    expect(chip).toBeInTheDocument();
+    // Check that the chip has the none chip class (dynamically generated)
+    const chipClasses = chip?.className || '';
+    expect(chipClasses).toMatch(/makeStyles-noneChip-/);
   });
 
   it('should render links with correct href', () => {
@@ -76,10 +91,9 @@ describe('StatusChip', () => {
 
     render(<StatusChip status={status} />);
 
-    const links = screen.getAllByRole('link');
-    expect(links).toHaveLength(2);
-    expect(links[0]).toHaveAttribute('href', 'https://example.com/test-link');
-    expect(links[1]).toHaveAttribute('href', 'https://example.com/test-link');
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', 'https://example.com/test-link');
+    expect(link).toHaveAttribute('target', '_blank');
   });
 
   it('should render chip with small size', () => {

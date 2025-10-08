@@ -5,7 +5,9 @@ import { screen } from '@testing-library/react';
 import {
   registerMswTestHooks,
   renderInTestApp,
+  TestApiProvider,
 } from '@backstage/test-utils';
+import { securityDashboardApiRef } from '../../api';
 
 describe('ExampleComponent', () => {
   const server = setupServer();
@@ -20,9 +22,29 @@ describe('ExampleComponent', () => {
   });
 
   it('should render', async () => {
-    await renderInTestApp(<SecurityToolMonitoringDashboard />);
+    const mockApi = {
+      listSecurityTools: jest.fn().mockResolvedValue({
+        items: [
+          {
+            repository: 'test-repo',
+            tools: {
+              dependabot: { status: 'none' },
+              secretScanning: { status: 'none' },
+              codescanning: { status: 'none' },
+            },
+          },
+        ],
+      }),
+    };
+
+    const rendered = await renderInTestApp(
+      <TestApiProvider apis={[[securityDashboardApiRef, mockApi]]}>
+        <SecurityToolMonitoringDashboard />
+      </TestApiProvider>,
+    );
+
     expect(
-      screen.getByText('Security Tools Monitoring Dashboard'),
+      await rendered.findByText('Security Tools Monitoring Dashboard'),
     ).toBeInTheDocument();
   });
 });
