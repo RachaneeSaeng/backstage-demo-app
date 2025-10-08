@@ -285,7 +285,7 @@ export class GitHubSecurityService {
     repo: string,
   ): Promise<GitHubWorkflow[]> {
     try {
-      const { data } = await octokit.request('GET /repos/{owner}/{repo}/actions/workflows?per_page=50', {
+      const { data } = await octokit.request('GET /repos/{owner}/{repo}/actions/workflows?per_page=100', {
         owner: org,
         repo: repo,
       });
