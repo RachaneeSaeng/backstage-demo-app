@@ -37,7 +37,7 @@ export const securityDashboardPlugin = createBackendPlugin({
           securityToolsService,
           {
             org: 'RachaneeSaeng',
-            excludeRepositoriesPattern: 'Comm*',
+            excludeRepositoriesPatterns: ['Comm*', 'BCS*', "Autobots*"],
             limitLatestRecords: 30,
           },
         );

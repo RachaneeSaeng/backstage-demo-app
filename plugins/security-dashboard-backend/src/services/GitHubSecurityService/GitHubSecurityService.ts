@@ -113,10 +113,10 @@ export class GitHubSecurityService {
     octokit: Octokit,
     org: string,
   ): Promise<RepositorySecurityInfo[]> {
-    const { excludePattern } = filters;
+    const { excludePatterns } = filters;
 
-    const filteredRepos = excludePattern
-      ? repositories.filter(repo => !minimatch(repo.name, excludePattern))
+    const filteredRepos = excludePatterns
+      ? repositories.filter(repo => !excludePatterns.some(pattern => minimatch(repo.name, pattern)))
       : repositories;
 
     this.logger.info(

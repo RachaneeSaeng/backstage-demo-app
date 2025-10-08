@@ -10,7 +10,7 @@ import { WorkflowMatcher } from './WorkflowMatcher';
 
 export interface DataIngestionOptions {
   org: string;
-  excludeRepositoriesPattern: string;
+  excludeRepositoriesPatterns: string[];
   limitLatestRecords: number;
 }
 
@@ -21,7 +21,7 @@ export class DataIngestionService {
   private readonly githubService: GitHubSecurityService;
   private readonly workflowMatcher: WorkflowMatcher;
   private readonly org: string;
-  private readonly excludeRepositoriesPattern: string;
+  private readonly excludeRepositoriesPatterns: string[];
   private readonly limitLatestRecords: number;
 
   constructor(
@@ -33,7 +33,7 @@ export class DataIngestionService {
     this.githubService = new GitHubSecurityService(config, logger);
     this.workflowMatcher = new WorkflowMatcher();
     this.org = options.org;
-    this.excludeRepositoriesPattern = options.excludeRepositoriesPattern;
+    this.excludeRepositoriesPatterns = options.excludeRepositoriesPatterns;
     this.limitLatestRecords = options.limitLatestRecords;
   }
 
@@ -44,7 +44,7 @@ export class DataIngestionService {
     const repositories =
       await this.githubService.getAllRepositoriesWithSecurityInfo({
         org: this.org,
-        excludePattern: this.excludeRepositoriesPattern,
+        excludePatterns: this.excludeRepositoriesPatterns,
       });
 
     this.logger.info(
@@ -62,7 +62,7 @@ export class DataIngestionService {
       await this.githubService.getLatestUpdatedRepositoriesWithSecurityInfo(
         {
           org: this.org,
-          excludePattern: this.excludeRepositoriesPattern,
+          excludePatterns: this.excludeRepositoriesPatterns,
         },
         limit,
       );

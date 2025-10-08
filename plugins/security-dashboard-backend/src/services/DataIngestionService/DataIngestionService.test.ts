@@ -36,7 +36,7 @@ describe('DataIngestionService', () => {
 
     service = new DataIngestionService(config, logger, mockSecurityToolsService, {
       org: 'ORG',
-      excludeRepositoriesPattern: 'ABC*',
+      excludeRepositoriesPatterns: ['ABC*'],
       limitLatestRecords: 30,
     });
   });
@@ -73,7 +73,7 @@ describe('DataIngestionService', () => {
       expect(result).toEqual({ created: 1, updated: 1 });
       expect(mockGitHubService.getAllRepositoriesWithSecurityInfo).toHaveBeenCalledWith({
         org: 'ORG',
-        excludePattern: 'ABC*',
+        excludePatterns: ['ABC*'],
       });
       expect(mockSecurityToolsService.bulkUpsertSecurityTools).toHaveBeenCalled();
       expect(logger.info).toHaveBeenCalledWith(
@@ -171,7 +171,7 @@ describe('DataIngestionService', () => {
       expect(mockGitHubService.getLatestUpdatedRepositoriesWithSecurityInfo).toHaveBeenCalledWith(
         {
           org: 'ORG',
-          excludePattern: 'ABC*',
+          excludePatterns: ['ABC*'],
         },
         30,
       );

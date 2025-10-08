@@ -156,7 +156,7 @@ describe('GitHubSecurityService', () => {
 
       const result = await service.getAllRepositoriesWithSecurityInfo({
         org: 'test-org',
-        excludePattern: 'exclude-*',
+        excludePatterns: ['exclude-*'],
       });
 
       expect(result).toHaveLength(1);

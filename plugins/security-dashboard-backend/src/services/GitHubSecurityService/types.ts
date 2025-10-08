@@ -30,7 +30,7 @@ export type RepositorySecurityInfo = {
 export type RepositoryFilters = {
   org: string;
   includeArchived?: boolean;
-  excludePattern?: string;
+  excludePatterns?: string[];
 };
 
 /**
