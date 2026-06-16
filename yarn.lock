@@ -2254,19 +2254,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/cli-common@npm:^0.1.15":
-  version: 0.1.17
-  resolution: "@backstage/cli-common@npm:0.1.17"
-  dependencies:
-    "@backstage/errors": "npm:^1.2.7"
-    cross-spawn: "npm:^7.0.3"
-    global-agent: "npm:^3.0.0"
-    undici: "npm:^7.2.3"
-  checksum: 10c0/85dc7c7ecfbd1dc47f83b6a320a09c83773f9a6357b4186bbf53541f1f58db6dc576ed7de84c1285e38fdbe9c02851b63f48dd4474845f36fe3f33dc4ecb28e9
-  languageName: node
-  linkType: hard
-
-"@backstage/cli-common@npm:^0.1.16":
+"@backstage/cli-common@npm:^0.1.15, @backstage/cli-common@npm:^0.1.16":
   version: 0.1.17
   resolution: "@backstage/cli-common@npm:0.1.17"
   dependencies:
@@ -15129,7 +15117,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"acorn@npm:^8.1.0, acorn@npm:^8.11.0, acorn@npm:^8.14.1, acorn@npm:^8.15.0, acorn@npm:^8.4.1, acorn@npm:^8.8.1, acorn@npm:^8.9.0":
+"acorn@npm:^8.1.0, acorn@npm:^8.11.0, acorn@npm:^8.15.0, acorn@npm:^8.4.1, acorn@npm:^8.8.1, acorn@npm:^8.9.0":
   version: 8.15.0
   resolution: "acorn@npm:8.15.0"
   bin:
@@ -33543,14 +33531,14 @@ __metadata:
   linkType: hard
 
 "vm2@npm:^3.10.0":
-  version: 3.10.2
-  resolution: "vm2@npm:3.10.2"
+  version: 3.11.5
+  resolution: "vm2@npm:3.11.5"
   dependencies:
-    acorn: "npm:^8.14.1"
+    acorn: "npm:^8.15.0"
     acorn-walk: "npm:^8.3.4"
   bin:
     vm2: bin/vm2
-  checksum: 10c0/28ba477050c0c3ab717c3b0c4940c91d8e58d0badebb58073ff250ea053c545bab97c70f9d892bc52dd871c58e7197a055827f5414be3c54e7b5f14dacb0624e
+  checksum: 10c0/0917795f8cfb9e0e4bcbb431d44546eda492165143885d448a6585c862a57e0dedb36fc0922fbe3b386a8cec5ef8c46256ef38e00749eaa53fec7b442be0a390
   languageName: node
   linkType: hard
 
